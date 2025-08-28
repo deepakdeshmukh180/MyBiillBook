@@ -1,0 +1,1349 @@
+<!DOCTYPE html>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<html>
+   <head>
+      <meta charset="UTF-8">
+      <title>
+         <c:out value="${invoiceNo}" />
+
+         <c:out
+            value="${profile.custName}" />
+      </title>
+      <meta
+         content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no'
+         name='viewport'>
+      <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
+      <link
+         href="${pageContext.request.contextPath}/resources/css/bootstrap.min.css"
+         rel="stylesheet" type="text/css" />
+      <!-- font Awesome -->
+      <link
+         href="${pageContext.request.contextPath}/resources/css/font-awesome.min.css"
+         rel="stylesheet" type="text/css" />
+      <!-- Ionicons -->
+      <link
+         href="${pageContext.request.contextPath}/resources/css/ionicons.min.css"
+         rel="stylesheet" type="text/css" />
+      <!-- Theme style -->
+      <link
+         href="${pageContext.request.contextPath}/resources/css/AdminLTE.css"
+         rel="stylesheet" type="text/css" />
+
+      <style type="text/css">
+            p {    text-align: center;
+                   margin-top: -2%;
+                   margin-bottom: 0%;}
+               .parent {
+               width: 200px; /* I took the width from your post and placed it in css */
+               height: 200px;
+               }
+               /* This will style any <img> element in .parent div */
+               .parent img {
+               height: 90%;
+               width: 90%;
+               }
+                thead {
+                                  background-color: lightsteelblue;
+                                 }
+               body{margin-top:20px;
+               background:#eee;
+               }
+               .label.arrowed-in-right,
+               .label.arrowed-right {
+                   margin-right: 5px
+               }
+
+               .label.arrowed,
+               .label.arrowed-in {
+                   margin-left: 5px
+               }
+
+               label.arrowed,
+               .label.arrowed-in {
+                   position: relative;
+                   z-index: 1
+               }
+
+               .label.arrowed-in:before,
+               .label.arrowed:before {
+                   display: inline-block;
+                   content: "";
+                   position: absolute;
+                   top: 0;
+                   z-index: -1;
+                   border: 1px solid transparent;
+                   border-right-color: #ABBAC3
+               }
+
+               .label.arrowed-in:before {
+                   border-color: #ABBAC3 #ABBAC3 #ABBAC3 transparent
+               }
+
+               .label.arrowed-in-right,
+               .label.arrowed-right {
+                   position: relative;
+                   z-index: 1
+               }
+
+               .label.arrowed-in-right:after,
+               .label.arrowed-right:after {
+                   display: inline-block;
+                   content: "";
+                   position: absolute;
+                   top: 0;
+                   z-index: -1;
+                   border: 1px solid transparent;
+                   border-left-color: #ABBAC3
+               }
+
+               label.arrowed,
+               .label.arrowed-in {
+                   position: relative;
+                   z-index: 1
+               }
+
+               .label.arrowed-in:before,
+               .label.arrowed:before {
+                   display: inline-block;
+                   content: "";
+                   position: absolute;
+                   top: 0;
+                   z-index: -1;
+                   border: 1px solid transparent;
+                   border-right-color: #ABBAC3
+               }
+
+               .label.arrowed-in:before {
+                   border-color: #ABBAC3 #ABBAC3 #ABBAC3 transparent
+               }
+
+               .label.arrowed-in-right,
+               .label.arrowed-right {
+                   position: relative;
+                   z-index: 1
+               }
+
+               .label.arrowed-in-right:after,
+               .label.arrowed-right:after {
+                   display: inline-block;
+                   content: "";
+                   position: absolute;
+                   top: 0;
+                   z-index: -1;
+                   border: 1px solid transparent;
+                   border-left-color: #ABBAC3
+               }
+
+               .label.arrowed-in-right:after {
+                   border-color: #ABBAC3 transparent #ABBAC3 #ABBAC3
+               }
+
+               .label-info.arrowed:before {
+                   border-right-color: #3A87AD
+               }
+
+               .label-info.arrowed-in:before {
+                   border-color: #3A87AD #3A87AD #3A87AD transparent
+               }
+
+               .label-info.arrowed-right:after {
+                   border-left-color: #3A87AD
+               }
+
+               .label-info.arrowed-in-right:after {
+                   border-color: #3A87AD transparent #3A87AD #3A87AD
+               }
+
+               .label-primary.arrowed:before {
+                   border-right-color: #428BCA
+               }
+
+               .label-primary.arrowed-in:before {
+                   border-color: #428BCA #428BCA #428BCA transparent
+               }
+
+               .label-primary.arrowed-right:after {
+                   border-left-color: #428BCA
+               }
+
+               .label-primary.arrowed-in-right:after {
+                   border-color: #428BCA transparent #428BCA #428BCA
+               }
+
+               .label-success.arrowed:before {
+                   border-right-color: #82AF6F
+               }
+
+               .label-success.arrowed-in:before {
+                   border-color: #82AF6F #82AF6F #82AF6F transparent
+               }
+
+               .label-success.arrowed-right:after {
+                   border-left-color: #82AF6F
+               }
+
+               .label-success.arrowed-in-right:after {
+                   border-color: #82AF6F transparent #82AF6F #82AF6F
+               }
+
+               .label-warning.arrowed:before {
+                   border-right-color: #F89406
+               }
+
+               .label-danger.arrowed:before,
+               .label-important.arrowed:before {
+                   border-right-color: #D15B47
+               }
+
+               .label-warning.arrowed-in:before {
+                   border-color: #F89406 #F89406 #F89406 transparent
+               }
+
+               .label-warning.arrowed-right:after {
+                   border-left-color: #F89406
+               }
+
+               .label-danger.arrowed-right:after,
+               .label-important.arrowed-right:after {
+                   border-left-color: #D15B47
+               }
+
+               .label-warning.arrowed-in-right:after {
+                   border-color: #F89406 transparent #F89406 #F89406
+               }
+
+               .label-important.arrowed-in:before {
+                   border-color: #D15B47 #D15B47 #D15B47 transparent
+               }
+
+               .label-important.arrowed-in-right:after {
+                   border-color: #D15B47 transparent #D15B47 #D15B47
+               }
+
+               .label-danger.arrowed-in:before {
+                   border-color: #D15B47 #D15B47 #D15B47 transparent
+               }
+
+               .label-danger.arrowed-in-right:after {
+                   border-color: #D15B47 transparent #D15B47 #D15B47
+               }
+
+               .label-inverse.arrowed:before {
+                   border-right-color: #333
+               }
+
+               .label-inverse.arrowed-in:before {
+                   border-color: #333 #333 #333 transparent
+               }
+
+               .label-inverse.arrowed-right:after {
+                   border-left-color: #333
+               }
+
+               .label-inverse.arrowed-in-right:after {
+                   border-color: #333 transparent #333 #333
+               }
+
+               .label-pink.arrowed:before {
+                   border-right-color: #D6487E
+               }
+
+               .label-pink.arrowed-in:before {
+                   border-color: #D6487E #D6487E #D6487E transparent
+               }
+
+               .label-pink.arrowed-right:after {
+                   border-left-color: #D6487E
+               }
+
+               .label-pink.arrowed-in-right:after {
+                   border-color: #D6487E transparent #D6487E #D6487E
+               }
+
+               .label-purple.arrowed:before {
+                   border-right-color: #9585BF
+               }
+
+               .label-purple.arrowed-in:before {
+                   border-color: #9585BF #9585BF #9585BF transparent
+               }
+
+               .label-purple.arrowed-right:after {
+                   border-left-color: #9585BF
+               }
+
+               .label-purple.arrowed-in-right:after {
+                   border-color: #9585BF transparent #9585BF #9585BF
+               }
+
+               .label-yellow.arrowed:before {
+                   border-right-color: #FEE188
+               }
+
+               .label-yellow.arrowed-in:before {
+                   border-color: #FEE188 #FEE188 #FEE188 transparent
+               }
+
+               .label-yellow.arrowed-right:after {
+                   border-left-color: #FEE188
+               }
+
+               .label-yellow.arrowed-in-right:after {
+                   border-color: #FEE188 transparent #FEE188 #FEE188
+               }
+
+               .label-light.arrowed:before {
+                   border-right-color: #E7E7E7
+               }
+
+               .label-light.arrowed-in:before {
+                   border-color: #E7E7E7 #E7E7E7 #E7E7E7 transparent
+               }
+
+               .label-light.arrowed-right:after {
+                   border-left-color: #E7E7E7
+               }
+
+               .label-light.arrowed-in-right:after {
+                   border-color: #E7E7E7 transparent #E7E7E7 #E7E7E7
+               }
+
+               .label-grey.arrowed:before {
+                   border-right-color: #A0A0A0
+               }
+
+               .label-grey.arrowed-in:before {
+                   border-color: #A0A0A0 #A0A0A0 #A0A0A0 transparent
+               }
+
+               .label-grey.arrowed-right:after {
+                   border-left-color: #A0A0A0
+               }
+
+               .label-grey.arrowed-in-right:after {
+                   border-color: #A0A0A0 transparent #A0A0A0 #A0A0A0
+               }
+
+               .label {
+                   line-height: 1.15;
+                   height: 20px
+               }
+
+               .label.arrowed:before {
+                   left: -10px;
+                   border-width: 10px 5px
+               }
+
+               .label-lg.arrowed,
+               .label-lg.arrowed-in {
+                   margin-left: 6px
+               }
+
+               .label.arrowed-in:before {
+                   left: -5px;
+                   border-width: 10px 5px
+               }
+
+               .label.arrowed-right:after {
+                   right: -10px;
+                   border-width: 10px 5px
+               }
+
+               .label-lg.arrowed-in-right,
+               .label-lg.arrowed-right {
+                   margin-right: 6px
+               }
+
+               .label.arrowed-in-right:after {
+                   right: -5px;
+                   border-width: 10px 5px
+               }
+
+               .label-lg {
+                   padding: .3em .6em .4em;
+                   font-size: 13px;
+                   line-height: 1.1;
+                   height: 24px
+               }
+
+               .green {
+                   color: #69AA46!important;
+               }
+
+               .red {
+                   color: #DD5A43!important;
+               }
+
+               .hr-8, .hr8 {
+                   margin: 8px 0;
+               }
+               .hr-dotted, .hr.dotted {
+                   border-style: dotted;
+               }
+
+               .label-info.arrowed-in:before {
+                   border-color: #3A87AD #3A87AD #3A87AD transparent;
+               }
+
+               .hr-double {
+                   height: 3px;
+                   border-top: 1px solid #E3E3E3;
+                   border-bottom: 1px solid #E3E3E3;
+                   border-top-color: rgba(0,0,0,.11);
+                   border-bottom-color: rgba(0,0,0,.11);
+               }
+
+               .spaced>li {
+                   margin-top: 9px;
+                   margin-bottom: 9px;
+               }
+
+               .label-lg.arrowed:before {
+                   left: -12px;
+                   border-width: 12px 6px
+               }
+
+               .label-xlg.arrowed,
+               .label-xlg.arrowed-in {
+                   margin-left: 7px
+               }
+
+               .label-lg.arrowed-in:before {
+                   left: -6px;
+                   border-width: 12px 6px
+               }
+
+               .label-lg.arrowed-right:after {
+                   right: -12px;
+                   border-width: 12px 6px
+               }
+
+               .label-xlg.arrowed-in-right,
+               .label-xlg.arrowed-right {
+                   margin-right: 7px
+               }
+
+               .label-lg.arrowed-in-right:after {
+                   right: -6px;
+                   border-width: 12px 6px
+               }
+
+
+               .widget-box {
+                   padding: 0;
+                   box-shadow: none;
+                   margin: 3px 0;
+                   border: 1px solid #CCC
+               }
+
+               @media only screen and (max-width:767px) {
+                   .widget-box {
+                       margin-top: 7px;
+                       margin-bottom: 7px
+                   }
+               }
+
+               .widget-header {
+                   -webkit-box-sizing: content-box;
+                   -moz-box-sizing: content-box;
+                   box-sizing: content-box;
+                   position: relative;
+                   min-height: 38px;
+                   background: repeat-x #f7f7f7;
+                   background-image: -webkit-linear-gradient(top, #FFF 0, #EEE 100%);
+                   background-image: -o-linear-gradient(top, #FFF 0, #EEE 100%);
+                   background-image: linear-gradient(to bottom, #FFF 0, #EEE 100%);
+                   filter: progid: DXImageTransform.Microsoft.gradient(startColorstr='#ffffffff', endColorstr='#ffeeeeee', GradientType=0);
+                   color: #669FC7;
+                   border-bottom: 1px solid #DDD;
+                   padding-left: 12px
+               }
+
+               .widget-box.transparent>.widget-header,
+               .widget-header-flat {
+                   filter: progid: DXImageTransform.Microsoft.gradient(enabled=false)
+               }
+
+               .widget-header:after,
+               .widget-header:before {
+                   content: "";
+                   display: table;
+                   line-height: 0
+               }
+
+               .widget-header:after {
+                   clear: right
+               }
+
+               .widget-box.collapsed>.widget-header {
+                   border-bottom-width: 0
+               }
+
+               .collapsed.fullscreen>.widget-header {
+                   border-bottom-width: 1px
+               }
+
+               .collapsed>.widget-body {
+                   display: none
+               }
+
+               .widget-header-flat {
+                   background: #F7F7F7
+               }
+
+               .widget-header-large {
+                   min-height: 49px;
+                   padding-left: 18px
+               }
+
+               .widget-header-small {
+                   min-height: 31px;
+                   padding-left: 10px
+               }
+
+               .widget-header>.widget-title {
+                   line-height: 36px;
+                   padding: 0;
+                   margin: 0;
+                   display: inline
+               }
+
+               .widget-header>.widget-title>.ace-icon {
+                   margin-right: 5px;
+                   font-weight: 400;
+                   display: inline-block
+               }
+
+               .infobox .infobox-content:first-child,
+               .infobox>.badge,
+               .infobox>.stat,
+               .percentage {
+                   font-weight: 700
+               }
+
+               .widget-header-large>.widget-title {
+                   line-height: 48px
+               }
+
+               .widget-header-small>.widget-title {
+                   line-height: 30px
+               }
+
+               .widget-toolbar {
+                   display: inline-block;
+                   padding: 0 10px;
+                   line-height: 37px;
+                   float: right;
+                   position: relative
+               }
+
+               .widget-header-large>.widget-toolbar {
+                   line-height: 48px
+               }
+
+               .widget-header-small>.widget-toolbar {
+                   line-height: 29px
+               }
+
+               .widget-toolbar.no-padding {
+                   padding: 0
+               }
+
+               .widget-toolbar.padding-5 {
+                   padding: 0 5px
+               }
+
+               .widget-toolbar:before {
+                   display: inline-block;
+                   content: "";
+                   position: absolute;
+                   top: 3px;
+                   bottom: 3px;
+                   left: -1px;
+                   border: 1px solid #D9D9D9;
+                   border-width: 0 1px 0 0
+               }
+
+               .popover-notitle+.popover .popover-title,
+               .popover.popover-notitle .popover-title,
+               .widget-toolbar.no-border:before {
+                   display: none
+               }
+
+               .widget-header-large>.widget-toolbar:before {
+                   top: 6px;
+                   bottom: 6px
+               }
+
+               [class*=widget-color-]>.widget-header>.widget-toolbar:before {
+                   border-color: #EEE
+               }
+
+               .widget-color-orange>.widget-header>.widget-toolbar:before {
+                   border-color: #FEA
+               }
+
+               .widget-color-dark>.widget-header>.widget-toolbar:before {
+                   border-color: #222;
+                   box-shadow: -1px 0 0 rgba(255, 255, 255, .2), inset 1px 0 0 rgba(255, 255, 255, .1)
+               }
+
+               .widget-toolbar label {
+                   display: inline-block;
+                   vertical-align: middle;
+                   margin-bottom: 0
+               }
+
+               .widget-toolbar>.widget-menu>a,
+               .widget-toolbar>a {
+                   font-size: 14px;
+                   margin: 0 1px;
+                   display: inline-block;
+                   padding: 0;
+                   line-height: 24px
+               }
+
+               .widget-toolbar>.widget-menu>a:hover,
+               .widget-toolbar>a:hover {
+                   text-decoration: none
+               }
+
+               .widget-header-large>.widget-toolbar>.widget-menu>a,
+               .widget-header-large>.widget-toolbar>a {
+                   font-size: 15px;
+                   margin: 0 1px
+               }
+
+               .widget-toolbar>.btn {
+                   line-height: 27px;
+                   margin-top: -2px
+               }
+
+               .widget-toolbar>.btn.smaller {
+                   line-height: 26px
+               }
+
+               .widget-toolbar>.btn.bigger {
+                   line-height: 28px
+               }
+
+               .widget-toolbar>.btn-sm {
+                   line-height: 24px
+               }
+
+               .widget-toolbar>.btn-sm.smaller {
+                   line-height: 23px
+               }
+
+               .widget-toolbar>.btn-sm.bigger {
+                   line-height: 25px
+               }
+
+               .widget-toolbar>.btn-xs {
+                   line-height: 22px
+               }
+
+               .widget-toolbar>.btn-xs.smaller {
+                   line-height: 21px
+               }
+
+               .widget-toolbar>.btn-xs.bigger {
+                   line-height: 23px
+               }
+
+               .widget-toolbar>.btn-minier {
+                   line-height: 18px
+               }
+
+               .widget-toolbar>.btn-minier.smaller {
+                   line-height: 17px
+               }
+
+               .widget-toolbar>.btn-minier.bigger {
+                   line-height: 19px
+               }
+
+               .widget-toolbar>.btn-lg {
+                   line-height: 36px
+               }
+
+               .widget-toolbar>.btn-lg.smaller {
+                   line-height: 34px
+               }
+
+               .widget-toolbar>.btn-lg.bigger {
+                   line-height: 38px
+               }
+
+               .widget-toolbar-dark {
+                   background: #444
+               }
+
+               .widget-toolbar-light {
+                   background: rgba(255, 255, 255, .85)
+               }
+
+               .widget-toolbar>.widget-menu {
+                   display: inline-block;
+                   position: relative
+               }
+
+               .widget-toolbar>.widget-menu>a[data-action],
+               .widget-toolbar>a[data-action] {
+                   -webkit-transition: transform .1s;
+                   -o-transition: transform .1s;
+                   transition: transform .1s
+               }
+
+               .widget-toolbar>.widget-menu>a[data-action]>.ace-icon,
+               .widget-toolbar>a[data-action]>.ace-icon {
+                   margin-right: 0
+               }
+
+               .widget-toolbar>.widget-menu>a[data-action]:focus,
+               .widget-toolbar>a[data-action]:focus {
+                   text-decoration: none;
+                   outline: 0
+               }
+
+               .widget-toolbar>.widget-menu>a[data-action]:hover,
+               .widget-toolbar>a[data-action]:hover {
+                   -moz-transform: scale(1.2);
+                   -webkit-transform: scale(1.2);
+                   -o-transform: scale(1.2);
+                   -ms-transform: scale(1.2);
+                   transform: scale(1.2)
+               }
+
+               .widget-body {
+                   background-color: #FFF
+               }
+
+               .widget-main {
+                   padding: 12px
+               }
+
+               .widget-main.padding-32 {
+                   padding: 32px
+               }
+
+               .widget-main.padding-30 {
+                   padding: 30px
+               }
+
+               .widget-main.padding-28 {
+                   padding: 28px
+               }
+
+               .widget-main.padding-26 {
+                   padding: 26px
+               }
+
+               .widget-main.padding-24 {
+                   padding: 24px
+               }
+
+               .widget-main.padding-22 {
+                   padding: 22px
+               }
+
+               .widget-main.padding-20 {
+                   padding: 20px
+               }
+
+               .widget-main.padding-18 {
+                   padding: 18px
+               }
+
+               .widget-main.padding-16 {
+                   padding: 16px
+               }
+
+               .widget-main.padding-14 {
+                   padding: 14px
+               }
+
+               .widget-main.padding-12 {
+                   padding: 12px
+               }
+
+               .widget-main.padding-10 {
+                   padding: 10px
+               }
+
+               .widget-main.padding-8 {
+                   padding: 8px
+               }
+
+               .widget-main.padding-6 {
+                   padding: 6px
+               }
+
+               .widget-main.padding-4 {
+                   padding: 4px
+               }
+
+               .widget-main.padding-2 {
+                   padding: 2px
+               }
+
+               .widget-main.no-padding,
+               .widget-main.padding-0 {
+                   padding: 0
+               }
+
+               .widget-toolbar .progress {
+                   vertical-align: middle;
+                   display: inline-block;
+                   margin: 0
+               }
+
+               .widget-toolbar>.dropdown,
+               .widget-toolbar>.dropup {
+                   display: inline-block
+               }
+
+               .widget-toolbox.toolbox-vertical,
+               .widget-toolbox.toolbox-vertical+.widget-main {
+                   display: table-cell;
+                   vertical-align: top
+               }
+
+               .widget-box>.widget-header>.widget-toolbar>.widget-menu>[data-action=settings],
+               .widget-box>.widget-header>.widget-toolbar>[data-action=settings],
+               .widget-color-dark>.widget-header>.widget-toolbar>.widget-menu>[data-action=settings],
+               .widget-color-dark>.widget-header>.widget-toolbar>[data-action=settings] {
+                   color: #99CADB
+               }
+
+               .widget-box>.widget-header>.widget-toolbar>.widget-menu>[data-action=reload],
+               .widget-box>.widget-header>.widget-toolbar>[data-action=reload],
+               .widget-color-dark>.widget-header>.widget-toolbar>.widget-menu>[data-action=reload],
+               .widget-color-dark>.widget-header>.widget-toolbar>[data-action=reload] {
+                   color: #ACD392
+               }
+
+               .widget-box>.widget-header>.widget-toolbar>.widget-menu>[data-action=collapse],
+               .widget-box>.widget-header>.widget-toolbar>[data-action=collapse],
+               .widget-color-dark>.widget-header>.widget-toolbar>.widget-menu>[data-action=collapse],
+               .widget-color-dark>.widget-header>.widget-toolbar>[data-action=collapse] {
+                   color: #AAA
+               }
+
+               .widget-box>.widget-header>.widget-toolbar>.widget-menu>[data-action=close],
+               .widget-box>.widget-header>.widget-toolbar>[data-action=close],
+               .widget-color-dark>.widget-header>.widget-toolbar>.widget-menu>[data-action=close],
+               .widget-color-dark>.widget-header>.widget-toolbar>[data-action=close] {
+                   color: #E09E96
+               }
+
+               .widget-box[class*=widget-color-]>.widget-header {
+                   color: #FFF;
+                   filter: progid: DXImageTransform.Microsoft.gradient(enabled=false)
+               }
+
+               .widget-color-blue {
+                   border-color: #307ECC
+               }
+
+               .widget-color-blue>.widget-header {
+                   background: #307ECC;
+                   border-color: #307ECC
+               }
+
+               .widget-color-blue2 {
+                   border-color: #5090C1
+               }
+
+               .widget-color-blue2>.widget-header {
+                   background: #5090C1;
+                   border-color: #5090C1
+               }
+
+               .widget-color-blue3 {
+                   border-color: #6379AA
+               }
+
+               .widget-color-blue3>.widget-header {
+                   background: #6379AA;
+                   border-color: #6379AA
+               }
+
+               .widget-color-green {
+                   border-color: #82AF6F
+               }
+
+               .widget-color-green>.widget-header {
+                   background: #82AF6F;
+                   border-color: #82AF6F
+               }
+
+               .widget-color-green2 {
+                   border-color: #2E8965
+               }
+
+               .widget-color-green2>.widget-header {
+                   background: #2E8965;
+                   border-color: #2E8965
+               }
+
+               .widget-color-green3 {
+                   border-color: #4EBC30
+               }
+
+               .widget-color-green3>.widget-header {
+                   background: #4EBC30;
+                   border-color: #4EBC30
+               }
+
+               .widget-color-red {
+                   border-color: #E2755F
+               }
+
+               .widget-color-red>.widget-header {
+                   background: #E2755F;
+                   border-color: #E2755F
+               }
+
+               .widget-color-red2 {
+                   border-color: #E04141
+               }
+
+               .widget-color-red2>.widget-header {
+                   background: #E04141;
+                   border-color: #E04141
+               }
+
+               .widget-color-red3 {
+                   border-color: #D15B47
+               }
+
+               .widget-color-red3>.widget-header {
+                   background: #D15B47;
+                   border-color: #D15B47
+               }
+
+               .widget-color-purple {
+                   border-color: #7E6EB0
+               }
+
+               .widget-color-purple>.widget-header {
+                   background: #7E6EB0;
+                   border-color: #7E6EB0
+               }
+
+               .widget-color-pink {
+                   border-color: #CE6F9E
+               }
+
+               .widget-color-pink>.widget-header {
+                   background: #CE6F9E;
+                   border-color: #CE6F9E
+               }
+
+               .widget-color-orange {
+                   border-color: #E8B10D
+               }
+
+               .widget-color-orange>.widget-header {
+                   color: #855D10!important;
+                   border-color: #E8B10D;
+                   background: #FFC657
+               }
+
+               .widget-color-dark {
+                   border-color: #5a5a5a
+               }
+
+               .widget-color-dark>.widget-header {
+                   border-color: #666;
+                   background: #404040
+               }
+
+               .widget-color-grey {
+                   border-color: #9e9e9e
+               }
+
+               .widget-color-grey>.widget-header {
+                   border-color: #aaa;
+                   background: #848484
+               }
+
+               .widget-box.transparent {
+                   border-width: 0
+               }
+
+               .widget-box.transparent>.widget-header {
+                   background: 0 0;
+                   border-width: 0;
+                   border-bottom: 1px solid #DCE8F1;
+                   color: #4383B4;
+                   padding-left: 3px
+               }
+
+               .widget-box.transparent>.widget-header-large {
+                   padding-left: 5px
+               }
+
+               .widget-box.transparent>.widget-header-small {
+                   padding-left: 1px
+               }
+
+               .widget-box.transparent>.widget-body {
+                   border-width: 0;
+                   background-color: transparent
+               }
+
+               [class*=widget-color-]>.widget-header>.widget-toolbar>.widget-menu>[data-action],
+               [class*=widget-color-]>.widget-header>.widget-toolbar>[data-action] {
+                   text-shadow: 0 1px 1px rgba(0, 0, 0, .2)
+               }
+
+               [class*=widget-color-]>.widget-header>.widget-toolbar>.widget-menu>[data-action=settings],
+               [class*=widget-color-]>.widget-header>.widget-toolbar>[data-action=settings] {
+                   color: #D3E4ED
+               }
+
+               [class*=widget-color-]>.widget-header>.widget-toolbar>.widget-menu>[data-action=reload],
+               [class*=widget-color-]>.widget-header>.widget-toolbar>[data-action=reload] {
+                   color: #DEEAD3
+               }
+
+               [class*=widget-color-]>.widget-header>.widget-toolbar>.widget-menu>[data-action=collapse],
+               [class*=widget-color-]>.widget-header>.widget-toolbar>[data-action=collapse] {
+                   color: #E2E2E2
+               }
+
+               [class*=widget-color-]>.widget-header>.widget-toolbar>.widget-menu>[data-action=close],
+               [class*=widget-color-]>.widget-header>.widget-toolbar>[data-action=close] {
+                   color: #FFD9D5
+               }
+
+               .widget-color-orange>.widget-header>.widget-toolbar>.widget-menu>[data-action],
+               .widget-color-orange>.widget-header>.widget-toolbar>[data-action] {
+                   text-shadow: none
+               }
+
+               .widget-color-orange>.widget-header>.widget-toolbar>.widget-menu>[data-action=settings],
+               .widget-color-orange>.widget-header>.widget-toolbar>[data-action=settings] {
+                   color: #559AAB
+               }
+
+               .widget-color-orange>.widget-header>.widget-toolbar>.widget-menu>[data-action=reload],
+               .widget-color-orange>.widget-header>.widget-toolbar>[data-action=reload] {
+                   color: #7CA362
+               }
+
+               .widget-color-orange>.widget-header>.widget-toolbar>.widget-menu>[data-action=collapse],
+               .widget-color-orange>.widget-header>.widget-toolbar>[data-action=collapse] {
+                   color: #777
+               }
+
+               .widget-color-orange>.widget-header>.widget-toolbar>.widget-menu>[data-action=close],
+               .widget-color-orange>.widget-header>.widget-toolbar>[data-action=close] {
+                   color: #A05656
+               }
+
+               .widget-box.light-border[class*=widget-color-]:not(.fullscreen) {
+                   border-width: 0
+               }
+
+               .widget-box.light-border[class*=widget-color-]:not(.fullscreen)>.widget-header {
+                   border: 1px solid;
+                   border-color: inherit
+               }
+
+               .widget-box.light-border[class*=widget-color-]:not(.fullscreen)>.widget-body {
+                   border: 1px solid #D6D6D6;
+                   border-width: 0 1px 1px
+               }
+
+               .widget-box.no-border {
+                   border-width: 0
+               }
+
+               .widget-box.fullscreen {
+                   position: fixed;
+                   margin: 0;
+                   top: 0;
+                   bottom: 0;
+                   left: 0;
+                   right: 0;
+                   background-color: #FFF;
+                   border-width: 3px;
+                   z-index: 1040!important
+               }
+
+               .widget-box.fullscreen:not([class*=widget-color-]) {
+                   border-color: #AAA
+               }
+
+               .widget-body .table {
+                   border-top: 1px solid #E5E5E5
+               }
+
+               .widget-body .table thead:first-child tr {
+                   background: #FFF
+               }
+            </style>
+   </head>
+   <body>
+
+      <c:if test="${pageContext.request.userPrincipal.name != null}">
+               <!-- Content Header (Page header) -->
+               <section class="content-header">
+                  <h1>
+                     Invoice
+                     <small>
+                        #
+                        <c:out value="${invoiceNo}" />
+                     </small>
+
+                  </h1>
+                  <form id="logoutForm" method="POST" action="${pageContext.request.contextPath}/logout">
+                     <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+                  </form>
+                  <h4 style="
+                     margin-left: 76%;
+                     margin-top: -2%;
+                     ">Welcome ${pageContext.request.userPrincipal.name} | <a onclick="document.forms['logoutForm'].submit()">Logout</a></h4>
+                  <ol class="breadcrumb">
+                     <li><a href="${pageContext.request.contextPath}/login/home"><i
+                        class="fa fa-dashboard"></i> Home</a></li>
+                     <li><a href="#">Invoice</a></li>
+                     <li class="active">Blank page</li>
+                  </ol>
+               </section>
+<div class="container bootdey" >
+<div class="row">
+		<div class="col-sm-12 col-sm-offset-1">
+			<div class="widget-box">
+				<div class="widget-header widget-header-large" style=" margin-bottom: -12%; ">
+					<h3 class="widget-title grey lighter">
+						<i class="ace-icon fa fa-leaf green"></i>
+						Bootdey receipt
+					</h3>
+
+					<div class="widget-toolbar no-border invoice-info">
+						<span class="invoice-info-label">Invoice No :</span>
+						<span class="red">#${invoiceNo}</span>
+
+						<br>
+						<span class="invoice-info-label">Date:</span>
+						<span class="blue">${date}</span>
+					</div>
+
+					<div class="widget-toolbar hidden-480">
+						<a  onclick="window.print();">
+							<i class="ace-icon fa fa-print"></i>
+						</a>
+					</div>
+				</div>
+              <div class="row" >
+               <div class="col-sm-12" >
+                  <table class="table table-responsive table-bordered table-sm">
+                     <thead class="table-success">
+                        <tr >
+                           <th>Customer Name</th>
+                           <th>Address</th>
+                           <th>Mob No.</th>
+                        </tr>
+                     </thead>
+                     <tbody>
+                        <tr>
+                           <td>Mr.${profile.custName}</td>
+                           <td>${profile.address}</td>
+                          <td>${profile.phoneNo}</td>
+                        </tr>
+                     </tbody>
+                  </table>
+                   <table style=" margin-top: -2.5%; " class="table table-responsive table-bordered table-sm">
+                                                       <thead class="table-success">
+                                                         <tr>
+                                                            <th>SR.</th>
+                                                            <th>Description</th>
+                                                            <th>Bat No</th>
+                                                            <th>Qty</th>
+                                                            <th>MRP</th>
+                                                            <th>Selling Price</th>
+                                                            <th>Amount</th>
+                                                         </tr>
+                                                      </thead>
+                                                      <body>
+                                                         <c:forEach items="${items}" var="item">
+                                                            <tr>
+                                                               <td>#${item.itemNo}</td>
+                                                               <td>${item.description}</td>
+                                                               <td>${item.batchNo}</td>
+                                                               <td>${item.qty}</td>
+                                                                <td style="text-align: right;">${item.mrp}</td>
+                                                               <td style="text-align: right;">${item.rate}</td>
+                                                               <td style="text-align: right;">Rs.${item.amount}</td>
+                                                            </tr>
+                                                         </c:forEach>
+                                                      </body>
+                                                   </table>
+                                                    <table class="table">
+                                                                           <thead class="table-success">
+                                                                              <tr>
+                                                                                 <th style="text-align: right;">Invoice Amount </th>
+                                                                                 <th style="text-align: left;">: Rs.${totalAmout}</th>
+                                                                                 <th style="text-align: right;">Paid Amt </th>
+                                                                                 <th style="text-align: left;">: Rs.${advamount}</th>
+                                                                                 <th style="text-align: right;">Bal Amt  </th>
+                                                                                 <th style="text-align: left;">: Rs.${profile.currentOusting}</th>
+                                                                              </tr>
+                                                                           </thead>
+                                                                        </table>
+                                                                <c:if test="${oldinvoices.size() > 0}">
+
+                                                                 <table class="table table-responsive table-bordered">
+                                                                                                                       <thead class="table-success">
+                                                                                        <tr>
+                                                                                           <th>Invoice No</th>
+                                                                                           <th>Items Description(Old Invoice)</th>
+                                                                                           <th>Bill Amt</th>
+                                                                                           <th>Adv Amt</th>
+                                                                                           <th>Bal</th>
+                                                                                           <th>Date</th>
+                                                                                        </tr>
+                                                                                     </thead>
+                                                                                     <tbody>
+                                                                                        <c:forEach items="${oldinvoices}" var="invoice">
+                                                                                           <tr>
+                                                                                              <td>${invoice.invoiceId}</td>
+                                                                                              <td>${invoice.itemDetails}</td>
+                                                                                              <td style="text-align: right;">${invoice.totInvoiceAmt}</td>
+                                                                                              <td style="text-align: right;">${invoice.advanAmt}</td>
+                                                                                              <td style="text-align: right;">${invoice.balanceAmt}</td>
+                                                                                              <td>${invoice.createdAt}</td>
+                                                                                              </td>
+                                                                                           </tr>
+                                                                                        </c:forEach>
+                                                                                     </tbody>
+                                                                                  </table>
+
+                                                                </c:if>
+                                                                                                                         <c:if test="${balanceDeposits.size() > 0}">
+                                                                                                                                <table class="table table-responsive table-borderedvtable-sm">
+                                                                                                                                                                                                                                                      <thead class="table-success">
+                                                                                                                                                                    <tr>
+
+                                                                                                                                                                      <th>Transaction Id</th>
+                                                                                                                                                                      <th> Description</th>
+                                                                                                                                                                      <th>Balance Amount </th>
+                                                                                                                                                                      <th>Payment Mode </th>
+                                                                                                                                                                      <th>Deposited Amt </th>
+                                                                                                                                                                      <th>Date </th>
+                                                                                                                                                                    </tr>
+                                                                                                                                                                  </thead>
+                                                                                                                                                                 <tbody>
+                                                                                                                                                                         							<c:forEach items="${balanceDeposits}" var="balanceDeposit">
+                                                                                                                                                                         								<tr>
+
+                                                                                                                                                                         									<td>${balanceDeposit.id}</td>
+                                                                                                                                                                         									<td>${balanceDeposit.description}</td>
+                                                                                                                                                                         									<td style="text-align: right;">${balanceDeposit.currentOusting}</td>
+                                                                                                                                                                         									<td>${balanceDeposit.modeOfPayment}</td>
+                                                                                                                                                                         									<td style="text-align: right;">${balanceDeposit.advAmt}</td>
+                                                                                                                                                                         									<td>${balanceDeposit.createdAt}</td>
+                                                                                                                                                                         									</td>
+                                                                                                                                                                         								</tr>
+                                                                                                                                                                         							</c:forEach>
+                                                                                                                                                                         					</tbody>
+                                                                                                                                                                </table>
+
+                                                                     </c:if>
+<div class="row" style=" margin-left: 0%; margin-right: -7%; ">
+							<div class="col-sm-12">
+								<div class="row">
+									  <hr class="three" style="  margin-right: 7%;">
+								</div></div>
+                                      								</div>
+                                                                 <table  class="table table-bordered table-sm">
+                                                                                     <thead class="table-success table-responsive">
+                                                                                        <tr>
+                                                                                           <th>Customer Name</th>
+                                                                                           <th>Address</th>
+                                                                                           <th>Mob No.</th>
+                                                                                           <th>Invoice No.</th>
+                                                                                           <th>Date:</th>
+                                                                                        </tr>
+                                                                                     </thead>
+                                                                                     <tbody>
+                                                                                        <tr>
+                                                                                           <td>Mr.${profile.custName}</td>
+                                                                                           <td>${profile.address}</td>
+                                                                                           <td>${profile.phoneNo}</td>
+                                                                                           <td>${invoiceNo}</td>
+                                                                                           <td>${date}</td>
+                                                                                        </tr>
+                                                                                     </tbody>
+                                                                                  </table>
+                                                                                  <table style=" margin-top: -2.5%; " class="table table-responsive" >
+                                                                                                       <thead>
+                                                                                                          <tr>
+                                                                                                             <th>Invoice No</th>
+                                                                                                             <th>Items Description(Current bill)</th>
+                                                                                                             <th>Bill Amt</th>
+                                                                                                             <th>Adv Amt</th>
+                                                                                                             <th>Bal</th>
+
+                                                                                                          </tr>
+                                                                                                       </thead>
+                                                                                                       <tbody>
+                                                                                                          <tr>
+                                                                                                             <td>${currentinvoiceitems.invoiceId}</td>
+                                                                                                             <td>${currentinvoiceitems.itemDetails}</td>
+                                                                                                             <td>${currentinvoiceitems.totInvoiceAmt}</td>
+                                                                                                             <td>${currentinvoiceitems.advanAmt}</td>
+                                                                                                             <td>${currentinvoiceitems.balanceAmt}</td>
+
+                                                                                                             </td>
+                                                                                                          </tr>
+                                                                                                       </tbody>
+                                                                                                    </table>
+
+
+
+
+
+         <!-- /.content -->
+         <script type="text/javascript">
+            function GetFileSizeNameAndType() {
+            	$('#btn-upload').button('enable');
+            	var fi = document.getElementById('formFile');
+            	var invoiceNo = document.getElementById('invoiceNumber').value
+            			.split('/');
+            	if (fi.files.length > 0) {
+            		var filename = '';
+            		var ino = '';
+            		for (var i = 0; i <= fi.files.length - 1; i++) {
+            			filename = fi.files.item(i).name;
+            			ino = fi.files.item(i).name.split('_');
+            		}
+            		if (invoiceNo[0] != ino[0]) {
+            			$('#btn-upload').button('disable');
+            			alert('Invalid file selected :' + filename);
+            		}
+
+            	}
+            }
+         </script>
+         <script
+            src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
+         <!-- Bootstrap -->
+         <script
+            src="${pageContext.request.contextPath}/resources/js/bootstrap.min.js"
+            type="text/javascript"></script>
+         <!-- AdminLTE App -->
+         <script
+            src="${pageContext.request.contextPath}/resources/js/AdminLTE/app.js"
+            type="text/javascript"></script>
+         <!-- AdminLTE for demo purposes -->
+         <script
+            src="${pageContext.request.contextPath}/resources/js/AdminLTE/demo.js"
+            type="text/javascript"></script>
+      </c:if>
+   </body>
+</html>
