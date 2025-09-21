@@ -85,9 +85,9 @@
                         </nav>
                     </div>
                     <div class="sb-sidenav-menu-heading">Addons</div>
-                    <a class="nav-link" href="${pageContext.request.contextPath}/company/get-my-profile">
-                        <div class="sb-nav-link-icon"><i class="fas fa-user-circle"></i></div> My Profile
-                    </a>
+                     <a class="nav-link" href="${pageContext.request.contextPath}/company/get-my-profile">
+                                                    <div class="sb-nav-link-icon"><i class="fa fa-gear fa-spin"></i></div> Account Settings
+                                                  </a>
                     <a class="nav-link" href="${pageContext.request.contextPath}/company/export-to-pdf">
                         <div class="sb-nav-link-icon"><i class="fas fa-file-export"></i></div> Export Customers
                     </a>

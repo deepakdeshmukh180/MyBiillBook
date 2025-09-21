@@ -22,27 +22,20 @@ public class ItemDetails {
 
     private double taxAmount;
 
+    private String brand;
 
+    private String expDate;
     private String custId;
     private int taxPercetage;
     private double priTaxAmt;
 
-    public ItemDetails(String id, String invoiceNo, int itemNo, double qty, String description, double rate, double amount, String batchNo, double mrp, boolean status, long productId, double taxAmount, String custId, int taxPercetage, double priTaxAmt) {
-        this.id = id;
-        this.invoiceNo = invoiceNo;
-        this.itemNo = itemNo;
-        this.qty = qty;
-        this.description = description;
-        this.rate = rate;
-        this.amount = amount;
-        this.batchNo = batchNo;
-        this.mrp = mrp;
-        this.status = status;
-        this.productId = productId;
-        this.taxAmount = taxAmount;
-        this.custId = custId;
-        this.taxPercetage = taxPercetage;
-        this.priTaxAmt = priTaxAmt;
+
+    public String getBrand() {
+        return brand;
+    }
+
+    public void setBrand(String brand) {
+        this.brand = brand;
     }
 
     public long getProductId() {
@@ -63,6 +56,14 @@ public class ItemDetails {
 
     public double getTaxAmount() {
         return taxAmount;
+    }
+
+    public String getExpDate() {
+        return expDate;
+    }
+
+    public void setExpDate(String expDate) {
+        this.expDate = expDate;
     }
 
     public void setTaxAmount(double taxAmount) {

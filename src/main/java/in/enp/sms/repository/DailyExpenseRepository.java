@@ -30,4 +30,12 @@ public interface DailyExpenseRepository extends JpaRepository<DailyExpense, Long
     Double getCurrentMonthTotal(@Param("ownerId") String ownerId);
 
 
+
+
+    @Query(value = "SELECT owner_id, SUM(amount) FROM daily_expense " +
+            "WHERE expense_date BETWEEN :startDate AND :endDate " +
+            "GROUP BY owner_id", nativeQuery = true)
+    List<Object[]> findMonthlyExpensesForYearRange(@Param("startDate") Date startDate,
+                                                   @Param("endDate") Date endDate);
+
 }

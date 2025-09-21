@@ -3,297 +3,207 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Dashboard - My Bill Book</title>
+    <title>Product Management</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"/>
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 
-    <!-- CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
-    <link href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.min.css" rel="stylesheet"/>
-    <link href="${pageContext.request.contextPath}/resources/css/styles.css" rel="stylesheet"/>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet"/>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css" rel="stylesheet"/>
-
-    <!-- JS (head) -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-    <style>
-        :root{
-          --brand:#0d6efd;
-          --soft:#f4f6f9;
-          --ink:#33475b;
-        }
-        body{ background:var(--soft); }
-        .brand-gradient{ background:linear-gradient(135deg,#3c7bff,#70a1ff); }
-        .glass {
-          backdrop-filter: blur(6px);
-          background: rgba(255,255,255,.7);
-          border: 1px solid rgba(255,255,255,.4);
-        }
-        .kpi{
-          border:0; border-radius:18px;
-          box-shadow:0 10px 24px rgba(0,0,0,.08);
-          transition:.2s transform;
-          overflow:hidden;
-        }
-        .kpi:hover{ transform:translateY(-4px); }
-        .kpi .icon{
-          width:44px;height:44px;border-radius:12px;
-          display:flex;align-items:center;justify-content:center;
-        }
-        .section-title{
-          font-weight:700;color:var(--ink);letter-spacing:.2px;
-        }
-        .card-modern{
-          border:0;border-radius:18px;box-shadow:0 8px 22px rgba(0,0,0,.08);
-        }
-        .expense-item{
-          border-radius:14px;
-          border:1px dashed #d8e2ff;
-          background:#fff;
-          transition:.2s;
-        }
-        .expense-item:hover{ transform:scale(1.01); background:#f8fbff; }
-        .avatar{ width:40px;height:40px;border-radius:50%;background:var(--brand);color:#fff;
-          display:flex;align-items:center;justify-content:center;font-weight:700; }
-        .sb-topnav{ border-bottom:1px solid rgba(255,255,255,.08); }
-        .badge-soft-danger{ background:#fdecea;color:#d93025; }
-        .list-mini{ font-size:.875rem; color:#6b7a90; }
-        .rounded-18{ border-radius:18px; }
-        .shadow-soft{ box-shadow:0 4px 14px rgba(0,0,0,.08); }
-    </style>
+    <!-- CSRF tokens -->
+    <meta name="_csrf" content="${_csrf.token}"/>
+    <meta name="_csrf_header" content="${_csrf.headerName}"/>
 </head>
-<body class="sb-nav-fixed">
+<body>
+<div class="container mt-4">
 
-<!-- Loader -->
+    <h2 class="mb-4">Product Management</h2>
 
+    <!-- Add / Update Form -->
+    <form id="myform" class="row g-3">
+        <input type="hidden" name="productId" value="0"/>
 
-<!-- Top Navbar -->
-<nav class="sb-topnav navbar navbar-expand navbar-dark brand-gradient">
-    <a class="navbar-brand ps-3 fw-bold" href="${pageContext.request.contextPath}/login/home">
-        My <i class="fa fa-calculator text-warning"></i> Bill Book
-    </a>
-    <button class="btn btn-outline-light btn-sm ms-2" id="sidebarToggle"><i class="fas fa-bars"></i></button>
-
-    <div class="ms-auto d-flex align-items-center gap-3 pe-3">
-        <div class="position-relative" role="button" onclick="openModal()">
-            <i class="bi bi-bell fs-5 text-white"></i>
-            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-        ${productList.size()}
-      </span>
+        <div class="col-md-4">
+            <label class="form-label">Product Name</label>
+            <input type="text" id="productName" name="pname" class="form-control" required/>
         </div>
-        <div class="dropdown">
-            <a class="nav-link dropdown-toggle text-white" id="navbarDropdown" href="#" data-bs-toggle="dropdown">
-                <i class="fas fa-user fa-fw"></i>
-            </a>
-            <ul class="dropdown-menu dropdown-menu-end">
-                <li><a class="dropdown-item" onclick="document.forms['logoutForm'].submit()">Logout</a></li>
-            </ul>
+        <div class="col-md-4">
+            <label class="form-label">Company</label>
+            <input type="text" id="company" name="company" class="form-control"/>
         </div>
-    </div>
-</nav>
-
-<div id="layoutSidenav">
-    <!-- Sidebar -->
-    <div id="layoutSidenav_nav">
-        <nav class="sb-sidenav accordion sb-sidenav-dark" id="sidenavAccordion">
-            <div class="sb-sidenav-menu">
-                <div class="nav">
-                    <div class="sb-sidenav-menu-heading">Core</div>
-                    <a class="nav-link" href="${pageContext.request.contextPath}/login/home">
-                        <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div> Dashboard
-                    </a>
-
-                    <div class="sb-sidenav-menu-heading">Interface</div>
-                    <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseLayouts">
-                        <div class="sb-nav-link-icon"><i class="fas fa-columns"></i></div> Menu
-                        <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
-                    </a>
-                    <div class="collapse" id="collapseLayouts" data-bs-parent="#sidenavAccordion">
-                        <nav class="sb-sidenav-menu-nested nav">
-                            <a class="nav-link" href="${pageContext.request.contextPath}/company/get-all-customers"><i class="fas fa-user-friends me-2 text-white"></i>All Customers</a>
-                            <a class="nav-link" href="${pageContext.request.contextPath}/company/get-all-invoices"><i class="fas fa-file-invoice me-2 text-white"></i>Invoices</a>
-                            <a class="nav-link" href="${pageContext.request.contextPath}/company/reports"><i class="fas fa-chart-line me-2 text-white"></i>Daily/Monthly Reports</a>
-                            <a class="nav-link" href="${pageContext.request.contextPath}/company/get-all-products"><i class="fas fa-leaf me-2 text-white"></i>Products</a>
-                        </nav>
-                    </div>
-
-                    <div class="sb-sidenav-menu-heading">Addons</div>
-                    <a class="nav-link" href="${pageContext.request.contextPath}/company/get-my-profile">
-                        <div class="sb-nav-link-icon"><i class="fas fa-user-circle"></i></div> My Profile
-                    </a>
-                    <a class="nav-link" href="${pageContext.request.contextPath}/company/export-to-pdf">
-                        <div class="sb-nav-link-icon"><i class="fas fa-file-export"></i></div> Export Customers
-                    </a>
-                </div>
-            </div>
-            <div class="sb-sidenav-footer">
-                <div class="small">Logged in as:</div>
-                ${pageContext.request.userPrincipal.name}
-            </div>
-        </nav>
-    </div>
-
-    <!-- Main -->
-    <div id="layoutSidenav_content">
-        <main>
-            <div class="card" style="margin-top: -5%;">
-                <div class="card-header">Owner Profile Detail</div>
-                <div class="card-body">
-                    <form name="my-form" modelAttribute="OwnerInfo" action="${pageContext.request.contextPath}/company/update-owner-details" method="POST">
-                        <div class="form-group row">
-                            <label for="full_name" class="col-md-4 col-form-label text-md-right">User Name</label>
-                            <div class="col-md-6">
-                                <input type="text" readonly="true" id="full_name" class="form-control" value="${ownerInfo.userName}" name="username">
-                            </div>
-                        </div>
-
-                        <div class="form-group row">
-                            <label for="email_address" class="col-md-4 col-form-label text-md-right">Shop Name</label>
-                            <div class="col-md-6">
-                                <input type="text" id="email_address" class="form-control" value="${ownerInfo.shopName}" name="shopName">
-                            </div>
-                        </div>
-                        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
-                        <div class="form-group row">
-                            <label for="user_name" class="col-md-4 col-form-label text-md-right">Shop Address</label>
-                            <div class="col-md-6">
-                                <input type="text" id="user_name" class="form-control" value="${ownerInfo.address}" name="address">
-                            </div>
-                        </div>
-                        <div class="form-group row">
-                            <label for="user_name" class="col-md-4 col-form-label text-md-right">Shop Owner</label>
-                            <div class="col-md-6">
-                                <input type="text" id="user_name" class="form-control" value="${ownerInfo.ownerName}" name="ownerName">
-                            </div>
-                        </div>
-                        <input type="hidden" name="ownerId" value="${ownerInfo.ownerId}">
-                        <div class="form-group row">
-                            <label for="phone_number" class="col-md-4 col-form-label text-md-right">Phone Number</label>
-                            <div class="col-md-6">
-                                <input type="text" id="phoneNo" name="mobNumber" value="${ownerInfo.mobNumber}" class="form-control">
-                            </div>
-                        </div>
-                        <div class="form-group row">
-                            <label for="phone_number" class="col-md-4 col-form-label text-md-right">Email</label>
-                            <div class="col-md-6">
-                                <input type="text" id="phoneNo" name="email" value="${ownerInfo.email}" class="form-control">
-                            </div>
-                        </div>
-                        <div class="form-group row">
-                            <label for="phone_number" class="col-md-4 col-form-label text-md-right">GST</label>
-                            <div class="col-md-6">
-                                <input type="text" id="phoneNo" name="gstNumber" value="${ownerInfo.gstNumber}" class="form-control">
-                            </div>
-                        </div>
-                        <div class="form-group row">
-                            <label for="phone_number" class="col-md-4 col-form-label text-md-right">LC No. </label>
-                            <div class="col-md-6">
-                                <input type="text" id="phoneNo" name="lcNo" value="${ownerInfo.lcNo}" class="form-control">
-                            </div>
-                        </div>
-
-                        <div class="form-group row">
-                            <label for="phone_number" class="col-md-4 col-form-label text-md-right">Plan Valid upto Date </label>
-                            <div class="col-md-6">
-                                <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
-                                <input type="text" id="phoneNo" readonly="true"  value="<fmt:formatDate value="${ownerInfo.expDate}" pattern="dd/MM/yyyy hh:mm a"/>" class="form-control readonly">
-                            </div>
-                        </div>
-
-                        <div class="form-group row">
-                            <label class="col-md-4 col-form-label text-md-right">Invoice Type</label>
-                            <div class="col-md-6">
-                                <select name="invoiceType" class="form-control">
-                                    <option value="A4" ${ownerInfo.invoiceType == 'A4' ? 'selected' : ''}>A4-Page-size</option>
-                                    <option value="A0" ${ownerInfo.invoiceType == 'A0' ? 'selected' : ''}>4X6-Thermal</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="form-group row">
-                            <label for="upiId" class="col-md-4 col-form-label text-md-right">UPI ID </label>
-                            <div class="col-md-6">
-                                <input type="text" id="phoneNo"  name="upiId" value="${ownerInfo.upiId}" class="form-control">
-                            </div>
-                        </div>
-                        <div class="form-group row">
-                            <label for="phone_number" class="col-md-4 col-form-label text-md-right">Status </label>
-                            <div class="col-md-6">
-                                <input type="text" id="phoneNo" readonly="true" name="status" value="${ownerInfo.status}" class="form-control">
-                            </div>
-                        </div>
-                        <div class="form-group row"><div class="col-md-6 offset-md-4">
-                            <button type="submit" class="btn btn-primary">
-                                Update
-                            </button>
-
-
-                        </div>
-                        </div>
-                </div>
-                </form>
-            </div>
-    </div>
-    <c:if test="${not empty msg}">
-        <div class="alert alert-success alert-dismissible fade show mt-3" role="alert" id="success-alert">
-            <strong>Success!</strong> ${msg}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <div class="col-md-4">
+            <label class="form-label">Quantity</label>
+            <input type="text" id="quantity" name="quantity" class="form-control" required/>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Batch No</label>
+            <input type="text" id="batchNo" name="batchNo" class="form-control"/>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Expiry Date</label>
+            <input type="date" id="expdate" name="expdate" class="form-control"/>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">MRP</label>
+            <input type="number" step="0.01" id="MRP" name="mrp" class="form-control"/>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">Dealer Price</label>
+            <input type="number" step="0.01" id="dealer_price_input" name="delarPrice" class="form-control"/>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">Price</label>
+            <input type="number" step="0.01" id="price" name="price" class="form-control"/>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">Stock</label>
+            <input type="number" id="stock" name="stock" class="form-control"/>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Tax (%)</label>
+            <input type="number" step="0.01" name="taxPercentage" class="form-control"/>
         </div>
 
-        <script>
-            window.onload = function () {
-              setTimeout(function () {
-                const alert = bootstrap.Alert.getOrCreateInstance(document.getElementById('success-alert'));
-                alert.close();
-              }, 4000);
-            };
-        </script>
-    </c:if>
+        <div class="col-12">
+            <button type="submit" class="btn btn-primary">Save Product</button>
+            <button type="reset" class="btn btn-secondary"
+                    onclick="document.querySelector('input[name=productId]').value=0">Reset</button>
+        </div>
+    </form>
+
+    <hr class="my-4"/>
+
+    <!-- Product Table -->
+    <table id="productTable" class="display table table-bordered table-striped align-middle">
+        <thead class="table-dark">
+        <tr>
+            <th>Product Name</th>
+            <th>Company</th>
+            <th>Quantity</th>
+            <th>Batch</th>
+            <th>Expiry</th>
+            <th>MRP</th>
+            <th>Dealer Price</th>
+            <th>Price</th>
+            <th>Stock</th>
+            <th>Tax (%)</th>
+            <th>Edit</th>
+            <th>Delete</th>
+        </tr>
+        </thead>
+        <tbody>
+        <c:forEach var="product" items="${products}">
+            <tr id="row-${product.productId}">
+                <td>${product.productName}</td>
+                <td>${product.company}</td>
+                <td>${product.quantity}</td>
+                <td>${product.batchNo}</td>
+                <td>${product.expdate}</td>
+                <td>${product.mrp}</td>
+                <td>${product.delarPrice}</td>
+                <td>${product.price}</td>
+                <td>${product.stock}</td>
+                <td>${product.taxPercentage}</td>
+                <td class="text-center">
+                    <button type="button" class="btn btn-outline-success btn-sm"
+                            onclick="editProduct(${product.productId})">
+                        <i class="bi bi-pencil-square"></i>
+                    </button>
+                </td>
+                <td class="text-center">
+                    <button type="button" class="btn btn-outline-danger btn-sm"
+                            onclick="deleteProduct(${product.productId})">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </td>
+            </tr>
+        </c:forEach>
+        </tbody>
+    </table>
+
 </div>
-</div>
-</div>
-
-</main>
-</div>
-</div>
-</div>
-</main>
-            </main>
-
-                <!-- Success toast -->
-                <c:if test="${not empty msg}">
-                    <div class="alert alert-success alert-dismissible fade show shadow-soft border-0" role="alert" id="success-alert">
-                        <i class="bi bi-check-circle-fill me-2"></i><strong>Success!</strong> ${msg}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
-                    <script>
-                        window.addEventListener('load',()=>{ setTimeout(()=>{ const el=document.getElementById('success-alert'); if(el){ bootstrap.Alert.getOrCreateInstance(el).close(); } }, 3500); });
-                    </script>
-                </c:if>
-
-                <!-- KPI ROW -->
-
-
-<!-- Logout form -->
-<form id="logoutForm" method="POST" action="${pageContext.request.contextPath}/logout">
-    <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
-</form>
-
-<!-- JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js"></script>
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-
-<script src="${pageContext.request.contextPath}/resources/js/scripts.js"></script>
-<script src="${pageContext.request.contextPath}/resources/js/timeout.js" crossorigin="anonymous"></script>
-<script src="${pageContext.request.contextPath}/resources/js/datatables-simple-demo.js"></script>
 
 <script>
+    // Helper to read CSRF
+    function getCsrf() {
+        return {
+            header: document.querySelector('meta[name="_csrf_header"]').content,
+            token: document.querySelector('meta[name="_csrf"]').content
+        };
+    }
 
+    $(document).ready(function () {
+        $('#productTable').DataTable();
+    });
+
+    // Handle Add/Update Product
+    document.getElementById("myform").addEventListener("submit", function (e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        const csrf = getCsrf();
+
+        fetch("${pageContext.request.contextPath}/product/save-or-update", {
+            method: "POST",
+            body: formData,
+            credentials: "same-origin",
+            headers: { [csrf.header]: csrf.token }
+        })
+        .then(res => res.text())
+        .then(msg => {
+            alert(msg);
+            location.reload();
+        })
+        .catch(err => console.error("Error:", err));
+    });
+
+    // Delete Product
+    function deleteProduct(productId) {
+        if (!confirm("Are you sure you want to delete this product?")) return;
+        const csrf = getCsrf();
+
+        fetch("${pageContext.request.contextPath}/product/delete-product-by-id?productId=" + productId, {
+            method: "DELETE",
+            credentials: "same-origin",
+            headers: { [csrf.header]: csrf.token }
+        })
+        .then(res => {
+            if (!res.ok) throw new Error("Failed to delete");
+            return res.text();
+        })
+        .then(msg => {
+            alert(msg);
+            document.getElementById("row-" + productId).remove();
+        })
+        .catch(err => console.error(err));
+    }
+
+    // Edit Product → fills form so submit() will update
+    function editProduct(productId) {
+        fetch("${pageContext.request.contextPath}/product/get-product?id=" + productId)
+            .then(res => res.json())
+            .then(product => {
+                document.getElementById("productName").value = product.pname;
+                document.getElementById("company").value = product.company;
+                document.getElementById("quantity").value = product.quantity;
+                document.getElementById("batchNo").value = product.batchNo;
+                document.getElementById("expdate").value = product.expdate;
+                document.getElementById("MRP").value = product.mrp;
+                document.getElementById("dealer_price_input").value = product.delarPrice;
+                document.getElementById("price").value = product.price;
+                document.getElementById("stock").value = product.stock;
+                document.querySelector("[name='taxPercentage']").value = product.taxPercentage;
+
+                // Important: set productId for update
+                document.querySelector("input[name='productId']").value = product.productId;
+
+                document.getElementById("myform").scrollIntoView({ behavior: 'smooth' });
+            })
+            .catch(err => console.error("Error loading product:", err));
+    }
 </script>
+
 </body>
 </html>

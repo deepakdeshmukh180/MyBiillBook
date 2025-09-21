@@ -224,8 +224,7 @@ table {
 								<c:forEach items="${invoices}" var="invoice">
 									<tr>
 										<td><a href="${pageContext.request.contextPath}/company/get-invoice/${invoice.custId}/${invoice.invoiceId}" target="_blank" >${invoice.invoiceId}</td>
-										<td
-											style="text-align: left; ">${invoice.custName}</td>
+										<td style="text-align: left;">${invoice.custName}</td>
 										<td style="text-align: left;"">${invoice.itemDetails}</td>
 										<td><input type="text" class="form-control"
 											style="text-align: right; font-weight: bold;"

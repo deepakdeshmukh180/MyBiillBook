@@ -1,6 +1,5 @@
 package in.enp.sms.controller;
 
-import com.google.gson.Gson;
 import in.enp.sms.config.AppInfo;
 import in.enp.sms.entities.*;
 import in.enp.sms.pojo.*;
@@ -12,9 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -25,15 +22,14 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.io.File;
-import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 
-import static in.enp.sms.controller.CompanyController.sendMailCustomer;
+
 
 @Controller
 @RequestMapping("/login")
@@ -54,6 +50,9 @@ public class LoginController {
     InvoiceNoRepository invoiceNoRepository;
 
     @Autowired
+    private MonthlyExpenseSummaryRepository summaryRepository;
+
+    @Autowired
     private DailyExpenseRepository expenseRepository;
 
     @Autowired
@@ -70,6 +69,7 @@ public class LoginController {
         try {
             HttpSession session = request.getSession();
             String ownerId = Utility.getOwnerIdFromSession(request);
+            OwnerSession ownerInfo = (OwnerSession) session.getAttribute("sessionOwner");
             session.setAttribute("ownerId", ownerId);
             Object[] result = custProfileRepository.findSumsByOwnerId(ownerId);
             if (result != null && result.length > 0 && result[0] instanceof Object[]) {
@@ -94,11 +94,15 @@ public class LoginController {
             modelAndView.addObject("custmers", custProfiles);
             modelAndView.addObject("profilecount", custProfiles.size());
             modelAndView.addObject("invoicescount", invoiceDetailsRepository.count());
-            modelAndView.addObject("ownerInfo", ownerInfoRepository.findById(ownerId).get());
+            modelAndView.addObject("ownerInfo", ownerInfo);
             modelAndView.addObject("date", getCurretDate());
             modelAndView.addObject("productList", getExpProductByOwnerId(ownerId));
             modelAndView.addObject("daily_expenses", expenseRepository.getDailyTotal(new Date(),ownerId));
             modelAndView.addObject("monthly_expenses",expenseRepository.getCurrentMonthTotal(ownerId));//
+            modelAndView.addObject("dailyExpenses",expenseRepository.findByDateAndOwnerIdOrderByCreatedAtDesc(new Date(),ownerId));
+            modelAndView.addObject("monthlyExpenses",summaryRepository.findByOwnerIdOrderByMonth(ownerId));
+
+
         } catch (Exception e) {
             logger.error("Error while loading welcome page: ", e);
             modelAndView.setViewName("error");
@@ -108,7 +112,7 @@ public class LoginController {
     }
 
     @PostMapping("/save-profile-details")
-    public String saveCustomerProfile(HttpServletRequest request,
+    public String saveCustomerProfile(HttpServletRequest request,HttpSession session,
                                       @ModelAttribute("CustProfile") CustProfile custProfile,
                                       Model model) {
         try {
@@ -117,7 +121,9 @@ public class LoginController {
                 model.addAttribute("msg", "Owner session expired. Please login again.");
                 return "index";
             }
-            model.addAttribute("ownerInfo", ownerInfoRepository.findById(ownerId).get());
+            OwnerSession ownerInfo = (OwnerSession) session.getAttribute("sessionOwner");
+
+            model.addAttribute("ownerInfo", ownerInfo);
             Object[] result = custProfileRepository.findSumsByOwnerId(ownerId);
             if (result != null && result.length > 0 && result[0] instanceof Object[]) {
                 Object[] values = (Object[]) result[0];
@@ -147,7 +153,7 @@ public class LoginController {
                 model.addAttribute("msg", "Customer already exists!");
                 return "index";
             }
-            custProfile.setId(UUID.randomUUID().toString());
+            custProfile.setId(UUID.randomUUID().toString().toUpperCase());
             custProfile.setAddress(custProfile.getAddress().trim().toUpperCase());
             custProfileRepository.save(custProfile);
             addBalanceTransaction(custProfile, request);
@@ -164,6 +170,7 @@ public class LoginController {
         model.addAttribute("dailySummary", calculateDailySummary(request));
         model.addAttribute("daily_expenses", expenseRepository.getDailyTotal(new Date(),ownerId));
         model.addAttribute("monthly_expenses",expenseRepository.getCurrentMonthTotal(ownerId));//
+
 
         return "index";
     }
@@ -247,11 +254,11 @@ public class LoginController {
             balanceDeposite.setCreatedBy(SecurityContextHolder.getContext().getAuthentication().getName());
             balanceDeposite.setCreatedAt(createdAt);
             balanceDeposite.setOwnerId(ownerId);
-
             balanceDepositeRepository.save(balanceDeposite);
+            HttpSession session = request.getSession();
+           OwnerSession ownerInfo = (OwnerSession) session.getAttribute("sessionOwner");
+           // sendMailCustomer(balanceDeposite, profile, ownerInfo);
 
-            ownerInfoRepository.findById(ownerId)
-                    .ifPresent(ownerInfo -> sendMailCustomer(balanceDeposite, profile, ownerInfo));
         } catch (Exception e) {
             logger.error("Error adding balance transaction: ", e);
         }
@@ -272,15 +279,31 @@ public class LoginController {
             List<Product> products = productRepository.findByOwnerIdOrderByExpdateAsc(ownerIdFromSession);
             LocalDate today = LocalDate.now();
             LocalDate threshold = today.plusDays(30);
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
             for (Product product : products) {
-                LocalDate expDate = LocalDate.parse(product.getExpdate()); // Ensure expdate is in ISO-8601 (yyyy-MM-dd)
+                String expDateStr = product.getExpdate();
 
-                if (!expDate.isBefore(today) && expDate.isBefore(threshold)) {
+                if (expDateStr == null || expDateStr.trim().isEmpty()) {
+
+                    logger.warn("Skipping product {} due to null/empty expDate", product.getProductName());
+                    continue;
+                }
+
+                LocalDate expDate;
+                try {
+                    expDate = LocalDate.parse(expDateStr, formatter);
+                } catch (DateTimeParseException ex) {
+                    logger.error("Invalid expDate format for product {}: {}", product.getProductName(), expDateStr);
+                    continue;
+                }
+
+                if (!expDate.isBefore(today) && !expDate.isAfter(threshold)) {
                     long daysUntilExpiry = ChronoUnit.DAYS.between(today, expDate);
+
                     expProducts.add(new ExpProduct(
                             product.getProductName(),
-                            (int) product.getStock(),
+                            Math.toIntExact(product.getStock()),  // safer than (int)
                             (int) daysUntilExpiry
                     ));
                 }
@@ -288,6 +311,7 @@ public class LoginController {
         } catch (Exception e) {
             logger.error("Error generating product expiration notification: ", e);
         }
+
 
         return expProducts;
     }

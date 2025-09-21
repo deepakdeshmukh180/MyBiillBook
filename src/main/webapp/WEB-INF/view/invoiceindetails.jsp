@@ -4,289 +4,641 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <title>Invoice #${invoiceNo} – ${profile.custName}</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta charset="UTF-8" />
+<title>Invoice #${invoiceNo} – ${profile.custName}</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" />
+<style>
+  body {
+    font-family: 'Segoe UI', sans-serif;
+    background: #f7fafc;
+    margin: 0;
+    padding: 5mm;
+    color: #333;
+    font-size: 8px;
+    line-height: 1.1;
+  }
 
-    <!-- External libs -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  /* A4 page container */
+  .page-container {
+    width: 210mm;
+    min-height: 297mm;
+    margin: 0 auto;
+    background: white;
+    display: flex;
+    flex-direction: column;
+    gap: 5mm;
+    padding: 5mm;
+    box-sizing: border-box;
+  }
 
-    <style>
-        * { box-sizing: border-box; }
-        body {
-            font-family: 'Inter', system-ui, Arial, sans-serif;
-            font-size: 11px;
-            line-height: 1.3;
-            margin: 0;
-            padding: 6px;
-            background: #fff !important;
-            color: #111827;
-        }
+  /* Individual A5 invoice */
+  .invoice {
+    width: 100%;
+    height: 140mm; /* A5 height minus margins */
+    background: #fff;
+    border: solid 1px #333;
+    border-radius: 3px;
+    padding: 3mm;
+    position: relative;
+    overflow: hidden;
+    box-sizing: border-box;
+    page-break-inside: avoid;
+  }
 
-        :root {
-            --brand-1: #3c7bff;
-            --brand-2: #70a1ff;
-            --ink: #111827;
-            --muted: #6b7280;
-            --border: #e5e7eb;
-            --table-alt: #fafbfc;
-        }
+  /* Duplicate invoice container */
+  .invoice-duplicate {
+    border-top: 2px dashed #999;
+    margin-top: 3mm;
+    padding-top: 3mm;
+  }
 
-        /* A5 LANDSCAPE */
-        .invoice-container {
-            width: 100%;
-            max-width: 210mm; /* Landscape width */
-            min-height: 148mm; /* Landscape height */
-            margin: 0 auto 10px auto;
-            background: #fff;
-            border-radius: 6px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-        }
+  /* Watermark - smaller for A5 */
+  .invoice::before {
+    content: "${ownerInfo.shopName}";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-30deg);
+    font-size: 2.5rem;
+    color: rgba(0, 0, 0, 0.05);
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 0;
+  }
 
-        .invoice-content { padding: 6mm; }
+  .invoice * {
+    position: relative;
+    z-index: 1;
+  }
 
-        /* HEADER */
-        .invoice-header {
-            background: linear-gradient(135deg, var(--brand-1), var(--brand-2));
-            color: #fff;
-            margin: -6mm -6mm 6px -6mm;
-            padding: 6px;
-            text-align: center;
-        }
-        .invoice-meta { display:flex; justify-content:space-between; font-size:10px; margin-bottom:4px; }
-        .shop-name { font-size: 14px; font-weight: 700; }
-        .shop-details { font-size: 9px; line-height: 1.3; }
+  /* Header - compact for A5 */
+  .header {
+    text-align: center;
+    margin-bottom: 2mm;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 2mm;
+  }
 
-        /* CUSTOMER COMPACT */
-        .customer-section {
-            background: #f8f9ff;
-            border-left: 2px solid var(--brand-1);
-            padding: 4px 6px;
-            margin-bottom: 6px;
-            border-radius: 4px;
-        }
-        .customer-title { font-size: 10px; font-weight: 600; margin-bottom: 3px; color: var(--brand-1); }
-        .customer-info { font-size: 10.5px; font-weight: 600; display:flex; flex-wrap:wrap; gap:10px; }
+  .header-top {
+    display: flex;
+    justify-content: space-between;
+    font-size: 7px;
+    margin-bottom: 1mm;
+    color: #666;
+    font-weight: bold;
+  }
 
-        /* ITEMS TABLE */
-        .items-table { width:100%; border-collapse: collapse; margin-bottom: 6px; font-size: 10px; }
-        .items-table th {
-            background: #1f2937; color:#fff; padding:4px; font-size:9px;
-        }
-        .items-table td { padding:4px; border-bottom:1px solid #f3f4f6; text-align:center; }
-        .items-table td.description { text-align:left; font-weight:500; }
-        .items-table tbody tr:nth-child(even) { background-color: var(--table-alt); }
+  .header h2 {
+    font-size: 11px;
+    color: #2c5282;
+    margin: 1mm 0;
+    font-weight: bold;
+  }
 
-        .col-sr{width:5%} .col-desc{width:34%} .col-batch{width:10%}
-        .col-mrp{width:10%} .col-qty{width:7%} .col-rate{width:10%} .col-amt{width:12%}
+  .header small {
+    font-size: 6px;
+    color: #555;
+    line-height: 1.2;
+    display: block;
+  }
 
-        /* FOOTER PANELS */
-        .invoice-footer { display:grid; grid-template-columns:1.3fr auto 1fr; gap:8px; margin-top:6px; align-items:start; }
+  /* Tables - compact */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1mm 0;
+  }
 
-        .terms-section { border:1px solid var(--border); padding:6px; border-radius:4px; font-size:9px; }
-        .signature-section { display:flex; gap:4px; margin-top:4px; }
-        .signature-box { flex:1; border:1px solid #d1d5db; font-size:9px; padding:4px; text-align:center; border-radius:3px; }
+  .info-table td {
+    padding: 1mm;
+    vertical-align: top;
+    font-size: 7px;
+    border-bottom: 1px solid #eee;
+  }
 
-        .qr-section img { width:60px; height:60px; border:1px solid var(--brand-1); border-radius:4px; padding:2px; background:#fff; }
+  .items-table th, .items-table td {
+    border: 1px solid #ccc;
+    padding: 1mm;
+    text-align: center;
+    font-size: 6px;
+    line-height: 1.2;
+  }
 
-        .summary-section { border:1px solid var(--border); border-radius:4px; overflow:hidden; }
-        .summary-table { width:100%; border-collapse:collapse; font-size:9.5px; }
-        .summary-table td { padding:4px 6px; border-bottom:1px solid #f3f4f6; }
-        .summary-table td:first-child{color:var(--muted);font-weight:500}
-        .summary-table td:last-child{text-align:right;font-weight:700;color:#111}
+  .items-table th {
+    background: #2c5282;
+    color: #fff;
+    font-weight: bold;
+  }
 
-        .company-footer { text-align:center; font-size:8px; color:var(--muted); margin-top:6px; border-top:1px solid var(--border); padding-top:4px; }
+  .items-table td.description {
+    text-align: left;
+    font-size: 6px;
+  }
 
-        /* PRINT */
-        @page { size: A5 landscape; margin:5mm; }
-        @media print {
-            body { padding:0; background:#fff; margin:0; }
-            .invoice-container { box-shadow:none; border-radius:0; max-width:none; width:100%; margin:0; }
-            .action-buttons { display:none !important; }
-        }
+  /* Merged bottom section - redesigned for A5 */
+  .merged-block {
+    display: flex;
+    gap: 2mm;
+    margin-top: 2mm;
+    font-size: 6px;
+  }
 
-        /* ACTION BUTTONS */
-        .action-buttons { display:flex; justify-content:center; gap:8px; margin-top:8px; }
-        .btn { font-size:11px; padding:6px 10px; border-radius:4px; cursor:pointer; border:none; font-weight:600; }
-        .btn-primary{background:linear-gradient(135deg,var(--brand-1),var(--brand-2));color:#fff}
-        .btn-secondary{background:#e5e7eb;color:#374151}
-        .btn-success{background:linear-gradient(135deg,#059669,#10b981);color:#fff}
-    </style>
+  .merged-left {
+    flex: 1.2;
+    border: 1px solid #ccc;
+    border-radius: 2px;
+    padding: 2mm;
+    background: #fbfbfb;
+  }
+
+  .terms-title {
+    font-weight: bold;
+    font-size: 7px;
+    margin-bottom: 1mm;
+    color: #2c5282;
+  }
+
+  .terms-text {
+    font-size: 6px;
+    line-height: 1.2;
+    max-height: 8mm;
+    overflow: hidden;
+  }
+
+  .sign-row {
+    display: flex;
+    gap: 1mm;
+    margin-top: 2mm;
+  }
+
+  .sign-box {
+    flex: 1;
+    border: 1px solid #ccc;
+    padding: 3mm 1mm;
+    text-align: center;
+    font-size: 6px;
+    border-radius: 2px;
+    background: white;
+  }
+
+  .merged-center {
+    flex: 0 0 20mm;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #ccc;
+    border-radius: 2px;
+    background: #fff;
+  }
+
+  .qr-wrap img {
+    max-width: 18mm;
+    max-height: 18mm;
+  }
+
+  .merged-right {
+    flex: 0 0 35mm;
+    border: 1px solid #ccc;
+    border-radius: 2px;
+    padding: 2mm;
+    background: #fff;
+  }
+
+  .summary-row td {
+    padding: 0.5mm;
+    font-size: 6px;
+    line-height: 1.3;
+  }
+
+  .highlight {
+    background: #fff3cd;
+    font-weight: bold;
+    border-left: 2px solid #ff8f00;
+  }
+
+  .current-balance {
+    background: #d1ecf1;
+    font-weight: bold;
+    border-left: 2px solid #1976d2;
+  }
+
+  /* Footer */
+  .vertical-footer {
+    font-size: 6px;
+    padding: 1mm;
+    margin-top: 2mm;
+    text-align: center;
+    border-top: 1px solid #eee;
+    color: #666;
+  }
+
+  /* Buttons - only show on screen */
+  .btns {
+    margin: 5mm auto;
+    display: flex;
+    gap: 2mm;
+    justify-content: center;
+  }
+
+  .btn {
+    font-size: 9px;
+    padding: 2mm 4mm;
+    border: 1px solid #ccc;
+    border-radius: 15px;
+    cursor: pointer;
+    background: white;
+    text-decoration: none;
+    color: #333;
+    display: inline-flex;
+    align-items: center;
+    gap: 1mm;
+  }
+
+  .btn:hover {
+    background: #f0f0f0;
+  }
+
+  .btn-success {
+    background: #25d366;
+    color: white;
+    border-color: #25d366;
+  }
+
+  /* Print styles */
+  @media print {
+    body {
+      background: white;
+      padding: 0;
+      margin: 0;
+    }
+
+    .page-container {
+      width: 210mm;
+      min-height: 297mm;
+      padding: 5mm;
+      margin: 0;
+      box-shadow: none;
+    }
+
+    .hidden-print {
+      display: none !important;
+    }
+
+    .invoice {
+      border: solid 1px #000;
+      break-inside: avoid;
+    }
+
+    .invoice-duplicate {
+      border-top: 2px dashed #000;
+    }
+
+    /* Ensure proper page breaks */
+    .page-container {
+      page-break-after: always;
+    }
+
+    .page-container:last-child {
+      page-break-after: auto;
+    }
+  }
+
+  /* Screen-only styles */
+  @media screen {
+    .page-container {
+      box-shadow: 0 0 10mm rgba(0,0,0,0.1);
+      margin-bottom: 10mm;
+    }
+  }
+
+  /* Responsive adjustments for smaller screens */
+  @media screen and (max-width: 800px) {
+    .page-container {
+      width: 100%;
+      padding: 2mm;
+    }
+
+    .merged-block {
+      flex-direction: column;
+    }
+
+    .merged-right {
+      flex: none;
+    }
+  }
+</style>
 </head>
 <body>
 <c:if test="${pageContext.request.userPrincipal.name != null}">
-<div class="invoice-container" id="invoiceRoot">
-    <div class="invoice-content">
 
-        <!-- HEADER -->
-        <div class="invoice-header">
-            <div class="invoice-meta">
-                <div><strong>#${invoiceNo}</strong></div>
-                <div><i class="fas fa-calendar"></i> ${date}</div>
-            </div>
-            <div class="shop-name">${ownerInfo.shopName}</div>
-            <div class="shop-details">
-                ${ownerInfo.address} | ${ownerInfo.ownerName} | ${ownerInfo.mobNumber}<br>
-                LC: ${ownerInfo.lcNo} | GST: ${ownerInfo.gstNumber}
-            </div>
-        </div>
-
-        <!-- CUSTOMER -->
-        <div class="customer-section">
-            <div class="customer-title"><i class="fas fa-user-circle"></i> Bill To</div>
-            <div class="customer-info">
-                <span><i class="fas fa-user"></i> ${profile.custName}</span>
-                <span><i class="fas fa-phone"></i> ${profile.phoneNo}</span>
-                <span><i class="fas fa-map-marker-alt"></i> ${profile.address}</span>
-            </div>
-        </div>
-
-        <!-- ITEMS -->
-        <table class="items-table">
-            <thead>
-            <tr>
-                <th class="col-sr">Sr</th>
-                <th class="col-desc">Description</th>
-                <th class="col-batch">Batch</th>
-                <th class="col-mrp">MRP</th>
-                <th class="col-qty">Qty</th>
-                <th class="col-rate">Rate</th>
-                <th class="col-amt">Amount</th>
-            </tr>
-            </thead>
-            <tbody>
-            <c:forEach items="${items}" var="item" varStatus="status">
-                <c:if test="${status.index < 10}"> <!-- Only 10 rows per page -->
-                <tr>
-                    <td>${item.itemNo}</td>
-                    <td class="description">${item.description}</td>
-                    <td>${item.batchNo}</td>
-                    <td>₹<c:out value="${item.mrp}" default="0.00"/></td>
-                    <td>${item.qty}</td>
-                    <td>₹<c:out value="${item.rate}" default="0.00"/></td>
-                    <td>₹<c:out value="${item.amount}" default="0.00"/></td>
-                </tr>
-                </c:if>
-            </c:forEach>
-            </tbody>
-        </table>
-
-        <!-- FOOTER -->
-        <div class="invoice-footer">
-            <div class="terms-section">
-                <div><strong>Terms & Conditions</strong></div>
-                <div>
-                    1) Sold material will not be taken back.
-                    2) Goods received in good condition.<br>
-                    3) Agriculture use only. Highly poisonous.
-                    4) Payment due within 30 days.
-                </div>
-                <div class="signature-section">
-                    <div class="signature-box">Customer</div>
-                    <div class="signature-box">For ${ownerInfo.shopName}</div>
-                </div>
-            </div>
-
-            <div class="qr-section">
-                <img src="data:image/png;base64,${QRCODE}" alt="QR Code"/>
-            </div>
-
-            <div class="summary-section">
-                <table class="summary-table" style="width:100%; border-collapse: collapse;">
-                    <tr>
-                        <!-- Left Side -->
-                        <td style="vertical-align: top; padding-right: 15px; width: 50%;">
-                            <table style="width:100%;">
-                                <tr>
-                                    <td>Sub Total</td>
-                                    <td>₹ <c:out value="${totalAmout}" default="0.00"/></td>
-                                </tr>
-                                <tr>
-                                    <td>Paid</td>
-                                    <td>₹ <c:out value="${advamount}" default="0.00"/></td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Net Total</strong></td>
-                                    <td><strong>₹ ${totalAmout - advamount}</strong></td>
-                                </tr>
-                            </table>
-                        </td>
-
-                        <!-- Right Side -->
-                        <td style="vertical-align: top; width: 50%;">
-                            <table style="width:100%;">
-                                <tr>
-                                    <td>GST</td>
-                                    <td>₹ <c:out value="${currentinvoiceitems.tax}" default="0.00"/></td>
-                                </tr>
-                                <tr>
-                                    <td>Prev Bal</td>
-                                    <td>₹ <c:out value="${currentinvoiceitems.preBalanceAmt}" default="0.00"/></td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Curr Bal</strong></td>
-                                    <td><strong>₹ <c:out value="${profile.currentOusting}" default="0.00"/></strong></td>
-                                </tr>
-                            </table>
-                        </td>
-                    </tr>
-                </table>
-            </div>
-
-        </div>
-
-        <div class="company-footer">
-            Generated by <strong>MyBillBook Solution</strong> • Ph: 8180080378
-        </div>
+<div class="page-container">
+  <!-- First Invoice (Original) -->
+  <div class="invoice">
+    <!-- Header -->
+    <div class="header">
+      <div class="header-top">
+        <div><strong>Invoice:</strong> #${invoiceNo}</div>
+        <div><strong>TAX INVOICE</strong></div>
+        <div><strong>Date:</strong> ${date}</div>
+      </div>
+      <h2>${ownerInfo.shopName}</h2>
+      <small>
+        <i class="fa fa-map-marker"></i> ${ownerInfo.address} |
+        <i class="fa fa-user"></i> ${ownerInfo.ownerName} |
+        <i class="fa fa-phone"></i> ${ownerInfo.mobNumber}<br/>
+        <i class="fa fa-id-card"></i><strong>LC:</strong> ${ownerInfo.lcNo} |
+        <strong>GST:</strong> ${ownerInfo.gstNumber}
+      </small>
     </div>
+
+    <!-- Customer Info -->
+    <table class="info-table">
+      <tr>
+        <td><strong>Name:</strong> ${profile.custName}</td>
+        <td><strong>Contact:</strong> ${profile.phoneNo}</td>
+        <td><strong>Address:</strong> ${profile.address}</td>
+      </tr>
+    </table>
+
+    <!-- Items Table -->
+    <table class="items-table">
+      <thead>
+        <tr>
+          <th style="width:8%">SR</th>
+          <th style="width:30%">Description</th>
+
+          <c:if test="${invoiceColms.contains('BRAND')}">
+            <th style="width:12%">Brand</th>
+          </c:if>
+
+          <c:if test="${invoiceColms.contains('BATCHNO')}">
+            <th style="width:10%">Batch</th>
+          </c:if>
+
+          <c:if test="${invoiceColms.contains('EXPD')}">
+            <th style="width:8%">Exp.</th>
+          </c:if>
+
+          <c:if test="${invoiceColms.contains('MRP')}">
+            <th style="width:10%">MRP</th>
+          </c:if>
+
+          <th style="width:8%">Qty</th>
+          <th style="width:12%">Rate</th>
+          <th style="width:12%">Amount</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <c:forEach items="${items}" var="item">
+          <tr>
+            <td>${item.itemNo}</td>
+            <td class="description">${item.description}</td>
+
+            <c:if test="${invoiceColms.contains('BRAND')}">
+              <td>${empty item.brand ? 'NA' : item.brand}</td>
+            </c:if>
+
+            <c:if test="${invoiceColms.contains('BATCHNO')}">
+              <td>${item.batchNo}</td>
+            </c:if>
+
+            <c:if test="${invoiceColms.contains('EXPD')}">
+              <td>${empty item.expDate ? 'NA' : item.expDate}</td>
+            </c:if>
+
+            <c:if test="${invoiceColms.contains('MRP')}">
+              <td style="text-align:right;">₹${item.mrp}</td>
+            </c:if>
+
+            <td>${item.qty}</td>
+            <td style="text-align:right;">₹${item.rate}</td>
+            <td style="text-align:right;">₹${item.amount}</td>
+          </tr>
+        </c:forEach>
+      </tbody>
+    </table>
+
+    <!-- Merged Section -->
+    <div class="merged-block">
+      <!-- Terms & Conditions + Sign -->
+      <div class="merged-left">
+        <div class="terms-title">Terms &amp; Conditions</div>
+        <div class="terms-text">
+          ${ownerInfo.terms}
+        </div>
+        <div class="sign-row">
+          <div class="sign-box">Customer Sign</div>
+          <div class="sign-box">For ${ownerInfo.shopName}</div>
+        </div>
+      </div>
+
+      <!-- QR Code -->
+      <div class="merged-center qr-wrap">
+        <img src="data:image/png;base64,${QRCODE}" alt="QR Code" />
+      </div>
+
+      <!-- Invoice Summary -->
+      <div class="merged-right">
+        <table>
+          <tr class="summary-row"><td>Sub Total</td><td style="text-align:right;">₹${totalAmout}</td></tr>
+          <tr class="summary-row"><td>Paid</td><td style="text-align:right;">₹${advamount}</td></tr>
+          <tr class="summary-row highlight"><td>Net Total</td><td style="text-align:right;">₹${totalAmout-advamount}</td></tr>
+          <tr class="summary-row"><td>GST</td><td style="text-align:right;">₹${currentinvoiceitems.tax}</td></tr>
+          <tr class="summary-row"><td>Prev Balance</td><td style="text-align:right;">₹${currentinvoiceitems.preBalanceAmt}</td></tr>
+          <tr class="summary-row current-balance"><td>Current Balance</td><td style="text-align:right;">₹${profile.currentOusting}</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="vertical-footer">
+      Generated by <strong>MyBillBook Solution</strong> • Contact: 8180080378
+    </div>
+  </div>
+
+  <!-- Second Invoice (Duplicate Copy) -->
+  <div class="invoice invoice-duplicate">
+    <!-- Header -->
+    <div class="header">
+      <div class="header-top">
+        <div><strong>Invoice:</strong> #${invoiceNo}</div>
+        <div><strong>DUPLICATE COPY</strong></div>
+        <div><strong>Date:</strong> ${date}</div>
+      </div>
+      <h2>${ownerInfo.shopName}</h2>
+      <small>
+        <i class="fa fa-map-marker"></i> ${ownerInfo.address} |
+        <i class="fa fa-user"></i> ${ownerInfo.ownerName} |
+        <i class="fa fa-phone"></i> ${ownerInfo.mobNumber}<br/>
+        <i class="fa fa-id-card"></i><strong>LC:</strong> ${ownerInfo.lcNo} |
+        <strong>GST:</strong> ${ownerInfo.gstNumber}
+      </small>
+    </div>
+
+    <!-- Customer Info -->
+    <table class="info-table">
+      <tr>
+        <td><strong>Name:</strong> ${profile.custName}</td>
+        <td><strong>Contact:</strong> ${profile.phoneNo}</td>
+        <td><strong>Address:</strong> ${profile.address}</td>
+      </tr>
+    </table>
+
+    <!-- Items Table -->
+    <table class="items-table">
+      <thead>
+        <tr>
+          <th style="width:8%">SR</th>
+          <th style="width:30%">Description</th>
+
+          <c:if test="${invoiceColms.contains('BRAND')}">
+            <th style="width:12%">Brand</th>
+          </c:if>
+
+          <c:if test="${invoiceColms.contains('BATCHNO')}">
+            <th style="width:10%">Batch</th>
+          </c:if>
+
+          <c:if test="${invoiceColms.contains('EXPD')}">
+            <th style="width:8%">Exp.</th>
+          </c:if>
+
+          <c:if test="${invoiceColms.contains('MRP')}">
+            <th style="width:10%">MRP</th>
+          </c:if>
+
+          <th style="width:8%">Qty</th>
+          <th style="width:12%">Rate</th>
+          <th style="width:12%">Amount</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <c:forEach items="${items}" var="item">
+          <tr>
+            <td>${item.itemNo}</td>
+            <td class="description">${item.description}</td>
+
+            <c:if test="${invoiceColms.contains('BRAND')}">
+              <td>${empty item.brand ? 'NA' : item.brand}</td>
+            </c:if>
+
+            <c:if test="${invoiceColms.contains('BATCHNO')}">
+              <td>${item.batchNo}</td>
+            </c:if>
+
+            <c:if test="${invoiceColms.contains('EXPD')}">
+              <td>${empty item.expDate ? 'NA' : item.expDate}</td>
+            </c:if>
+
+            <c:if test="${invoiceColms.contains('MRP')}">
+              <td style="text-align:right;">₹${item.mrp}</td>
+            </c:if>
+
+            <td>${item.qty}</td>
+            <td style="text-align:right;">₹${item.rate}</td>
+            <td style="text-align:right;">₹${item.amount}</td>
+          </tr>
+        </c:forEach>
+      </tbody>
+    </table>
+
+    <!-- Merged Section -->
+    <div class="merged-block">
+      <!-- Terms & Conditions + Sign -->
+      <div class="merged-left">
+        <div class="terms-title">Terms &amp; Conditions</div>
+        <div class="terms-text">
+          ${ownerInfo.terms}
+        </div>
+        <div class="sign-row">
+          <div class="sign-box">Customer Sign</div>
+          <div class="sign-box">For ${ownerInfo.shopName}</div>
+        </div>
+      </div>
+
+      <!-- QR Code -->
+      <div class="merged-center qr-wrap">
+        <img src="data:image/png;base64,${QRCODE}" alt="QR Code" />
+      </div>
+
+      <!-- Invoice Summary -->
+      <div class="merged-right">
+        <table>
+          <tr class="summary-row"><td>Sub Total</td><td style="text-align:right;">₹${totalAmout}</td></tr>
+          <tr class="summary-row"><td>Paid</td><td style="text-align:right;">₹${advamount}</td></tr>
+          <tr class="summary-row highlight"><td>Net Total</td><td style="text-align:right;">₹${totalAmout-advamount}</td></tr>
+          <tr class="summary-row"><td>GST</td><td style="text-align:right;">₹${currentinvoiceitems.tax}</td></tr>
+          <tr class="summary-row"><td>Prev Balance</td><td style="text-align:right;">₹${currentinvoiceitems.preBalanceAmt}</td></tr>
+          <tr class="summary-row current-balance"><td>Current Balance</td><td style="text-align:right;">₹${profile.currentOusting}</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="vertical-footer">
+      Generated by <strong>MyBillBook Solution</strong> • Contact: 8180080378
+    </div>
+  </div>
 </div>
 
-<!-- ACTIONS -->
-<div class="action-buttons">
-    <button class="btn btn-secondary" onclick="location.href='${pageContext.request.contextPath}/login/home'">Home</button>
-    <button class="btn btn-primary" onclick="downloadPDF(event)">Download PDF</button>
-    <a href="https://wa.me/${profile.phoneNo}/?text=Hello%20${profile.custName},%20your%20invoice%20is%20ready."
-       target="_blank" class="btn btn-success">Share on WhatsApp</a>
+<!-- Buttons -->
+<div class="btns hidden-print">
+  <button class="btn" onclick="location.href='${pageContext.request.contextPath}/login/home'">
+    <i class="fa fa-home"></i> Home
+  </button>
+  <button class="btn" onclick="downloadPDF()">
+    <i class="fa fa-file-pdf-o"></i> Download PDF
+  </button>
+  <a href="https://wa.me/${profile.phoneNo}/?text=Namaste!!!%20*${profile.custName}*,%20%E0%A4%A4%E0%A5%81%E0%A4%AE%E0%A4%9A%E0%A5%87%20%E0%A4%87%E0%A4%A8%E0%A5%8D%E0%A4%B5%E0%A5%8D%E0%A4%B9%E0%A5%89%E0%A4%87%E0%A4%B8%20%E0%A4%A4%E0%A5%8D%E0%A4%AF%E0%A4%BE%E0%A4%B0%20%E0%A4%9D%E0%A4%BE%E0%A4%B2%E0%A5%87%20%E0%A4%86%E0%A4%B9%E0%A5%87.%20%E0%A4%95%E0%A5%83%E0%A4%AA%E0%A4%AF%E0%A4%BE%20%E0%A4%A4%E0%A4%AA%E0%A4%B6%E0%A5%80%E0%A4%B2%20%E0%A4%AA%E0%A4%B9%E0%A4%BE..." target="_blank" class="btn btn-success">
+    <i class="fa fa-whatsapp"></i> WhatsApp करा
+  </a>
 </div>
+
 </c:if>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script>
-function downloadPDF(event) {
-    const element = document.querySelector('.invoice-container');
-    element.style.backgroundColor = '#ffffff';
+// PDF download function
+function downloadPDF(){
+  const element = document.querySelector('.page-container');
 
-    const opt = {
-        margin: [5, 5, 5, 5],
-        filename: `Invoice-${document.querySelector('.invoice-meta strong').textContent}.pdf`,
-        image: { type: 'jpeg', quality: 0.85 },
-        html2canvas: {
-            scale: 2,   // reduce scaling so content fits
-            backgroundColor: '#ffffff',
-            useCORS: true,
-            scrollX: 0,
-            scrollY: 0
-        },
-        jsPDF: { unit: 'mm', format: 'a5', orientation: 'landscape' },
-        pagebreak: { mode: 'avoid' }  // prevent splitting into two pages
-    };
-
-    const btn = event.target;
-    const original = btn.innerHTML;
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating PDF...';
-    btn.disabled = true;
-
-    html2pdf().set(opt).from(element).save().then(() => {
-        btn.innerHTML = original;
-        btn.disabled = false;
-    }).catch(() => {
-        btn.innerHTML = original;
-        btn.disabled = false;
-        alert('Error generating PDF.');
-    });
+  html2pdf().set({
+    margin: [5, 5, 5, 5], // 5mm margins
+    filename: '${profile.custName}_Invoice_${invoiceNo}_A5.pdf',
+    image: {type: 'jpeg', quality: 0.98},
+    html2canvas: {
+      scale: 2,
+      useCORS: true,
+      letterRendering: true
+    },
+    jsPDF: {
+      unit: 'mm',
+      format: 'a4',
+      orientation: 'portrait'
+    }
+  }).from(element).save();
 }
 
+// Auto print on page load
+window.addEventListener('load', function() {
+  // Small delay to ensure fonts and images are loaded
+  setTimeout(function() {
+    window.print();
+  }, 500);
+});
+
+// Print-specific styling
+window.addEventListener('beforeprint', function() {
+  document.body.style.background = 'white';
+});
+
+window.addEventListener('afterprint', function() {
+  document.body.style.background = '#f7fafc';
+});
 </script>
+
 </body>
 </html>

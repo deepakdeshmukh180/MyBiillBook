@@ -53,7 +53,7 @@ public class DealerController {
         dealer.setTotalAmount(dealer.getBalanceAmount());
         dealer.setPaidAmount(0.00);
         if (dealer.getId().isEmpty()){
-            dealer.setId(UUID.randomUUID().toString());
+            dealer.setId(UUID.randomUUID().toString().toUpperCase());
         }
         dealer.setOwnerId(Utility.getOwnerIdFromSession(request));
         dealerRepository.save(dealer);

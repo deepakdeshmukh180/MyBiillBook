@@ -50,6 +50,16 @@ public class InvoiceDetails {
     private String  createdAt;
 
 
+    private String  invoiceType;
+
+    public String getInvoiceType() {
+        return invoiceType;
+    }
+
+    public void setInvoiceType(String invoiceType) {
+        this.invoiceType = invoiceType;
+    }
+
     public String getOldInvoicesFlag() {
         return oldInvoicesFlag;
     }

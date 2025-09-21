@@ -10,18 +10,29 @@ import in.enp.sms.entities.CustProfile;
 import in.enp.sms.entities.InvoiceDetails;
 import in.enp.sms.entities.OwnerInfo;
 import in.enp.sms.pojo.BalanceDeposite;
+import in.enp.sms.pojo.OwnerSession;
+import in.enp.sms.pojo.TransactionEntry;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+
+import static in.enp.sms.controller.UserController.getCurretDateWithTime;
 
 public class PdfGenerator {
 
     private final Font titleFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 16, BaseColor.BLACK);
     private final Font subtitleFont = FontFactory.getFont(FontFactory.HELVETICA, 10, BaseColor.DARK_GRAY);
-    private final Font tableHeaderFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 9, BaseColor.WHITE);
-    private final Font cellFont = FontFactory.getFont(FontFactory.HELVETICA, 9);
+    private final Font tableHeaderFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 7, BaseColor.WHITE);
+    private final Font cellFont = FontFactory.getFont(FontFactory.HELVETICA, 7);
+
+    private final Font cellFontItems = FontFactory.getFont(FontFactory.HELVETICA, 7);
+
     private final BaseColor headerBgColor = new BaseColor(63, 81, 181); // Indigo
     private final BaseColor rowAltColor = new BaseColor(245, 245, 245);
     private final Font subHeaderFont = FontFactory.getFont(FontFactory.TIMES_BOLD, 10, CMYKColor.DARK_GRAY);
@@ -58,27 +69,30 @@ public class PdfGenerator {
         return cell;
     }
 
-    private void addLogo(Document document) throws DocumentException, IOException {
-        Image logo = Image.getInstance("src/main/resources/img.png"); // Adjust this path to your setup
-        logo.scaleToFit(150, 150);
-        logo.setAlignment(Image.ALIGN_CENTER);
-        logo.setSpacingAfter(10f);
-        document.add(logo);
+
+    private PdfPCell createCellforItems(String content, int alignment, boolean shaded) {
+        PdfPCell cell = new PdfPCell(new Phrase(content != null ? content : "", cellFontItems));
+        cell.setHorizontalAlignment(alignment);
+        cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+        cell.setPadding(3f);
+        if (shaded) cell.setBackgroundColor(rowAltColor);
+        return cell;
     }
 
-    public void generate(List<CustProfile> customerList, HttpServletResponse response, OwnerInfo ownerInfo)
-            throws IOException, DocumentException {
 
-        Document document = new Document(PageSize.A4);
-        PdfWriter.getInstance(document, response.getOutputStream());
+    public void generate(List<CustProfile> customerList, HttpServletResponse response, OwnerSession ownerInfo)
+            throws Exception {
+        Document document = new Document();
+        PdfWriter writer = PdfWriter.getInstance(document, response.getOutputStream());
+        writer.setPageEvent(new HeaderFooterPageEvent());
+
         document.open();
 
-        addLogo(document);
 
         addCenteredParagraph(document, ownerInfo.getShopName(), titleFont, 10f, 0f);
         addCenteredParagraph(document, ownerInfo.getAddress(), subtitleFont, 0f, 0f);
         addCenteredParagraph(document, "List of the Customers", subtitleFont, 5f, 0f);
-        addCenteredParagraph(document, "Date: " + CompanyController.getCurretDateWithTime(), subtitleFont, 0f, 10f);
+        addCenteredParagraph(document, "Date: " + getCurretDateWithTime(), subtitleFont, 0f, 10f);
 
         String[] headers = {"SN", "Customer Name", "Address", "Contact No", "Total AMT", "Paid AMT", "Bal. AMT"};
         int[] columnWidths = {1, 4, 4, 3, 2, 2, 2};
@@ -115,15 +129,18 @@ public class PdfGenerator {
     public void generateStatement(List<InvoiceDetails> invoiceDetails,
                                   List<BalanceDeposite> balanceDeposites,
                                   HttpServletResponse response,
-                                  OwnerInfo ownerInfo,
-                                  String date) throws IOException, DocumentException {
+                                  OwnerSession ownerInfo,
+                                  String date) throws Exception {
 
         Document document = new Document(PageSize.A4, 36, 36, 54, 54);
         PdfWriter writer = PdfWriter.getInstance(document, response.getOutputStream());
         writer.setPageEvent(new PdfPageFooter(ownerInfo.getShopName()));
+        writer.setPageEvent(new HeaderFooterPageEvent());
+
+
         document.open();
 
-        addLogo(document);
+
 
         addCenteredParagraph(document, ownerInfo.getShopName(), titleFont, 10f, 0f);
         addCenteredParagraph(document, ownerInfo.getAddress(), subtitleFont, 0f, 5f);
@@ -193,70 +210,86 @@ public class PdfGenerator {
 
     public void generateInvoiceHistory(CustProfile profile,
                                        HttpServletResponse response,
-                                       OwnerInfo ownerInfo,
+                                       OwnerSession ownerInfo,
                                        List<InvoiceDetails> oldInvoices,
                                        List<BalanceDeposite> deposits) throws Exception {
 
         Document document = new Document(PageSize.A4, 36, 36, 54, 54);
         PdfWriter writer = PdfWriter.getInstance(document, response.getOutputStream());
         writer.setPageEvent(new PdfPageFooter(ownerInfo.getShopName()));
+        writer.setPageEvent(new HeaderFooterPageEvent());
+
         document.open();
 
-        addLogo(document);
+
 
         addCenteredParagraph(document, ownerInfo.getShopName(), titleFont, 10f, 0f);
         addCenteredParagraph(document, ownerInfo.getAddress(), subtitleFont, 0f, 0f);
-        addCenteredParagraph(document, "Owner : " + ownerInfo.getOwnerName() + " | Contact: " + ownerInfo.getMobNumber(), subtitleFont, 0f, 10f);
+        addCenteredParagraph(document,
+                "Owner : " + ownerInfo.getOwnerName() + " | Contact: " + ownerInfo.getMobNumber(),
+                subtitleFont, 0f, 10f);
 
         PdfPTable custTable = createTable(new String[]{"Customer", "Address", "Phone", "Date"}, new int[]{3, 4, 2, 2});
         custTable.addCell(createCell(profile.getCustName(), Element.ALIGN_LEFT, false));
         custTable.addCell(createCell(profile.getAddress(), Element.ALIGN_LEFT, false));
         custTable.addCell(createCell(profile.getPhoneNo(), Element.ALIGN_RIGHT, false));
-        custTable.addCell(createCell(CompanyController.getCurretDateWithTime(), Element.ALIGN_RIGHT, false));
+        custTable.addCell(createCell(getCurretDateWithTime(), Element.ALIGN_RIGHT, false));
         document.add(custTable);
 
-        addCenteredParagraph(document, "Billing Statement History", subHeaderFont, 10f, 5f);
+        addCenteredParagraph(document, "Transaction History", subHeaderFont, 10f, 5f);
 
-        if (!oldInvoices.isEmpty()) {
-            PdfPTable invoiceTable = createTable(
-                    new String[]{"Bill No / Date", "Items", "PreTax + GST", "Total", "Paid", "Balance"},
-                    new int[]{2, 5, 2, 2, 2, 2});
 
-            boolean shade = false;
-            for (InvoiceDetails inv : oldInvoices) {
-                invoiceTable.addCell(createCell(inv.getInvoiceId() + "\n[" + inv.getDate() + "]", Element.ALIGN_LEFT, shade));
-                invoiceTable.addCell(createCell(inv.getItemDetails().replaceAll(" ", "").replaceAll(",", "\n"), Element.ALIGN_LEFT, shade));
-                invoiceTable.addCell(createCell(String.format("%.2f\n+%.2f", inv.getPreTaxAmt(), inv.getTax()), Element.ALIGN_RIGHT, shade));
-                invoiceTable.addCell(createCell(String.format("%.2f", inv.getTotInvoiceAmt()), Element.ALIGN_RIGHT, shade));
-                invoiceTable.addCell(createCell(String.format("%.2f", inv.getAdvanAmt()), Element.ALIGN_RIGHT, shade));
-                invoiceTable.addCell(createCell(String.format("%.2f", inv.getBalanceAmt()), Element.ALIGN_RIGHT, shade));
-                shade = !shade;
-            }
 
-            document.add(invoiceTable);
+        List<TransactionEntry> transactions = new ArrayList<>();
+
+        // Add Invoices (Debits)
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+
+        for (InvoiceDetails inv : oldInvoices) {
+            transactions.add(new TransactionEntry(
+                    LocalDateTime.parse(inv.getCreatedAt(), formatter),
+                    "Invoice: " + inv.getInvoiceId() +" - "+ inv.getInvoiceType(),
+                    inv.getTotInvoiceAmt(), inv.getAdvanAmt() , inv.getBalanceAmt()
+
+            ));
         }
 
-        if (!deposits.isEmpty()) {
-            addCenteredParagraph(document, "Payment History", subHeaderFont, 10f, 5f);
-
-            PdfPTable transTable = createTable(
-                    new String[]{"Transaction Id", "Description", "Balance", "Mode", "Deposited", "Date"},
-                    new int[]{3, 4, 2, 2, 2, 2});
-
-            boolean shade = false;
-            for (BalanceDeposite dep : deposits) {
-                transTable.addCell(createCell(dep.getId(), Element.ALIGN_LEFT, shade));
-                transTable.addCell(createCell(dep.getDescription(), Element.ALIGN_LEFT, shade));
-                transTable.addCell(createCell(String.format("%.2f", dep.getCurrentOusting()), Element.ALIGN_RIGHT, shade));
-                transTable.addCell(createCell(dep.getModeOfPayment(), Element.ALIGN_CENTER, shade));
-                transTable.addCell(createCell(String.format("%.2f", dep.getAdvAmt()), Element.ALIGN_RIGHT, shade));
-                transTable.addCell(createCell(dep.getDate().toString(), Element.ALIGN_RIGHT, shade));
-                shade = !shade;
-            }
-
-            document.add(transTable);
+// Add Deposits (Credits)
+        for (BalanceDeposite dep : deposits) {
+            transactions.add(new TransactionEntry(
+                    LocalDateTime.parse(dep.getCreatedAt(), formatter),
+                    "Deposit: " + dep.getId()+" - "+dep.getDescription()+" -"+dep.getModeOfPayment(),
+                    0.0,
+                    dep.getAdvAmt(),dep.getCurrentOusting()
+            ));
         }
 
+        // Sort by date
+        transactions.sort(Comparator.comparing(t -> t.getDate()));
+
+        // Create unified table
+        PdfPTable transTable = createTable(
+                new String[]{"Date", "Description", "Debit", "Credit", "Balance"},
+                new int[]{2, 6, 2, 2, 2});
+
+        boolean shade = false;
+        double runningBalance = profile.getCurrentOusting(); // optional
+
+        for (TransactionEntry t : transactions) {
+
+
+            transTable.addCell(createCell(t.getDate().format(formatter), Element.ALIGN_LEFT, shade));
+            transTable.addCell(createCell(t.getDescription(), Element.ALIGN_LEFT, shade));
+            transTable.addCell(createCell(t.getDebit() > 0 ? String.format("%.2f", t.getDebit()) : "", Element.ALIGN_RIGHT, shade));
+            transTable.addCell(createCell(t.getCredit() > 0 ? String.format("%.2f", t.getCredit()) : "", Element.ALIGN_RIGHT, shade));
+            transTable.addCell(createCell(String.format("%.2f", t.getBalance()), Element.ALIGN_RIGHT, shade));
+
+            shade = !shade;
+        }
+
+        document.add(transTable);
+
+        // Summary Table
         PdfPTable summary = createTable(
                 new String[]{
                         "Total Amount: Rs. " + profile.getTotalAmount(),
@@ -269,19 +302,22 @@ public class PdfGenerator {
     }
 
 
+
     public ByteArrayOutputStream generateStatementPdf(List<InvoiceDetails> invoiceDetails,
                                                       List<BalanceDeposite> balanceDeposites,
                                                       List<CustProfile> customerList,
                                                       OwnerInfo ownerInfo,
-                                                      String date) throws IOException, DocumentException {
+                                                      String date) throws Exception {
 
         Document document = new Document(PageSize.A4, 36, 36, 54, 54);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         PdfWriter writer = PdfWriter.getInstance(document, out);
         writer.setPageEvent(new PdfPageFooter(ownerInfo.getShopName()));
+        writer.setPageEvent(new HeaderFooterPageEvent());
+
         document.open();
 
-        addLogo(document);
+
         addCenteredParagraph(document, ownerInfo.getShopName(), titleFont, 10f, 0f);
         addCenteredParagraph(document, ownerInfo.getAddress(), subtitleFont, 0f, 5f);
         addCenteredParagraph(document, "Invoice & Transaction Summary", subtitleFont, 0f, 10f);
@@ -346,7 +382,7 @@ public class PdfGenerator {
         document.add(transTable);
         document.newPage();
         addCenteredParagraph(document, "List of the Customers", subtitleFont, 5f, 0f);
-        addCenteredParagraph(document, "Date: " + CompanyController.getCurretDateWithTime(), subtitleFont, 0f, 10f);
+        addCenteredParagraph(document, "Date: " + getCurretDateWithTime(), subtitleFont, 0f, 10f);
 
         String[] headers = {"SN", "Customer Name", "Address", "Contact No", "Total AMT", "Paid AMT", "Bal. AMT"};
         int[] columnWidths = {1, 4, 4, 3, 2, 2, 2};
@@ -380,6 +416,12 @@ public class PdfGenerator {
         document.close();
 
         return out;
+    }
+
+    public static String getCurrentDateWithTime() {
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss a");
+        return now.format(formatter);
     }
 
 }

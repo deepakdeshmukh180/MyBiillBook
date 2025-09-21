@@ -123,9 +123,9 @@
           </div>
 
           <div class="sb-sidenav-menu-heading">Addons</div>
-          <a class="nav-link" href="${pageContext.request.contextPath}/company/get-my-profile">
-            <div class="sb-nav-link-icon"><i class="fas fa-user-circle"></i></div> My Profile
-          </a>
+           <a class="nav-link" href="${pageContext.request.contextPath}/company/get-my-profile">
+                                          <div class="sb-nav-link-icon"><i class="fa fa-gear fa-spin"></i></div> Account Settings
+                                        </a>
           <a class="nav-link" href="${pageContext.request.contextPath}/company/export-to-pdf">
             <div class="sb-nav-link-icon"><i class="fas fa-file-export"></i></div> Export Customers
           </a>
@@ -331,7 +331,7 @@
           <!-- Customers -->
           <div class="col-lg-4">
             <style>
-              .customer-card .card{ border:0;border-radius:14px;padding:.75rem; }
+              .customer-card .card{ border:1;border-radius:24px; }
               .customer-card .btn{ font-size:.75rem;padding:4px 10px; }
               .customer-card .badge{ font-size:.7rem;padding:4px 6px; }
               .customer-card .text-muted{ font-size:.8rem; }
@@ -339,8 +339,7 @@
             </style>
             <div class="card card-modern h-100">
               <div class="card-body pb-0">
-                <h6 class="section-title">Customers</h6>
-              </div>
+<h6 class="section-title"> Customers  <small class="text-muted">(Recent 5 cust.)</small> </h6>              </div>
               <div class="card-body pt-2 customer-card-container">
                 <div class="row g-2" id="customerCardGrid">
                   <c:forEach items="${custmers}" var="custmer">
@@ -402,20 +401,29 @@
               <div class="card-body">
                 <h6 class="section-title mb-3"><i class="fa-solid fa-calendar-day me-2 text-primary"></i>Daily Expenses</h6>
 
-                <c:forEach var="exp" items="${dailyExpenses}">
-                  <div class="expense-item p-3 mb-2">
-                    <div class="d-flex align-items-center justify-content-between">
-                      <div class="d-flex align-items-center gap-3">
-                        <div class="icon bg-primary-subtle text-primary rounded-18 p-2"><i class="fa-solid fa-receipt"></i></div>
-                        <div>
-                          <div class="fw-semibold">${exp.name}</div>
-                          <div class="text-muted small"><fmt:formatDate value="${exp.date}" pattern="yyyy-MM-dd"/></div>
-                        </div>
-                      </div>
-                      <div class="fw-bold text-danger">₹<fmt:formatNumber value="${exp.amount}" type="number"/></div>
-                    </div>
-                  </div>
-                </c:forEach>
+               <c:forEach var="exp" items="${dailyExpenses}">
+                 <div class="card shadow-sm mb-2">
+                   <div class="card-body d-flex justify-content-between align-items-center p-2">
+                     <div class="d-flex align-items-center gap-3">
+                       <div class="icon bg-primary-subtle text-primary rounded-circle p-2">
+                         <i class="fa-solid fa-receipt"></i>
+                       </div>
+                       <div>
+                         <div class="fw-semibold">${exp.expenseName}</div>
+                         <div class="text-muted small">
+                           <fmt:formatDate value="${exp.date}" pattern="yyyy-MM-dd"/>
+                         </div>
+                       </div>
+                     </div>
+                     <div class="fw-bold text-danger">
+                       ₹<fmt:formatNumber value="${exp.amount}" type="number"/>
+                     </div>
+                   </div>
+                 </div>
+               </c:forEach>
+
+
+
 
                 <c:if test="${empty dailyExpenses}">
                   <div class="alert alert-light border text-muted mb-0">No expenses recorded today.</div>

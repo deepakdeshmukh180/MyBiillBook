@@ -38,5 +38,18 @@ public interface InvoiceDetailsRepository extends JpaRepository<InvoiceDetails, 
     Page<InvoiceDetails> findByOwnerIdAndInvoiceIdContainingIgnoreCase(String ownerId, String query, Pageable pageable);
 
     Page<InvoiceDetails> findByOwnerIdAndCustNameContainingIgnoreCase(String ownerId, String query, Pageable pageable);
+
+    @Query("SELECT i FROM InvoiceDetails i " +
+            "WHERE i.ownerId = :ownerId " +
+            "AND i.invoiceId LIKE CONCAT('%', :fy, '%') " +
+            "AND (LOWER(i.custName) LIKE LOWER(CONCAT('%', :query, '%')) " +
+            "     OR CAST(i.invoiceId AS string) LIKE CONCAT('%', :query, '%')) " +
+            "ORDER BY i.invoiceId DESC")
+    List<InvoiceDetails> findByOwnerIdAndInvoiceIdOrCustNameContainingIgnoreCase(
+            @Param("ownerId") String ownerId,
+            @Param("fy") String fy,
+            @Param("query") String query);
+
+
 }
     

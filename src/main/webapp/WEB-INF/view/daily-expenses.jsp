@@ -42,6 +42,12 @@ body{ background: var(--soft); }
 /* Expense item */
 .expense-item{ border-radius:14px; border:1px dashed #d8e2ff; background:#fff; transition:.2s; }
 .expense-item:hover{ transform:scale(1.01); background:#f8fbff; }
+
+/* Sidebar toggle */
+body.sb-sidenav-toggled #layoutSidenav_nav { margin-left: -250px; }
+body.sb-sidenav-toggled #layoutSidenav_content { margin-left: 0; }
+#layoutSidenav_nav { width: 250px; transition: all 0.3s ease; }
+#layoutSidenav_content { margin-left: 250px; transition: all 0.3s ease; }
 </style>
 </head>
 <body class="sb-nav-fixed">
@@ -51,7 +57,9 @@ body{ background: var(--soft); }
     <a class="navbar-brand ps-3 fw-bold" href="${pageContext.request.contextPath}/login/home">
         My <i class="fa fa-calculator text-warning"></i> Bill Book
     </a>
-    <button class="btn btn-outline-light btn-sm ms-2" id="sidebarToggle"><i class="fas fa-bars"></i></button>
+    <button class="btn btn-outline-light btn-sm ms-2" id="sidebarToggle" type="button">
+        <i class="fas fa-bars"></i>
+    </button>
 
     <div class="ms-auto d-flex align-items-center gap-3 pe-3">
         <div class="dropdown">
@@ -65,9 +73,9 @@ body{ background: var(--soft); }
     </div>
 </nav>
 
-<div id="layoutSidenav">
+<div id="layoutSidenav" class="d-flex">
     <!-- Sidebar -->
-    <div id="layoutSidenav_nav">
+    <div id="layoutSidenav_nav" class="bg-dark text-white">
         <nav class="sb-sidenav accordion sb-sidenav-dark" id="sidenavAccordion">
             <div class="sb-sidenav-menu">
                 <div class="nav">
@@ -89,15 +97,15 @@ body{ background: var(--soft); }
                         </nav>
                     </div>
                     <div class="sb-sidenav-menu-heading">Addons</div>
-                    <a class="nav-link" href="${pageContext.request.contextPath}/company/get-my-profile">
-                        <div class="sb-nav-link-icon"><i class="fas fa-user-circle"></i></div> My Profile
-                    </a>
+                     <a class="nav-link" href="${pageContext.request.contextPath}/company/get-my-profile">
+                                                    <div class="sb-nav-link-icon"><i class="fa fa-gear fa-spin"></i></div> Account Settings
+                                                  </a>
                     <a class="nav-link" href="${pageContext.request.contextPath}/company/export-to-pdf">
                         <div class="sb-nav-link-icon"><i class="fas fa-file-export"></i></div> Export Customers
                     </a>
-                     <a class="nav-link" href="${pageContext.request.contextPath}/expenses">
-                                          <div class="sb-nav-link-icon"><i class="fas fa-file-export"></i></div> Daily Expenses
-                                        </a>
+                    <a class="nav-link" href="${pageContext.request.contextPath}/expenses">
+                        <div class="sb-nav-link-icon"><i class="fas fa-wallet"></i></div> Daily Expenses
+                    </a>
                 </div>
             </div>
             <div class="sb-sidenav-footer">
@@ -108,7 +116,7 @@ body{ background: var(--soft); }
     </div>
 
     <!-- Main Content -->
-    <div id="layoutSidenav_content">
+    <div id="layoutSidenav_content" class="flex-grow-1">
         <main>
             <div class="container-fluid px-4 mt-4">
 
@@ -200,6 +208,8 @@ body{ background: var(--soft); }
                 </div>
 
                 <!-- Expense List Table -->
+                  <div class="row">
+                    <div class="col-md-6">
                 <div class="card card-modern mb-4">
                     <div class="card-header"><i class="fas fa-table me-1"></i> Expense List</div>
                     <div class="card-body">
@@ -236,7 +246,16 @@ body{ background: var(--soft); }
                         </table>
                     </div>
                 </div>
-
+                </div>
+                <div class="col-md-6">
+<div class="card card-modern mb-4">
+    <div class="card-header"><i class="fas fa-chart-bar me-1"></i> Monthly Expense Overview</div>
+    <div class="card-body">
+        <canvas id="monthlyExpenseChart" height="100"></canvas>
+    </div>
+</div>
+  </div>
+    </div>
             </div>
         </main>
     </div>
@@ -251,8 +270,100 @@ body{ background: var(--soft); }
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js"></script>
 <script>
+// Sidebar toggle
+document.addEventListener("DOMContentLoaded", () => {
+    const sidebarToggle = document.getElementById("sidebarToggle");
+    if (sidebarToggle) {
+        sidebarToggle.addEventListener("click", (e) => {
+            e.preventDefault();
+            document.body.classList.toggle("sb-sidenav-toggled");
+        });
+    }
+});
+
+// DataTable init
 const dataTable = document.getElementById('expensesTable');
 if(dataTable) new simpleDatatables.DataTable(dataTable);
 </script>
+
+<!-- Add this where you want the chart, e.g., after the Expense List -->
+
+
+<!-- Inside <script> tag at the bottom (after DataTable init) -->
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    // Sidebar toggle
+    const sidebarToggle = document.getElementById("sidebarToggle");
+    if (sidebarToggle) {
+        sidebarToggle.addEventListener("click", (e) => {
+            e.preventDefault();
+            document.body.classList.toggle("sb-sidenav-toggled");
+        });
+    }
+
+    // DataTable init
+    const dataTable = document.getElementById('expensesTable');
+    if(dataTable) new simpleDatatables.DataTable(dataTable);
+
+    // Chart.js - Monthly Expense Chart
+    const ctx = document.getElementById('monthlyExpenseChart').getContext('2d');
+
+    const chart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: [
+                <c:forEach var="m" items="${monthlyExpenses}" varStatus="vs">
+                    '<c:out value="${m.month}"/>'<c:if test="${!vs.last}">,</c:if>
+                </c:forEach>
+            ],
+            datasets: [{
+                label: 'Total Expenses (₹)',
+                data: [
+                    <c:forEach var="m" items="${monthlyExpenses}" varStatus="vs">
+                        <c:out value="${m.totalAmount}"/><c:if test="${!vs.last}">,</c:if>
+                    </c:forEach>
+                ],
+                backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1,
+                borderRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: (context) => `₹ ${context.parsed.y.toLocaleString()}`
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return '₹' + value.toLocaleString();
+                        }
+                    }
+                },
+                x: {
+                    ticks: {
+                        callback: function(value, index, values) {
+                            // Optional: format "2025-09" to "Sep 2025"
+                            const raw = this.getLabelForValue(index);
+                            const [year, month] = raw.split("-");
+                            const date = new Date(year, month - 1);
+                            return date.toLocaleString('default', { month: 'short', year: 'numeric' });
+                        }
+                    }
+                }
+            }
+        }
+    });
+});
+</script>
+
 </body>
 </html>

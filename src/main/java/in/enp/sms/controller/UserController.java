@@ -6,6 +6,7 @@ import in.enp.sms.entities.*;
 import in.enp.sms.pojo.BalanceDeposite;
 import in.enp.sms.pojo.DailySummary;
 import in.enp.sms.pojo.ExpProduct;
+import in.enp.sms.pojo.OwnerSession;
 import in.enp.sms.repository.*;
 import in.enp.sms.service.UserService;
 import in.enp.sms.utility.MailUtil;
@@ -112,8 +113,9 @@ public class UserController {
         SimpleDateFormat formatter = new SimpleDateFormat("MMMM dd, yyyy hh:mm a");
         ownerInfo.setDate(formatter.format(date));
         ownerInfo.setOwnerId(UUID.randomUUID().toString());
-
+        ownerInfo.setInvoiceColms("BATCHNO,MRP");
         ownerInfo.setInvoiceType("A4");
+
         ownerInfoRepository.save(ownerInfo);
 
         model.addAttribute("userForm", new User());
@@ -325,7 +327,8 @@ public class UserController {
             Double totalAmount = values[0] instanceof Number ? ((Number) values[0]).doubleValue() : null;
             Double currentOutstanding = values[1] instanceof Number ? ((Number) values[1]).doubleValue() : null;
             Double paidAmount = values[2] instanceof Number ? ((Number) values[2]).doubleValue() : null;
-            modelAndView.addObject("ownerInfo", ownerInfoRepository.findById(ownerId).get());
+            OwnerSession ownerInfo = (OwnerSession) session.getAttribute("sessionOwner");
+            modelAndView.addObject("ownerInfo", ownerInfo);
             modelAndView.addObject("totalAmount", totalAmount);
             modelAndView.addObject("currentOutstanding", currentOutstanding);
             modelAndView.addObject("paidAmount", paidAmount);
@@ -553,12 +556,13 @@ public class UserController {
 
 
     @PostMapping("/reset-pass")
-    public String processPasswordReset(HttpServletRequest request,
+    public String processPasswordReset(HttpServletRequest request,HttpSession session,
             @AuthenticationPrincipal UserDetails userDetails,
             @RequestParam("newPassword") String newPassword,
             @RequestParam("confirmPassword") String confirmPassword,
             Model model) {
-       OwnerInfo ownerInfo = ownerInfoRepository.findById(Utility.getOwnerIdFromSession(request)).get();
+        OwnerSession ownerInfo = (OwnerSession) session.getAttribute("sessionOwner");
+
         if (!newPassword.equals(confirmPassword)) {
             model.addAttribute("error", "Passwords do not match.");
             return "passwordreset";
