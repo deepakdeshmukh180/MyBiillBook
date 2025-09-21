@@ -6,15 +6,8 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 import java.util.List;
 
 public interface ProductRepository extends PagingAndSortingRepository<Product, Long> {
-    List<Product> findByStatus(boolean b);
-
-    List<Product>  findByProductNameAndOwnerId(String description,String ownerId);
 
     List<Product> findByOwnerId(String ownerIdFromSession);
-
-    List<Product> findByProductName(String productName);
-
-    List<Product> findByOwnerIdOrderByExpdateDesc(String ownerIdFromSession);
 
     List<Product> findByOwnerIdOrderByExpdateAsc(String ownerId);
 

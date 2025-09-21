@@ -16,6 +16,7 @@ public class InvoiceServiceImpl implements InvoiceService{
         StringBuilder data = new StringBuilder();
         int i = 1;
         for (ItemDetails details : items) {
+            details.setItemNo(i);
             details.setStatus(true);
             data.append("(").append(i).append(") ")
                     .append(details.getDescription())
@@ -48,6 +49,19 @@ public class InvoiceServiceImpl implements InvoiceService{
         itemDetails.setCreatedBy(username);
         itemDetails.setDiscount(totals.get("mrp")- totals.get("totalAmount"));
         itemDetails.setDate(LocalDate.now());
+
+        double advanAmt = itemDetails.getAdvanAmt();
+        double totalAmt = itemDetails.getTotInvoiceAmt();
+        String invoiceType;
+
+        if (advanAmt == 0) {
+            invoiceType = "CREDIT";
+        } else if (advanAmt < totalAmt) {
+            invoiceType = "PARTIAL";
+        } else {
+            invoiceType = "PAID";
+        }
+        itemDetails.setInvoiceType(invoiceType);
         itemDetails.setCreatedAt(new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new Date()));
     }
 

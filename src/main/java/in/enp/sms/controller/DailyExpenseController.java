@@ -2,6 +2,7 @@ package in.enp.sms.controller;
 
 import in.enp.sms.entities.DailyExpense;
 import in.enp.sms.repository.DailyExpenseRepository;
+import in.enp.sms.repository.MonthlyExpenseSummaryRepository;
 import in.enp.sms.utility.Utility;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -22,6 +23,10 @@ public class DailyExpenseController {
     @Autowired
     private DailyExpenseRepository expenseRepository;
 
+
+    @Autowired
+    private MonthlyExpenseSummaryRepository summaryRepository;
+
     @GetMapping
     public String listExpenses(@RequestParam(value = "date", required = false)
                                @DateTimeFormat(pattern = "yyyy-MM-dd") Date date,
@@ -41,6 +46,8 @@ public class DailyExpenseController {
 
         model.addAttribute("daily_expenses", expenseRepository.getDailyTotal(new Date(),ownerId));
         model.addAttribute("monthly_expenses",expenseRepository.getCurrentMonthTotal(ownerId));// default form value
+        model.addAttribute("monthlyExpenses",summaryRepository.findByOwnerIdOrderByMonth(ownerId));
+
         return "daily-expenses"; // JSP under /WEB-INF/views/dashboard/expenses.jsp
     }
 

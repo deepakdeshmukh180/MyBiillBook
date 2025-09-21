@@ -1,8 +1,17 @@
 package in.enp.sms.utility;
 
+import in.enp.sms.controller.CompanyController;
 import in.enp.sms.entities.CustProfile;
+import in.enp.sms.entities.InvoiceDetails;
+import in.enp.sms.entities.ItemDetails;
 import in.enp.sms.entities.OwnerInfo;
 import in.enp.sms.pojo.BalanceDeposite;
+import in.enp.sms.pojo.OwnerSession;
+import in.enp.sms.repository.InvoiceNoRepository;
+import in.enp.sms.repository.ItemRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.util.StreamUtils;
 
@@ -11,10 +20,16 @@ import javax.mail.internet.*;
 import javax.activation.*;
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Base64;
+import java.util.Date;
+import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class MailUtil {
 
@@ -22,6 +37,17 @@ public class MailUtil {
     private static final String SMTP_PORT = "587";
     private static final String SMTP_USER = "mybillbooksolution@gmail.com";
     private static final String SMTP_PASSWORD = "gjac rhjh hhxf uvzc";
+
+
+    @Autowired
+    InvoiceNoRepository invoiceNoRepository;
+
+
+    private static final Logger logger = LoggerFactory.getLogger(CompanyController.class);
+
+    @Autowired
+    static ItemRepository itemRepository;
+
 
     private static Session session;
 
@@ -70,11 +96,14 @@ public class MailUtil {
     private static Message createMessage(String email, String subject) {
         Message msg = new MimeMessage(session);
         try {
-            msg.setFrom(new InternetAddress(SMTP_USER, false));
+            msg.setFrom(new InternetAddress(SMTP_USER, "My Bill Book"));
+
             msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse(email));
             msg.setSubject(subject);
         } catch (MessagingException e) {
             handleException(e);
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
         }
         return msg;
     }
@@ -226,7 +255,259 @@ public class MailUtil {
     }
 
 
-    public static String sendPassChangedNotification(OwnerInfo ownerInfo, String encodedPassword) {
+    public static String sendPassChangedNotification(OwnerSession ownerInfo, String encodedPassword) {
         return buildPasswordChangeEmail(ownerInfo.getUserName(), encodedPassword, LocalDateTime.now().toString());
+    }
+
+    public static String generateEmailContent(InvoiceDetails itemDetails, CustProfile profile, OwnerSession ownerInfo, String productTable) {
+        String htmlContent = getMailFormat();
+
+        return htmlContent
+                .replace("{{CUST_NAME}}", profile.getCustName())
+                .replace("{{CUST_PHONE}}", profile.getPhoneNo())
+                .replace("{{CUST_ADDRESS}}", profile.getAddress())
+                .replace("{{INVOICE_NO}}", itemDetails.getInvoiceId())
+                .replace("{{SHOP_NAME}}", ownerInfo.getShopName())
+                .replace("{{OWNER_NAME}}", ownerInfo.getOwnerName())
+                .replace("{{ADDRESS}}", ownerInfo.getAddress())
+                .replace("{{PHONE}}", ownerInfo.getMobNumber())
+                .replace("{{DATE}}", itemDetails.getCreatedAt())
+                .replace("{{PRODUCT_ROWS}}", productTable)
+                .replace("{{TOTAL}}", String.valueOf(itemDetails.getTotInvoiceAmt()))
+                .replace("{{ADV_AMT}}", String.valueOf(itemDetails.getAdvanAmt()))
+                .replace("{{CUR_BAL}}", String.valueOf(profile.getCurrentOusting()));
+    }
+
+
+
+    private static String getMailFormat() {
+        return "<!DOCTYPE html>" +
+                "<html lang='en'>" +
+                "<head>" +
+                "<meta charset='UTF-8'>" +
+                "<meta name='viewport' content='width=device-width, initial-scale=1.0'>" +
+                "<style>" +
+                "body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f7fafc; margin: 0; padding: 0; color: #333; }" +
+                ".container { max-width: 750px; margin: 30px auto; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }" +
+                ".header { background: linear-gradient(135deg, #4CAF50, #45a049); padding: 20px; text-align: center; color: white; }" +
+                ".header h2 { margin: 0; font-size: 26px; }" +
+                ".header p { font-size: 14px; margin-top: 5px; }" +
+
+                ".content { padding: 20px; }" +
+                ".details-row { display: flex; flex-wrap: wrap; justify-content: space-between; margin-top: 20px; }" +
+                ".details-column { width: 48%; background: #f9f9f9; padding: 12px; border-radius: 6px; }" +
+                ".details-column h4 { margin-bottom: 8px; font-size: 16px; color: #2e7d32; border-bottom: 2px solid #e0e0e0; padding-bottom: 4px; }" +
+                ".details-column p { font-size: 14px; margin: 4px 0; }" +
+
+                "table { width: 100%; border-collapse: collapse; margin-top: 25px; font-size: 14px; }" +
+                "th, td { padding: 10px; text-align: left; border: 1px solid #ddd; }" +
+                "th { background-color: #4CAF50; color: white; }" +
+                "tr:nth-child(even) { background-color: #f9f9f9; }" +
+                "tr:nth-child(odd) { background-color: #ffffff; }" +
+
+                ".totals { margin-top: 25px; }" +
+                ".totals table { border: none; }" +
+                ".totals td { padding: 10px; font-size: 15px; font-weight: bold; border: none; }" +
+                ".totals td:first-child { text-align: right; color: #555; width: 70%; }" +
+
+                ".footer { background: #f0f0f0; padding: 12px; text-align: center; font-size: 12px; color: #777777; }" +
+                "@media(max-width: 600px) { .details-column { width: 100%; margin-bottom: 15px; } }" +
+                "</style>" +
+                "</head>" +
+                "<body>" +
+                "<div class='container'>" +
+
+                "<div class='header'>" +
+                "<h2>{{SHOP_NAME}}</h2>" +
+                "<p>{{OWNER_NAME}} | {{PHONE}}<br/>{{ADDRESS}}</p>" +
+                "</div>" +
+
+                "<div class='content'>" +
+                "<div class='details-row'>" +
+                "<div class='details-column'>" +
+                "<h4>Customer Info</h4>" +
+                "<p><strong>Name:</strong> {{CUST_NAME}}</p>" +
+                "<p><strong>Phone:</strong> {{CUST_PHONE}}</p>" +
+                "<p><strong>Address:</strong> {{CUST_ADDRESS}}</p>" +
+                "</div>" +
+
+                "<div class='details-column'>" +
+                "<h4>Invoice Info</h4>" +
+                "<p><strong>Invoice No:</strong> {{INVOICE_NO}}</p>" +
+                "<p><strong>Date:</strong> {{DATE}}</p>" +
+                "</div>" +
+                "</div>" +
+
+                "<div class='product-table'>{{PRODUCT_ROWS}}</div>" +
+
+                "<div class='totals'>" +
+                "<table>" +
+                "<tr><td>Total Amount:</td><td>{{TOTAL}}</td></tr>" +
+                "<tr><td>Advance Paid:</td><td>{{ADV_AMT}}</td></tr>" +
+                "<tr><td>Current Balance:</td><td>{{CUR_BAL}}</td></tr>" +
+                "</table>" +
+                "</div>" +
+                "</div>" +
+
+                "<div class='footer'>This is a system-generated invoice from My Bill Book</div>" +
+                "</div>" +
+                "</body>" +
+                "</html>";
+    }
+
+
+
+    public static String generateProductTable(List<ItemDetails> items) {
+        StringBuilder productTable = new StringBuilder();
+
+        productTable.append("<table style=\"width:100%; border-collapse:collapse; font-family:Arial, sans-serif; font-size:14px;\">")
+                .append("<thead>")
+                .append("<tr style=\"background-color:#f0f4f7; color:#333;\">")
+                .append("<th style='border:1px solid #ccc; padding:8px;'>SR NO</th>")
+                .append("<th style='border:1px solid #ccc; padding:8px;'>Description</th>")
+                .append("<th style='border:1px solid #ccc; padding:8px;'>Batch No.</th>")
+                .append("<th style='border:1px solid #ccc; padding:8px;'>Qty</th>")
+                .append("<th style='border:1px solid #ccc; padding:8px;'>MRP</th>")
+                .append("<th style='border:1px solid #ccc; padding:8px;'>Rate</th>")
+                .append("<th style='border:1px solid #ccc; padding:8px;'>Total Amt</th>")
+                .append("</tr>")
+                .append("</thead><tbody>");
+
+        int i = 0;
+        for (ItemDetails details : items) {
+            String rowColor = (i % 2 == 0) ? "#ffffff" : "#f9f9f9";
+            productTable.append("<tr style='background-color:")
+                    .append(rowColor)
+                    .append(";'>")
+                    .append("<td style='border:1px solid #ccc; padding:8px;'>").append(details.getItemNo()).append("</td>")
+                    .append("<td style='border:1px solid #ccc; padding:8px;'>").append(details.getDescription()).append("</td>")
+                    .append("<td style='border:1px solid #ccc; padding:8px;'>").append(details.getBatchNo()).append("</td>")
+                    .append("<td style='border:1px solid #ccc; padding:8px;'>").append(details.getQty()).append("</td>")
+                    .append("<td style='border:1px solid #ccc; padding:8px;'>").append(details.getMrp()).append("</td>")
+                    .append("<td style='border:1px solid #ccc; padding:8px;'>").append(details.getRate()).append("</td>")
+                    .append("<td style='border:1px solid #ccc; padding:8px;'>").append(details.getAmount()).append("</td>")
+                    .append("</tr>");
+            i++;
+        }
+
+        productTable.append("</tbody></table>");
+        return productTable.toString();
+    }
+
+    public static void sendMailOwner(InvoiceDetails itemDetails, CustProfile profile, OwnerSession ownerInfo) throws Exception {
+        logger.info("Sending email to owner and customer for invoice ID: {}", itemDetails.getInvoiceId());
+        List<ItemDetails> items = itemRepository.findByInvoiceNoAndCustId(itemDetails.getInvoiceId(), itemDetails.getCustId());
+
+        String productTable = MailUtil.generateProductTable(items);
+        String emailContent = MailUtil.generateEmailContent(itemDetails, profile, ownerInfo, productTable);
+
+        String subjectCust = "Invoice Receipt: " + itemDetails.getInvoiceId() + " - " + ownerInfo.getShopName();
+        String subjectOwner = "Invoice Receipt: " + itemDetails.getInvoiceId() + " - " + profile.getCustName();
+
+        ExecutorService emailExecutor = Executors.newSingleThreadExecutor();
+        emailExecutor.execute(() -> {
+            try {
+                MailUtil.sendMail(profile.getEmail(), emailContent, subjectCust);
+                MailUtil.sendMail(ownerInfo.getEmail(), emailContent, subjectOwner);
+                logger.info("Emails sent successfully for invoice ID: {}", itemDetails.getInvoiceId());
+            } catch (Exception e) {
+                logger.error("Failed to send emails for invoice ID: {}", itemDetails.getInvoiceId(), e);
+            }
+        });
+        emailExecutor.shutdown();
+    }
+
+    public static String getRegistrationApprovedReceipt(OwnerInfo ownerInfo, String password) {
+        Date date = new Date();
+        SimpleDateFormat formatter = new SimpleDateFormat("MMMM dd, yyyy hh:mm a");
+        String startDate = formatter.format(date);
+        String endDate = formatter.format(ownerInfo.getExpDate());
+        return "<!DOCTYPE html>\n" +
+                "<html>\n" +
+                "<head>\n" +
+                "  <meta charset=\"UTF-8\">\n" +
+                "  <title>Registration Approved</title>\n" +
+                "  <style>\n" +
+                "    body {\n" +
+                "      font-family: Arial, sans-serif;\n" +
+                "      background-color: #f4f4f4;\n" +
+                "      margin: 0;\n" +
+                "      padding: 0;\n" +
+                "    }\n" +
+                "    .container {\n" +
+                "      background-color: #ffffff;\n" +
+                "      padding: 20px;\n" +
+                "      margin: 30px auto;\n" +
+                "      max-width: 600px;\n" +
+                "      border-radius: 8px;\n" +
+                "      box-shadow: 0 2px 5px rgba(0,0,0,0.1);\n" +
+                "    }\n" +
+                "    .header {\n" +
+                "      font-size: 24px;\n" +
+                "      font-weight: bold;\n" +
+                "      color: #333333;\n" +
+                "    }\n" +
+                "    .content {\n" +
+                "      margin-top: 20px;\n" +
+                "      font-size: 16px;\n" +
+                "      color: #555555;\n" +
+                "    }\n" +
+                "    .footer {\n" +
+                "      margin-top: 30px;\n" +
+                "      font-size: 14px;\n" +
+                "      color: #888888;\n" +
+                "    }\n" +
+                "    .credentials {\n" +
+                "      background-color: #f1f1f1;\n" +
+                "      padding: 10px;\n" +
+                "      border-radius: 5px;\n" +
+                "      margin-top: 15px;\n" +
+                "      font-family: monospace;\n" +
+                "    }\n" +
+                "    .note {\n" +
+                "      margin-top: 20px;\n" +
+                "      padding: 10px;\n" +
+                "      background-color: #fff3cd;\n" +
+                "      border: 1px solid #ffeeba;\n" +
+                "      border-radius: 4px;\n" +
+                "      color: #856404;\n" +
+                "      font-size: 14px;\n" +
+                "    }\n" +
+                "    a.button {\n" +
+                "      display: inline-block;\n" +
+                "      margin-top: 20px;\n" +
+                "      padding: 10px 15px;\n" +
+                "      background-color: #007BFF;\n" +
+                "      color: #ffffff;\n" +
+                "      text-decoration: none;\n" +
+                "      border-radius: 4px;\n" +
+                "    }\n" +
+                "  </style>\n" +
+                "</head>\n" +
+                "<body>\n" +
+                "  <div class=\"container\">\n" +
+                "    <div class=\"header\">\uD83C\uDF89 Registration Approved!</div>\n" +
+                "    <div class=\"content\">\n" +
+                "      Hello <strong>"+ ownerInfo.getOwnerName() +"</strong>,<br><br>\n" +
+                "      Your registration has been successfully approved.<br><br>\n" +
+                "      Your subscribed plan starts on <strong>"+ startDate +"</strong> and is valid until <strong>"+ endDate +"</strong>.<br><br>\n" +
+                "      You can log in using the following credentials:\n" +
+                "      <div class=\"credentials\">\n" +
+                "        URL: <a href=\"[Login URL]\" target=\"_blank\">[Login URL]</a><br>\n" +
+                "        Username: "+ ownerInfo.getUserName()+"<br>\n" +
+                "        Password: "+password+"\n" +
+                "      </div>\n" +
+                "      <a href=\"[Login URL]\" class=\"button\">Login Now</a>\n" +
+                "      <div class=\"note\">\n" +
+                "        ⚠\uFE0F For your security, please delete this email after saving your login credentials.\n" +
+                "      </div>\n" +
+                "    </div>\n" +
+                "    <div class=\"footer\">\n" +
+                "      If you have any questions, feel free to contact our support team.<br>\n" +
+                "      — The My Bill Book Team\n" +
+                "    </div>\n" +
+                "  </div>\n" +
+                "</body>\n" +
+                "</html>\n";
     }
 }

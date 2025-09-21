@@ -36,7 +36,7 @@ public class Product {
 
     private  Double mrp;
 
-    private  Double delarPrice;
+    private  Double dealerPrice;
 
     private  Boolean status ;
 
@@ -159,12 +159,12 @@ public class Product {
     }
 
 
-    public Double getDelarPrice() {
-        return delarPrice;
+    public Double getDealerPrice() {
+        return dealerPrice;
     }
 
-    public void setDelarPrice(Double delarPrice) {
-        this.delarPrice = delarPrice;
+    public void setDealerPrice(Double dealerPrice) {
+        this.dealerPrice = dealerPrice;
     }
 
     public void setPname(String pname) {

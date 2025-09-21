@@ -45,7 +45,7 @@ public class MyDailyTask {
     @Autowired
     private UserRepository userRepository;
 
-    @Scheduled(cron = "0 00 21 * * ?")
+    @Scheduled(cron = "0 45 10 * * ?")
     public void DailyReports() {
         logger.info("Starting daily reports generation at {}", new Date());
         
@@ -129,106 +129,349 @@ public class MyDailyTask {
 
     private String getHtmlMailFormat(OwnerInfo ownerInfo, int size, int size1) {
         String htmlTemplate = "<!DOCTYPE html>\n" +
-                "<html>\n" +
+                "<html lang=\"en\">\n" +
                 "<head>\n" +
                 "  <meta charset=\"UTF-8\">\n" +
                 "  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n" +
+                "  <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n" +
+                "  <title>Daily Business Summary</title>\n" +
                 "  <style>\n" +
-                "    body {\n" +
-                "      font-family: 'Segoe UI', sans-serif;\n" +
+                "    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');\n" +
+                "    \n" +
+                "    * {\n" +
                 "      margin: 0;\n" +
                 "      padding: 0;\n" +
-                "      background-color: #f4f4f4;\n" +
-                "      color: #333;\n" +
+                "      box-sizing: border-box;\n" +
                 "    }\n" +
                 "\n" +
-                "    .container {\n" +
-                "      max-width: 600px;\n" +
-                "      margin: auto;\n" +
-                "      background: #fff;\n" +
-                "      padding: 20px;\n" +
-                "      border-radius: 8px;\n" +
-                "      box-shadow: 0 0 8px rgba(0,0,0,0.05);\n" +
+                "    body {\n" +
+                "      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;\n" +
+                "      line-height: 1.6;\n" +
+                "      color: #1a202c;\n" +
+                "      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);\n" +
+                "      min-height: 100vh;\n" +
+                "      padding: 20px 0;\n" +
+                "    }\n" +
+                "\n" +
+                "    .email-wrapper {\n" +
+                "      max-width: 680px;\n" +
+                "      margin: 0 auto;\n" +
+                "      background: #ffffff;\n" +
+                "      border-radius: 16px;\n" +
+                "      overflow: hidden;\n" +
+                "      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);\n" +
                 "    }\n" +
                 "\n" +
                 "    .header {\n" +
+                "      background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);\n" +
+                "      color: white;\n" +
+                "      padding: 40px 30px;\n" +
                 "      text-align: center;\n" +
-                "      padding-bottom: 15px;\n" +
-                "      border-bottom: 1px solid #ddd;\n" +
+                "      position: relative;\n" +
+                "      overflow: hidden;\n" +
                 "    }\n" +
                 "\n" +
-                "    .header h2 {\n" +
-                "      margin: 0;\n" +
-                "      color: #2c3e50;\n" +
+                "    .header::before {\n" +
+                "      content: '';\n" +
+                "      position: absolute;\n" +
+                "      top: -50%;\n" +
+                "      right: -50%;\n" +
+                "      width: 200%;\n" +
+                "      height: 200%;\n" +
+                "      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);\n" +
+                "      animation: float 6s ease-in-out infinite;\n" +
                 "    }\n" +
                 "\n" +
-                "    .owner-card {\n" +
-                "      background-color: #f0f8ff;\n" +
-                "      padding: 15px;\n" +
-                "      margin-top: 20px;\n" +
-                "      border-radius: 6px;\n" +
-                "      border: 1px solid #d0e6f7;\n" +
+                "    @keyframes float {\n" +
+                "      0%, 100% { transform: translateY(0px) rotate(0deg); }\n" +
+                "      50% { transform: translateY(-20px) rotate(5deg); }\n" +
                 "    }\n" +
                 "\n" +
-                "    .owner-card p {\n" +
-                "      margin: 6px 0;\n" +
-                "      font-size: 14px;\n" +
+                "    .header h1 {\n" +
+                "      font-size: 28px;\n" +
+                "      font-weight: 700;\n" +
+                "      margin-bottom: 8px;\n" +
+                "      position: relative;\n" +
+                "      z-index: 1;\n" +
                 "    }\n" +
                 "\n" +
-                "    .label {\n" +
-                "      font-weight: bold;\n" +
-                "      color: #2c3e50;\n" +
-                "    }\n" +
-                "\n" +
-                "    .summary {\n" +
-                "      margin-top: 30px;\n" +
-                "      padding: 15px;\n" +
-                "      background-color: #f9f9f9;\n" +
-                "      border-top: 1px solid #eee;\n" +
-                "      border-radius: 6px;\n" +
-                "    }\n" +
-                "\n" +
-                "    .summary h3 {\n" +
-                "      color: #2c3e50;\n" +
-                "    }\n" +
-                "\n" +
-                "    .summary p {\n" +
+                "    .header .date {\n" +
                 "      font-size: 16px;\n" +
-                "      margin: 8px 0;\n" +
+                "      font-weight: 400;\n" +
+                "      opacity: 0.9;\n" +
+                "      position: relative;\n" +
+                "      z-index: 1;\n" +
+                "    }\n" +
+                "\n" +
+                "    .content {\n" +
+                "      padding: 40px 30px;\n" +
+                "    }\n" +
+                "\n" +
+                "    .stats-grid {\n" +
+                "      display: grid;\n" +
+                "      grid-template-columns: 1fr 1fr;\n" +
+                "      gap: 20px;\n" +
+                "      margin-bottom: 32px;\n" +
+                "    }\n" +
+                "\n" +
+                "    .stat-card {\n" +
+                "      background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);\n" +
+                "      padding: 24px;\n" +
+                "      border-radius: 12px;\n" +
+                "      text-align: center;\n" +
+                "      border: 1px solid #e2e8f0;\n" +
+                "      transition: transform 0.2s ease, box-shadow 0.2s ease;\n" +
+                "      position: relative;\n" +
+                "      overflow: hidden;\n" +
+                "    }\n" +
+                "\n" +
+                "    .stat-card::before {\n" +
+                "      content: '';\n" +
+                "      position: absolute;\n" +
+                "      top: 0;\n" +
+                "      left: 0;\n" +
+                "      right: 0;\n" +
+                "      height: 4px;\n" +
+                "      background: linear-gradient(90deg, #4f46e5, #7c3aed);\n" +
+                "    }\n" +
+                "\n" +
+                "    .stat-card:hover {\n" +
+                "      transform: translateY(-2px);\n" +
+                "      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);\n" +
+                "    }\n" +
+                "\n" +
+                "    .stat-icon {\n" +
+                "      font-size: 32px;\n" +
+                "      margin-bottom: 12px;\n" +
+                "      display: block;\n" +
+                "    }\n" +
+                "\n" +
+                "    .stat-number {\n" +
+                "      font-size: 36px;\n" +
+                "      font-weight: 700;\n" +
+                "      color: #4f46e5;\n" +
+                "      margin-bottom: 4px;\n" +
+                "    }\n" +
+                "\n" +
+                "    .stat-label {\n" +
+                "      font-size: 14px;\n" +
+                "      color: #64748b;\n" +
+                "      font-weight: 500;\n" +
+                "      text-transform: uppercase;\n" +
+                "      letter-spacing: 0.5px;\n" +
+                "    }\n" +
+                "\n" +
+                "    .business-info {\n" +
+                "      background: linear-gradient(135deg, #fefefe 0%, #f8fafc 100%);\n" +
+                "      border: 1px solid #e2e8f0;\n" +
+                "      border-radius: 16px;\n" +
+                "      padding: 32px;\n" +
+                "      margin-bottom: 32px;\n" +
+                "      position: relative;\n" +
+                "    }\n" +
+                "\n" +
+                "    .business-info::before {\n" +
+                "      content: '';\n" +
+                "      position: absolute;\n" +
+                "      top: 0;\n" +
+                "      left: 0;\n" +
+                "      right: 0;\n" +
+                "      height: 4px;\n" +
+                "      background: linear-gradient(90deg, #10b981, #059669);\n" +
+                "      border-radius: 16px 16px 0 0;\n" +
+                "    }\n" +
+                "\n" +
+                "    .business-title {\n" +
+                "      font-size: 20px;\n" +
+                "      font-weight: 600;\n" +
+                "      color: #1a202c;\n" +
+                "      margin-bottom: 24px;\n" +
+                "      display: flex;\n" +
+                "      align-items: center;\n" +
+                "      gap: 8px;\n" +
+                "    }\n" +
+                "\n" +
+                "    .info-grid {\n" +
+                "      display: grid;\n" +
+                "      grid-template-columns: 1fr 1fr;\n" +
+                "      gap: 16px;\n" +
+                "    }\n" +
+                "\n" +
+                "    .info-item {\n" +
+                "      display: flex;\n" +
+                "      align-items: flex-start;\n" +
+                "      gap: 12px;\n" +
+                "    }\n" +
+                "\n" +
+                "    .info-icon {\n" +
+                "      font-size: 18px;\n" +
+                "      margin-top: 2px;\n" +
+                "      opacity: 0.7;\n" +
+                "    }\n" +
+                "\n" +
+                "    .info-content {\n" +
+                "      flex: 1;\n" +
+                "    }\n" +
+                "\n" +
+                "    .info-label {\n" +
+                "      font-size: 12px;\n" +
+                "      font-weight: 600;\n" +
+                "      color: #64748b;\n" +
+                "      text-transform: uppercase;\n" +
+                "      letter-spacing: 0.5px;\n" +
+                "      margin-bottom: 4px;\n" +
+                "    }\n" +
+                "\n" +
+                "    .info-value {\n" +
+                "      font-size: 14px;\n" +
+                "      font-weight: 500;\n" +
+                "      color: #1a202c;\n" +
+                "      word-break: break-word;\n" +
                 "    }\n" +
                 "\n" +
                 "    .footer {\n" +
+                "      background: #f8fafc;\n" +
+                "      padding: 24px 30px;\n" +
                 "      text-align: center;\n" +
-                "      font-size: 12px;\n" +
-                "      color: #888;\n" +
-                "      margin-top: 30px;\n" +
+                "      border-top: 1px solid #e2e8f0;\n" +
+                "    }\n" +
+                "\n" +
+                "    .footer-text {\n" +
+                "      font-size: 13px;\n" +
+                "      color: #64748b;\n" +
+                "      margin-bottom: 8px;\n" +
+                "    }\n" +
+                "\n" +
+                "    .brand {\n" +
+                "      font-weight: 600;\n" +
+                "      color: #4f46e5;\n" +
+                "    }\n" +
+                "\n" +
+                "    /* Responsive Design */\n" +
+                "    @media only screen and (max-width: 600px) {\n" +
+                "      body {\n" +
+                "        padding: 10px;\n" +
+                "      }\n" +
+                "      \n" +
+                "      .email-wrapper {\n" +
+                "        margin: 0;\n" +
+                "        border-radius: 12px;\n" +
+                "      }\n" +
+                "      \n" +
+                "      .header {\n" +
+                "        padding: 30px 20px;\n" +
+                "      }\n" +
+                "      \n" +
+                "      .header h1 {\n" +
+                "        font-size: 24px;\n" +
+                "      }\n" +
+                "      \n" +
+                "      .content {\n" +
+                "        padding: 30px 20px;\n" +
+                "      }\n" +
+                "      \n" +
+                "      .stats-grid {\n" +
+                "        grid-template-columns: 1fr;\n" +
+                "        gap: 16px;\n" +
+                "      }\n" +
+                "      \n" +
+                "      .info-grid {\n" +
+                "        grid-template-columns: 1fr;\n" +
+                "      }\n" +
+                "      \n" +
+                "      .business-info {\n" +
+                "        padding: 24px 20px;\n" +
+                "      }\n" +
+                "      \n" +
+                "      .footer {\n" +
+                "        padding: 20px;\n" +
+                "      }\n" +
                 "    }\n" +
                 "  </style>\n" +
                 "</head>\n" +
                 "<body>\n" +
-                "  <div class=\"container\">\n" +
+                "  <div class=\"email-wrapper\">\n" +
                 "    <div class=\"header\">\n" +
-                "      <h2>\uD83D\uDCCA Daily Business Summary</h2>\n" +
-                "      <p><strong>Date:</strong> {{date}}</p>\n" +
+                "      <h1>📊 Daily Business Summary</h1>\n" +
+                "      <p class=\"date\">{{date}}</p>\n" +
                 "    </div>\n" +
                 "\n" +
-                "    <div class=\"owner-card\">\n" +
-                "      <p><span class=\"label\">\uD83C\uDFEC Shop Name:</span> {{shopName}}</p>\n" +
-                "      <p><span class=\"label\">\uD83D\uDC64 Owner Name:</span> {{ownerName}}</p>\n" +
-                "      <p><span class=\"label\">\uD83D\uDCE7 Email:</span> {{email}}</p>\n" +
-                "      <p><span class=\"label\">\uD83E\uDDFE GST:</span> {{gstNumber}}</p>\n" +
-                "      <p><span class=\"label\">\uD83D\uDCDE Mobile:</span> {{mobNumber}}</p>\n" +
-                "      <p><span class=\"label\">\uD83D\uDCCD Address:</span> {{address}}</p>\n" +
-                "    </div>\n" +
+                "    <div class=\"content\">\n" +
+                "      <div class=\"stats-grid\">\n" +
+                "        <div class=\"stat-card\">\n" +
+                "          <div class=\"stat-icon\">📄</div>\n" +
+                "          <div class=\"stat-number\">{{invoiceCount}}</div>\n" +
+                "          <div class=\"stat-label\">Invoices Generated</div>\n" +
+                "        </div>\n" +
+                "        <div class=\"stat-card\">\n" +
+                "          <div class=\"stat-icon\">💰</div>\n" +
+                "          <div class=\"stat-number\">{{depositCount}}</div>\n" +
+                "          <div class=\"stat-label\">Deposit Transactions</div>\n" +
+                "        </div>\n" +
+                "      </div>\n" +
                 "\n" +
-                "    <div class=\"summary\">\n" +
-                "      <h3>📋 Today's Report</h3>\n" +
-                "      <p><span class=\"label\">Invoices Generated:</span> {{invoiceCount}}</p>\n" +
-                "      <p><span class=\"label\">Deposit Transactions:</span> {{depositCount}}</p>\n" +
+                "      <div class=\"business-info\">\n" +
+                "        <h2 class=\"business-title\">\n" +
+                "          🏪 Business Information\n" +
+                "        </h2>\n" +
+                "        \n" +
+                "        <div class=\"info-grid\">\n" +
+                "          <div class=\"info-item\">\n" +
+                "            <span class=\"info-icon\">🏢</span>\n" +
+                "            <div class=\"info-content\">\n" +
+                "              <div class=\"info-label\">Shop Name</div>\n" +
+                "              <div class=\"info-value\">{{shopName}}</div>\n" +
+                "            </div>\n" +
+                "          </div>\n" +
+                "          \n" +
+                "          <div class=\"info-item\">\n" +
+                "            <span class=\"info-icon\">👤</span>\n" +
+                "            <div class=\"info-content\">\n" +
+                "              <div class=\"info-label\">Owner Name</div>\n" +
+                "              <div class=\"info-value\">{{ownerName}}</div>\n" +
+                "            </div>\n" +
+                "          </div>\n" +
+                "          \n" +
+                "          <div class=\"info-item\">\n" +
+                "            <span class=\"info-icon\">📧</span>\n" +
+                "            <div class=\"info-content\">\n" +
+                "              <div class=\"info-label\">Email</div>\n" +
+                "              <div class=\"info-value\">{{email}}</div>\n" +
+                "            </div>\n" +
+                "          </div>\n" +
+                "          \n" +
+                "          <div class=\"info-item\">\n" +
+                "            <span class=\"info-icon\">📱</span>\n" +
+                "            <div class=\"info-content\">\n" +
+                "              <div class=\"info-label\">Mobile</div>\n" +
+                "              <div class=\"info-value\">{{mobNumber}}</div>\n" +
+                "            </div>\n" +
+                "          </div>\n" +
+                "          \n" +
+                "          <div class=\"info-item\">\n" +
+                "            <span class=\"info-icon\">🏷️</span>\n" +
+                "            <div class=\"info-content\">\n" +
+                "              <div class=\"info-label\">GST Number</div>\n" +
+                "              <div class=\"info-value\">{{gstNumber}}</div>\n" +
+                "            </div>\n" +
+                "          </div>\n" +
+                "          \n" +
+                "          <div class=\"info-item\">\n" +
+                "            <span class=\"info-icon\">📍</span>\n" +
+                "            <div class=\"info-content\">\n" +
+                "              <div class=\"info-label\">Address</div>\n" +
+                "              <div class=\"info-value\">{{address}}</div>\n" +
+                "            </div>\n" +
+                "          </div>\n" +
+                "        </div>\n" +
+                "      </div>\n" +
                 "    </div>\n" +
                 "\n" +
                 "    <div class=\"footer\">\n" +
-                "      This is an automated report from My Bill Book Solutions. Please do not reply.\n" +
+                "      <p class=\"footer-text\">\n" +
+                "        This is an automated report from <span class=\"brand\">My Bill Book Solutions</span>\n" +
+                "      </p>\n" +
+                "      <p class=\"footer-text\">Please do not reply to this email.</p>\n" +
                 "    </div>\n" +
                 "  </div>\n" +
                 "</body>\n" +

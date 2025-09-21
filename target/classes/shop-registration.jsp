@@ -576,7 +576,7 @@
                         </div>
                         <div class="input-group-modern">
                             <i class="fas fa-mobile-alt input-icon"></i>
-                            <input type="text" name="upiId" class="form-control" placeholder="Enter UPI ID (optional)" />
+                            <input type="text" name="upiId" class="form-control"   placeholder="Enter UPI ID" required/>
                             <div class="invalid-feedback">Please provide a valid UPI ID.</div>
                         </div>
                     </div>

@@ -21,8 +21,10 @@ public class OwnerInfo {
     private String gstNumber;
     private String invoiceType;
     private String upiId;
+    private String terms;
     private String date;
     private int planDuration;
+    private String invoiceColms;
 
     private Date expDate;
 
@@ -63,6 +65,22 @@ public class OwnerInfo {
         this.date = date;
         this.planDuration = planDuration;
         this.expDate = expDate;
+    }
+
+    public String getInvoiceColms() {
+        return invoiceColms;
+    }
+
+    public void setInvoiceColms(String invoiceColms) {
+        this.invoiceColms = invoiceColms;
+    }
+
+    public String getTerms() {
+        return terms;
+    }
+
+    public void setTerms(String terms) {
+        this.terms = terms;
     }
 
     public String getInvoiceType() {

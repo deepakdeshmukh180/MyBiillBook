@@ -2,6 +2,7 @@ package in.enp.sms.utility;
 
 import in.enp.sms.entities.Product;
 import in.enp.sms.entities.User;
+import in.enp.sms.pojo.OwnerSession;
 import in.enp.sms.pojo.StudentInfoDTO;
 import in.enp.sms.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,10 +14,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 public class Utility {
@@ -53,22 +51,22 @@ public class Utility {
     public static Boolean getSuperAdminFromSession(HttpServletRequest request) {
         HttpSession session = request.getSession(false); // Don't create new session
         if (session != null) {
-            Boolean isSuperAdmin = (Boolean ) session.getAttribute("isSuperAdmin");
-            if (isSuperAdmin != null) {
-                return isSuperAdmin;
+            OwnerSession ownerSession = (OwnerSession) session.getAttribute("sessionOwner");
+            if (ownerSession != null) {
+                return ownerSession.isSuperAdmin();
             }
         }
 
+        // fallback: check directly from DB
         if (request.getUserPrincipal() != null) {
             String username = request.getUserPrincipal().getName();
-           User user = userService.findByUsername(username);
-            if (user != null && user.isSuperAdmin()) {
+            User user = userService.findByUsername(username);
+            if (user != null) {
                 return user.isSuperAdmin();
             }
         }
 
-        // Return null or throw custom exception if needed
-        return null;
+        return null; // or false if you prefer default
     }
 
 
@@ -134,8 +132,43 @@ public class Utility {
         return localDate;
     }
 
+    public static String formatToMonthYear(String inputDate) {
+        try {
+            // Parse the input date
+            SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd");
+            Date date = inputFormat.parse(inputDate);
+
+            // Format to MMM-yy
+            SimpleDateFormat outputFormat = new SimpleDateFormat("MMM-yy");
+            String formatted = outputFormat.format(date).toUpperCase(); // To get DEC-26
+
+            return formatted;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "INVALID";
+        }
+    }
 
 
+    public static String extractBrand(String input) {
+        if (input == null || !input.contains("[") || !input.contains("]")) {
+            return "NA";
+        }
+        int start = input.indexOf('[') + 1;
+        int end = input.indexOf(']');
+        if (start >= 0 && end > start) {
+            return input.substring(start, end).trim();
+        }
+        return "NA";
+    }
+
+
+    public static List<String> parseInvoiceColumns(String invoiceColms) {
+        if (invoiceColms == null || invoiceColms.trim().isEmpty()) {
+            return Collections.emptyList();
+        }
+        return Arrays.asList(invoiceColms.split("\\s*,\\s*"));
+    }
 
 
 }
