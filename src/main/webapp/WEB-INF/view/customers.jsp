@@ -4,652 +4,1091 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - My Bill Book</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard - BillMatePro</title>
 
-    <!-- Bootstrap & Fonts -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
-    <link href="${pageContext.request.contextPath}/resources/css/styles.css" rel="stylesheet"/>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet"/>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css" rel="stylesheet"/>
+  <!-- CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.min.css" rel="stylesheet"/>
+  <link href="${pageContext.request.contextPath}/resources/css/styles.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 
-    <style>
-:root {
-    --brand: #0d6efd;
-    --soft: #f4f6f9;
-    --ink: #33475b;
-    --primary-gradient: linear-gradient(135deg, #667eea, #764ba2);
-    --secondary-gradient: linear-gradient(135deg, #f093fb, #f5576c);
-    --accent-gradient: linear-gradient(135deg, #22c55e, #16a34a);
-}
+  <!-- JS (head) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-body {
-    background: var(--soft);
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    min-height: 100vh;
-    padding: 2rem;
-}
+  <style>
+    :root {
+      --primary-color: #2247a5;
+      --primary-dark: #145fa0;
+      --success-color: #10b981;
+      --danger-color: #ef4444;
+      --warning-color: #f59e0b;
+      --bg-light: #f8fafc;
+      --bg-dark: #0f172a;
+      --card-light: #ffffff;
+      --card-dark: #1e293b;
+      --text-light: #1e293b;
+      --text-dark: #f1f5f9;
+      --border-light: #e2e8f0;
+      --border-dark: #334155;
+      --glass-bg: rgba(255, 255, 255, 0.1);
+      --glass-border: rgba(255, 255, 255, 0.2);
+    }
 
-.container { max-width: 1600px; margin: 0 auto; }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-.brand-gradient {
-    background: linear-gradient(135deg, #3c7bff, #70a1ff);
-}
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg-color);
+      color: var(--text-color);
+      min-height: 100vh;
+      transition: all 0.3s ease;
+      overflow-x: hidden;
+    }
 
-.shadow-soft { box-shadow: 0 6px 18px rgba(0,0,0,.08); }
-.rounded-18 { border-radius: 18px; }
+    /* Light theme */
+    [data-theme="light"] {
+      --bg-color: var(--bg-light);
+      --text-color: var(--text-light);
+      --card-bg: var(--card-light);
+      --border-color: var(--border-light);
+    }
 
-.section-title { font-weight: 700; color: var(--ink); }
+    /* Dark theme */
+    [data-theme="dark"] {
+      --bg-color: var(--bg-dark);
+      --text-color: var(--text-dark);
+      --card-bg: var(--card-dark);
+      --border-color: var(--border-dark);
+    }
 
-.cards-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 1.5rem;
-    padding: 1rem 0;
-}
+    /* Animated background */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--success-color) 100%);
+      opacity: 0.05;
+      z-index: -2;
+    }
 
-.customer-card {
-    background: rgba(255, 255, 255, 0.9);
-    backdrop-filter: blur(18px);
-    border-radius: 16px;
-    padding: 1.5rem;
-    box-shadow: 0 18px 38px rgba(0, 0, 0, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    transition: all 0.45s cubic-bezier(0.23, 1, 0.32, 1);
-    position: relative;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    min-height: 420px;
-    opacity: 0;
-    transform: translateY(25px) scale(0.97);
-    animation: cardFadeInScale 0.6s ease-out forwards;
-}
+    /* Floating shapes */
+    .floating-shape {
+      position: fixed;
+      border-radius: 50%;
+      background: linear-gradient(45deg, var(--primary-color), var(--success-color));
+      opacity: 0.1;
+      animation: float 6s ease-in-out infinite;
+      z-index: -1;
+    }
 
-.customer-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 4px;
-    background: var(--primary-gradient);
-    transform: scaleX(0);
-    transform-origin: left;
-    transition: transform 0.5s ease;
-}
+    .floating-shape:nth-child(1) {
+      width: 80px;
+      height: 80px;
+      top: 20%;
+      left: 10%;
+      animation-delay: 0s;
+    }
 
-.customer-card:hover::before { transform: scaleX(1); }
-.customer-card:hover {
-    transform: translateY(-8px) scale(1);
-    box-shadow: 0 28px 60px rgba(0, 0, 0, 0.15);
-    background: rgba(255, 255, 255, 1);
-}
+    .floating-shape:nth-child(2) {
+      width: 120px;
+      height: 120px;
+      top: 60%;
+      right: 10%;
+      animation-delay: -2s;
+    }
 
-.card-header { display: flex; align-items: center; margin-bottom: 1.25rem; }
-.customer-avatar {
-    width: 50px; height: 50px;
-    background: var(--primary-gradient);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 1.2rem;
-    font-weight: bold;
-    box-shadow: 0 6px 14px rgba(102, 126, 234, 0.3);
-    flex-shrink: 0;
-    transition: all 0.3s ease;
-}
-.customer-card:hover .customer-avatar { transform: scale(1.05); }
+    .floating-shape:nth-child(3) {
+      width: 60px;
+      height: 60px;
+      top: 80%;
+      left: 20%;
+      animation-delay: -4s;
+    }
 
-.customer-name { font-size: 1.25rem; font-weight: 700; color: #2d3748; margin-left: 0.75rem; line-height: 1.3; }
+    .floating-shape:nth-child(4) {
+      width: 100px;
+      height: 100px;
+      top: 10%;
+      right: 25%;
+      animation-delay: -3s;
+    }
 
-.card-content { margin-bottom: 1.25rem; flex-grow: 1; }
-.info-item {
-    display: flex; align-items: flex-start;
-    margin-bottom: 0.75rem;
-    padding: 0.5rem; border-radius: 8px;
-    transition: all 0.3s ease;
-    cursor: pointer;
-}
-.info-item:hover { background-color: rgba(102, 126, 234, 0.07); transform: translateY(-1px); }
+    @keyframes float {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-20px) rotate(180deg); }
+    }
 
-.info-icon {
-    width: 28px; height: 28px;
-    display: flex; align-items: center; justify-content: center;
-    border-radius: 6px;
-    margin-right: 0.6rem;
-    font-size: 0.8rem;
-    flex-shrink: 0;
-}
+    /* Enhanced Card Styles */
+    .enhanced-card {
+      border: none;
+      border-radius: 24px;
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--border-color);
+      box-shadow:
+        0 20px 25px -5px rgba(0, 0, 0, 0.1),
+        0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow: hidden;
+      position: relative;
+    }
 
-.address-icon { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
-.phone-icon { background: rgba(34, 197, 94, 0.1); color: #22c55e; }
+    [data-theme="dark"] .enhanced-card {
+      box-shadow:
+        0 20px 25px -5px rgba(0, 0, 0, 0.4),
+        0 10px 10px -5px rgba(0, 0, 0, 0.2);
+    }
 
-.info-text { color: #4a5568; font-weight: 500; font-size: 0.9rem; line-height: 1.4; text-decoration: none; }
+    .enhanced-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, var(--primary-color), transparent);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
 
-.whatsapp-link:hover { color: #22c55e; }
+    .enhanced-card:hover {
+      transform: translateY(-8px);
+      box-shadow:
+        0 32px 64px -12px rgba(0, 0, 0, 0.25),
+        0 12px 24px -8px rgba(0, 0, 0, 0.12);
+    }
 
-.amount-section { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; margin-bottom: 1.25rem; }
-.amount-card {
-    text-align: center; padding: 0.75rem 0.4rem; border-radius: 12px;
-    position: relative; overflow: hidden;
-    font-weight: 600; backdrop-filter: blur(12px);
-    border: 1px solid rgba(255,255,255,0.2);
-    box-shadow: inset 0 2px 6px rgba(0,0,0,0.03);
-    transition: all 0.3s ease;
-}
-.amount-card:hover { transform: translateY(-2px); }
+    .enhanced-card:hover::before {
+      opacity: 1;
+    }
 
-.total-card { background: rgba(59,130,246,0.1); color: #3b82f6; }
-.paid-card { background: rgba(34,197,94,0.1); color: #22c55e; }
-.balance-card { background: rgba(239,68,68,0.1); color: #ef4444; }
+    /* KPI Cards */
+    .kpi-card {
+      border: none;
+      border-radius: 24px;
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--border-color);
+      box-shadow:
+        0 20px 25px -5px rgba(0, 0, 0, 0.1),
+        0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      overflow: hidden;
+      position: relative;
+    }
 
-.amount-label { font-size: 0.75rem; text-transform: uppercase; opacity: 0.85; margin-bottom: 0.2rem; }
-.amount-value { font-size: 0.95rem; font-weight: 700; }
+    .kpi-card::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent);
+      transition: left 0.6s;
+    }
 
-.action-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; margin-top: auto; }
+    .kpi-card:hover::after {
+      left: 100%;
+    }
 
-.action-btn {
-    display: flex; align-items: center; justify-content: center;
-    padding: 0.65rem 0.8rem; border-radius: 12px; font-size: 0.8rem; font-weight: 600;
-    color: white; text-decoration: none; position: relative; overflow: hidden;
-    transition: all 0.35s ease;
-}
-.action-btn i { margin-right: 0.4rem; font-size: 0.75rem; }
-.action-btn::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent); transition: left 0.5s; }
-.action-btn:hover::before { left: 100%; transform: scale(1.05); }
+    .kpi-card:hover {
+      transform: translateY(-12px) scale(1.02);
+      box-shadow:
+        0 32px 64px -12px rgba(0, 0, 0, 0.25),
+        0 12px 24px -8px rgba(0, 0, 0, 0.12);
+    }
 
-.btn-invoice { background: var(--primary-gradient); box-shadow: 0 4px 12px rgba(59,130,246,0.3); }
-.btn-deposit { background: var(--accent-gradient); box-shadow: 0 4px 12px rgba(34,197,94,0.3); }
-.btn-history { background: linear-gradient(135deg, #f59e0b, #d97706); box-shadow: 0 4px 12px rgba(245,158,11,0.3); }
-.btn-edit { background: linear-gradient(135deg, #6b7280, #4b5563); box-shadow: 0 4px 12px rgba(107,114,128,0.3); }
+    .kpi-icon {
+      width: 64px;
+      height: 64px;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      background: linear-gradient(45deg, var(--primary-color), var(--primary-dark));
+      color: white;
+      box-shadow: 0 8px 16px rgba(34, 71, 165, 0.3);
+    }
 
-.page-title { font-size: 2.5rem; font-weight: 700; text-shadow: 0 2px 6px rgba(0,0,0,0.1); }
-.page-subtitle { font-size: 1.1rem; opacity: 0.9; }
+    /* Welcome Card */
+    .welcome-card {
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+      color: white;
+      border-radius: 24px;
+      border: none;
+      position: relative;
+      overflow: hidden;
+      backdrop-filter: blur(20px);
+    }
 
-/* Responsive */
-@media (max-width: 1400px) { .cards-grid { grid-template-columns: repeat(3,1fr); } }
-@media (max-width: 1024px) { .cards-grid { grid-template-columns: repeat(2,1fr); } }
-@media (max-width: 768px) { .cards-grid { grid-template-columns: 1fr; } .amount-section { grid-template-columns: 1fr; } .action-buttons { grid-template-columns: 1fr; } }
+    .welcome-card::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -50%;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+    }
 
-/* Animation */
-@keyframes cardFadeInScale { to { opacity: 1; transform: translateY(0) scale(1); } }
-.customer-card { animation: cardFadeInScale 0.6s ease-out forwards; }
-.customer-card:nth-child(1) { animation-delay: 0.1s; }
-.customer-card:nth-child(2) { animation-delay: 0.2s; }
-.customer-card:nth-child(3) { animation-delay: 0.3s; }
-.customer-card:nth-child(4) { animation-delay: 0.4s; }
-.customer-card:nth-child(5) { animation-delay: 0.5s; }
-.customer-card:nth-child(6) { animation-delay: 0.6s; }
-.customer-card:nth-child(7) { animation-delay: 0.7s; }
-.customer-card:nth-child(8) { animation-delay: 0.8s; }
-</style>
-        </head>
-<body class="sb-nav-fixed">
+    /* Chart Cards */
+    .chart-card {
+      border: none;
+      border-radius: 24px;
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--border-color);
+      box-shadow:
+        0 20px 25px -5px rgba(0, 0, 0, 0.1),
+        0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      transition: all 0.3s ease;
+    }
 
-<!-- Navbar -->
-<nav class="sb-topnav navbar navbar-expand navbar-dark brand-gradient">
+    .chart-card:hover {
+      transform: translateY(-4px);
+      box-shadow:
+        0 32px 64px -12px rgba(0, 0, 0, 0.25),
+        0 12px 24px -8px rgba(0, 0, 0, 0.12);
+    }
+
+    /* Customer Cards */
+    .customer-mini-card {
+      border: none;
+      border-radius: 18px;
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--border-color);
+      transition: all 0.3s ease;
+      border-left: 4px solid transparent;
+      box-shadow:
+        0 10px 15px -3px rgba(0, 0, 0, 0.1),
+        0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+
+    .customer-mini-card:hover {
+      transform: translateX(8px);
+      border-left-color: var(--primary-color);
+      box-shadow:
+        0 20px 25px -5px rgba(0, 0, 0, 0.1),
+        0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+
+    .customer-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 16px;
+      background: linear-gradient(45deg, var(--primary-color), var(--success-color));
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 18px;
+      box-shadow: 0 4px 12px rgba(34, 71, 165, 0.3);
+    }
+
+    /* Expense Cards */
+    .expense-item {
+      border: none;
+      border-radius: 16px;
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--border-color);
+      transition: all 0.3s ease;
+      border-left: 4px solid var(--danger-color);
+      box-shadow:
+        0 10px 15px -3px rgba(0, 0, 0, 0.1),
+        0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+
+    .expense-item:hover {
+      transform: translateX(6px);
+      box-shadow:
+        0 20px 25px -5px rgba(0, 0, 0, 0.1),
+        0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+
+    .expense-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: linear-gradient(45deg, var(--danger-color), #e74c3c);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+    }
+
+    /* Navigation */
+    .sb-topnav {
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border-color);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    .sb-topnav .navbar-brand img {
+      filter: drop-shadow(0 4px 15px rgba(34, 71, 165, 0.2));
+      transition: all 0.3s ease;
+    }
+
+    .sb-topnav .navbar-brand img:hover {
+      transform: scale(1.05);
+      filter: drop-shadow(0 8px 25px rgba(34, 71, 165, 0.3));
+    }
+
+    /* Sidebar */
+    .sb-sidenav {
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      border-right: 1px solid var(--border-color);
+    }
+
+    .sb-sidenav .nav-link {
+      color: var(--text-color);
+      border-radius: 12px;
+      margin: 0.25rem 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .sb-sidenav .nav-link:hover {
+      background: var(--glass-bg);
+      backdrop-filter: blur(10px);
+      transform: translateX(4px);
+    }
+
+    .sb-sidenav .nav-link.active {
+      background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+      color: white;
+    }
+
+    /* Section Headers */
+    .section-header {
+      position: relative;
+      padding-bottom: 12px;
+      margin-bottom: 24px;
+    }
+
+    .section-header::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 60px;
+      height: 3px;
+      background: linear-gradient(90deg, var(--primary-color), var(--success-color));
+      border-radius: 2px;
+    }
+
+    .section-title {
+      font-weight: 700;
+      color: var(--text-color);
+      font-size: 1.1rem;
+      letter-spacing: 0.5px;
+    }
+
+    /* Enhanced Badges */
+    .badge-modern {
+      padding: 6px 12px;
+      border-radius: 12px;
+      font-weight: 500;
+      font-size: 0.75rem;
+      backdrop-filter: blur(10px);
+    }
+
+    /* Button Enhancements */
+    .btn-modern {
+      border-radius: 12px;
+      padding: 8px 16px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      border: none;
+    }
+
+    .btn-modern:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+      box-shadow: 0 4px 15px rgba(34, 71, 165, 0.3);
+    }
+
+    .btn-primary:hover {
+      box-shadow: 0 8px 25px rgba(34, 71, 165, 0.4);
+    }
+
+    /* Theme toggle */
+    .theme-toggle {
+      position: fixed;
+      top: 2rem;
+      right: 2rem;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: var(--card-bg);
+      border: 2px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      z-index: 1000;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      backdrop-filter: blur(20px);
+    }
+
+    .theme-toggle:hover {
+      transform: scale(1.1);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    }
+
+    .theme-toggle i {
+      font-size: 1.2rem;
+      color: var(--primary-color);
+    }
+
+    /* Animation Classes */
+    .fade-in-up {
+      opacity: 0;
+      transform: translateY(30px);
+      animation: fadeInUp 0.8s ease forwards;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .stagger-1 { animation-delay: 0.1s; }
+    .stagger-2 { animation-delay: 0.2s; }
+    .stagger-3 { animation-delay: 0.3s; }
+    .stagger-4 { animation-delay: 0.4s; }
+
+    /* Modal Enhancements */
+    .modal-content {
+      border: none;
+      border-radius: 20px;
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      box-shadow:
+        0 32px 64px -12px rgba(0, 0, 0, 0.25),
+        0 12px 24px -8px rgba(0, 0, 0, 0.12);
+    }
+
+    .modal-header {
+      background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+      border-bottom: none;
+      border-radius: 20px 20px 0 0;
+    }
+
+    /* Form Enhancements */
+    .form-control {
+      background: var(--card-bg);
+      border: 2px solid var(--border-color);
+      border-radius: 12px;
+      transition: all 0.3s ease;
+      color: var(--text-color);
+      backdrop-filter: blur(10px);
+    }
+
+    .form-control:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(34, 71, 165, 0.1);
+      background: var(--card-bg);
+      color: var(--text-color);
+    }
+
+    .input-group-text {
+      background: var(--card-bg);
+      border: 2px solid var(--border-color);
+      color: var(--primary-color);
+      backdrop-filter: blur(10px);
+    }
+
+    /* Carousel Enhancement */
+    .expiry-carousel .carousel-item .card {
+      border: none;
+      border-radius: 20px;
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      border-left: 6px solid var(--danger-color);
+      box-shadow:
+        0 20px 25px -5px rgba(0, 0, 0, 0.1),
+        0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+
+    /* Alert Enhancements */
+    .alert {
+      border: none;
+      border-radius: 16px;
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--border-color);
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
+      .kpi-card {
+        margin-bottom: 1rem;
+      }
+
+      .customer-mini-card:hover {
+        transform: none;
+      }
+
+      .expense-item:hover {
+        transform: none;
+      }
+
+      .theme-toggle {
+        top: 1rem;
+        right: 1rem;
+        width: 45px;
+        height: 45px;
+      }
+    }
+
+    /* Modal backdrop fix */
+    .modal-backdrop {
+      z-index: 1040 !important;
+    }
+
+    .modal {
+      z-index: 1050 !important;
+    }
+  </style>
+</head>
+<body class="sb-nav-fixed" data-theme="light">
+
+<!-- Floating background shapes -->
+<div class="floating-shape"></div>
+<div class="floating-shape"></div>
+<div class="floating-shape"></div>
+<div class="floating-shape"></div>
+
+<!-- Theme Toggle -->
+<div class="theme-toggle" onclick="toggleTheme()" title="Toggle dark/light mode">
+    <i class="fas fa-moon" id="theme-icon"></i>
+</div>
+
+<!-- Top Navbar -->
+<nav class="sb-topnav navbar navbar-expand navbar-light">
    <a class="navbar-brand ps-3 fw-bold" href="#" onclick="showSection('dashboard')">
-         <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgwIiBoZWlnaHQ9IjQwIiB2aWV3Qm94PSIwIDAgMTgwIDQwIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8ZGVmcz4KPGxpbmVhckdyYWRpZW50IGlkPSJwYWludDBfbGluZWFyIiB4MT0iNSIgeTE9IjMiIHgyPSIyNSIgeTI9IjI3IiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+CjxzdG9wIHN0b3AtY29sb3I9IiNmZmZmZmYiLz4KPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjZjJmMmYyIi8+CjwvbGluZWFyR3JhZGllbnQ+CjxsaW5lYXJHcmFkaWVudCBpZD0icGFpbnQxX2xpbmVhciIgeDE9IjE3IiB5MT0iMTMiIHgyPSIyOCIgeTI9IjI0IiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+CjxzdG9wIHN0b3AtY29sb3I9IiMxMEI5ODEiLz4KPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMDU5NjY5Ii8+CjwvbGluZWFyR3JhZGllbnQ+CjwvZGVmcz4KPCEtLSBEb2N1bWVudC9CaWxsIEljb24gLS0+CjxyZWN0IHg9IjUiIHk9IjMiIHdpZHRoPSIyMCIgaGVpZ2h0PSIyNCIgcng9IjMiIGZpbGw9InVybCgjcGFpbnQwX2xpbmVhcikiLz4KPCEtLSBMaW5lcyBvbiBkb2N1bWVudCAtLT4KPHBhdGggZD0iTTkgOWg4bS04IDNaNW0tNSAzaDciIHN0cm9rZT0iIzJGNDc1OSIgc3Ryb2tlLXdpZHRoPSIxIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KPCEtLSBDaGVja21hcmsgLS0+CjxjaXJjbGUgY3g9IjIyLjUiIGN5PSIxOC41IiByPSI1LjUiIGZpbGw9InVybCgjcGFpbnQxX2xpbmVhcikiLz4KPHBhdGggZD0ibTIwIDE4LjUgMiAyIDQtNCIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8IS0tIFRleHQgLS0+Cjx0ZXh0IHg9IjM1IiB5PSIxNiIgZm9udC1mYW1pbHk9IkludGVyLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjEyIiBmb250LXdlaWdodD0iNzAwIiBmaWxsPSJ3aGl0ZSI+CkJpbGxNYXRlUHJvPC90ZXh0Pgo8dGV4dCB4PSIzNSIgeT0iMjYiIGZvbnQtZmFtaWx5PSJJbnRlciwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSI4IiBmaWxsPSIjZTJlOGYwIj4KWW91ciBCaWxsaW5nIFBhcnRuZXI8L3RleHQ+Cjwvc3ZnPg=="
-              alt="BillMatePro" style="height: 50px; margin-right: 8px;">
-       </a>
-    <button class="btn btn-outline-light btn-sm ms-2" id="sidebarToggle" aria-label="Toggle Sidebar">
-        <i class="fas fa-bars"></i>
-    </button>
+      <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgwIiBoZWlnaHQ9IjQwIiB2aWV3Qm94PSIwIDAgMTgwIDQwIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8ZGVmcz4KPGxpbmVhckdyYWRpZW50IGlkPSJwYWludDBfbGluZWFyIiB4MT0iNSIgeTE9IjMiIHgyPSIyNSIgeTI9IjI3IiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+CjxzdG9wIHN0b3AtY29sb3I9IiMyMjQ3QTUiLz4KPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMTQ1RkEwIi8+CjwvbGluZWFyR3JhZGllbnQ+CjxsaW5lYXJHcmFkaWVudCBpZD0icGFpbnQxX2xpbmVhciIgeDE9IjE3IiB5MT0iMTMiIHgyPSIyOCIgeTI9IjI0IiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+CjxzdG9wIHN0b3AtY29sb3I9IiMxMEI5ODEiLz4KPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMDU5NjY5Ii8+CjwvbGluZWFyR3JhZGllbnQ+CjwvZGVmcz4KPCEtLSBEb2N1bWVudC9CaWxsIEljb24gLS0+CjxyZWN0IHg9IjUiIHk9IjMiIHdpZHRoPSIyMCIgaGVpZ2h0PSIyNCIgcng9IjMiIGZpbGw9InVybCgjcGFpbnQwX2xpbmVhcikiLz4KPCEtLSBMaW5lcyBvbiBkb2N1bWVudCAtLT4KPHBhdGggZD0iTTkgOWg4bS04IDVINW0tNSAzaDciIHN0cm9rZT0iI2ZmZmZmZiIgc3Ryb2tlLXdpZHRoPSIxIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KPCEtLSBDaGVja21hcmsgLS0+CjxjaXJjbGUgY3g9IjIyLjUiIGN5PSIxOC41IiByPSI1LjUiIGZpbGw9InVybCgjcGFpbnQxX2xpbmVhcikiLz4KPHBhdGggZD0ibTIwIDE4LjUgMiAyIDQtNCIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8IS0tIFRleHQgLS0+Cjx0ZXh0IHg9IjM1IiB5PSIxNiIgZm9udC1mYW1pbHk9IkludGVyLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjEyIiBmb250LXdlaWdodD0iNzAwIiBmaWxsPSIjMjI0N0E1Ij4KQmlsbE1hdGVQcm88L3RleHQ+Cjx0ZXh0IHg9IjM1IiB5PSIyNiIgZm9udC1mYW1pbHk9IkludGVyLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjgiIGZpbGw9IiM2Mzc1OEEiPgpZb3VyIEJpbGxpbmcgUGFydG5lcjwvdGV4dD4KPC9zdmc+"
+           alt="BillMatePro" style="height: 50px; margin-right: 8px;">
+    </a>
+  <button class="btn btn-outline-primary btn-sm ms-2" id="sidebarToggle"><i class="fas fa-bars"></i></button>
 
-    <div class="ms-auto d-flex align-items-center gap-3 pe-3">
-        <div class="dropdown">
-            <a class="nav-link dropdown-toggle text-white" id="navbarDropdown" href="#" data-bs-toggle="dropdown" aria-expanded="false">
-                <i class="fas fa-user fa-fw"></i>
-            </a>
-            <ul class="dropdown-menu dropdown-menu-end">
-                <li><a class="dropdown-item" onclick="document.forms['logoutForm'].submit()">Logout</a></li>
-            </ul>
-        </div>
+  <div class="ms-auto d-flex align-items-center gap-3 pe-3">
+    <div class="position-relative" role="button" onclick="openModal()">
+      <i class="bi bi-bell fs-5 text-primary"></i>
+      <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+        ${productList.size()}
+      </span>
     </div>
+    <div class="dropdown">
+      <a class="nav-link dropdown-toggle text-primary" id="navbarDropdown" href="#" data-bs-toggle="dropdown">
+        <i class="fas fa-user fa-fw"></i>
+      </a>
+      <ul class="dropdown-menu dropdown-menu-end">
+        <li><a class="dropdown-item" onclick="document.forms['logoutForm'].submit()">Logout</a></li>
+      </ul>
+    </div>
+  </div>
 </nav>
 
 <div id="layoutSidenav">
-    <!-- Sidebar -->
-    <div id="layoutSidenav_nav">
-        <nav class="sb-sidenav accordion sb-sidenav-dark" id="sidenavAccordion">
-            <div class="sb-sidenav-menu">
-                <div class="nav">
-                    <div class="sb-sidenav-menu-heading">Core</div>
-                    <a class="nav-link" href="${pageContext.request.contextPath}/login/home">
-                        <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div> Dashboard
+  <!-- Sidebar -->
+  <div id="layoutSidenav_nav">
+    <nav class="sb-sidenav accordion" id="sidenavAccordion">
+      <div class="sb-sidenav-menu">
+        <div class="nav">
+          <div class="sb-sidenav-menu-heading">Core</div>
+          <a class="nav-link active" href="${pageContext.request.contextPath}/login/home">
+            <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div> Dashboard
+          </a>
+
+          <div class="sb-sidenav-menu-heading">Interface</div>
+          <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseLayouts">
+            <div class="sb-nav-link-icon"><i class="fas fa-columns"></i></div> Menu
+            <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+          </a>
+          <div class="collapse" id="collapseLayouts" data-bs-parent="#sidenavAccordion">
+            <nav class="sb-sidenav-menu-nested nav">
+              <a class="nav-link" href="${pageContext.request.contextPath}/company/get-all-customers"><i class="fas fa-user-friends me-2"></i>All Customers</a>
+              <a class="nav-link" href="${pageContext.request.contextPath}/company/get-all-invoices"><i class="fas fa-file-invoice me-2"></i>Invoices</a>
+              <a class="nav-link" href="${pageContext.request.contextPath}/company/reports"><i class="fas fa-chart-line me-2"></i>Daily/Monthly Reports</a>
+              <a class="nav-link" href="${pageContext.request.contextPath}/company/get-all-products"><i class="fas fa-leaf me-2"></i>Products</a>
+            </nav>
+          </div>
+
+          <div class="sb-sidenav-menu-heading">Addons</div>
+           <a class="nav-link" href="${pageContext.request.contextPath}/company/get-my-profile">
+                                          <div class="sb-nav-link-icon"><i class="fa fa-gear fa-spin"></i></div> Account Settings
+                                        </a>
+          <a class="nav-link" href="${pageContext.request.contextPath}/company/export-to-pdf">
+            <div class="sb-nav-link-icon"><i class="fas fa-file-export"></i></div> Export Customers
+          </a>
+
+          <a class="nav-link" href="${pageContext.request.contextPath}/expenses">
+                      <div class="sb-nav-link-icon"><i class="fas fa-wallet"></i></div> Daily Expenses
                     </a>
-                    <div class="sb-sidenav-menu-heading">Interface</div>
-                    <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseLayouts"
-                       aria-expanded="false" aria-controls="collapseLayouts">
-                        <div class="sb-nav-link-icon"><i class="fas fa-columns"></i></div>
-                        Menu
-                        <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
-                    </a>
-                    <div class="collapse" id="collapseLayouts" data-bs-parent="#sidenavAccordion">
-                        <nav class="sb-sidenav-menu-nested nav">
-                            <a class="nav-link" href="${pageContext.request.contextPath}/company/get-all-customers">All Customers</a>
-                            <a class="nav-link" href="${pageContext.request.contextPath}/company/get-all-invoices">Invoices</a>
-                            <a class="nav-link" href="${pageContext.request.contextPath}/company/reports">Reports</a>
-                            <a class="nav-link" href="${pageContext.request.contextPath}/company/get-all-products">Products</a>
-                        </nav>
-                    </div>
-                    <div class="sb-sidenav-menu-heading">Addons</div>
-                    <a class="nav-link" href="${pageContext.request.contextPath}/company/get-my-profile">
-                        <div class="sb-nav-link-icon"><i class="fa fa-gear fa-spin"></i></div> Account Settings
-                    </a>
-                    <a class="nav-link" href="${pageContext.request.contextPath}/company/export-to-pdf">
-                        <div class="sb-nav-link-icon"><i class="fas fa-file-export"></i></div> Export Customers
-                    </a>
-                </div>
-            </div>
-            <div class="sb-sidenav-footer">
-                <div class="small">Logged in as:</div>
-                ${pageContext.request.userPrincipal.name}
-            </div>
-        </nav>
-    </div>
 
-    <!-- Overlay for Mobile -->
-    <div class="overlay" id="sidebarOverlay"></div>
-
-    <!-- Main Content -->
-    <div id="layoutSidenav_content">
-        <div class="container-fluid px-4 my-3">
-<h4 class="section-title mb-4">
-                    <i class="bi bi-person-vcard me-2"></i> Customers Section
-                </h4>
-            <!-- Search Bar -->
-            <div class="row mb-3">
-                <div class="col-md-6 mx-auto">
-                    <div class="input-group shadow-sm">
-                        <input type="text" id="searchBox" class="form-control" placeholder="🔍 Search customer by name or phone...">
-                        <button class="btn btn-outline-secondary" type="button" onclick="location.reload();">🔄 Refresh</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Loader -->
-            <div id="loader" class="text-center my-3" style="display: none;">
-                <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Loading...</span>
-                </div>
-                <p class="text-muted small mt-2">Fetching data...</p>
-            </div>
-
-            <!-- Customer Cards -->
-            <div class="cards-grid" id="customerCardContainer">
-                <c:forEach items="${custmers}" var="custmer">
-                    <div class="customer-card">
-                        <div class="card-header">
-                            <div class="customer-avatar">
-                                ${fn:substring(custmer.custName, 0, 1)}${fn:substring(custmer.custName, fn:indexOf(custmer.custName, ' ') + 1, fn:indexOf(custmer.custName, ' ') + 2)}
-                            </div>
-                            <h3 class="customer-name">${custmer.custName}</h3>
-                        </div>
-
-                        <div class="card-content">
-                            <div class="info-item">
-                                <div class="info-icon address-icon">
-                                    <i class="fas fa-map-marker-alt"></i>
-                                </div>
-                                <span class="info-text">${custmer.address}</span>
-                            </div>
-
-                            <div class="info-item">
-                                <div class="info-icon phone-icon">
-                                    <i class="fab fa-whatsapp"></i>
-                                </div>
-                                <a href="https://wa.me/${custmer.phoneNo}" target="_blank" class="whatsapp-link">
-                                    <span class="info-text">${custmer.phoneNo}</span>
-                                </a>
-                            </div>
-                        </div>
-
-                        <div class="amount-section">
-                            <div class="amount-card total-card">
-                                <div class="amount-label">Total</div>
-                                <div class="amount-value">₹${custmer.totalAmount}</div>
-                            </div>
-                            <div class="amount-card paid-card">
-                                <div class="amount-label">Paid</div>
-                                <div class="amount-value">₹${custmer.paidAmout}</div>
-                            </div>
-                            <div class="amount-card balance-card">
-                                <div class="amount-label">Balance</div>
-                                <div class="amount-value">₹${custmer.currentOusting}</div>
-                            </div>
-                        </div>
-
-                        <div class="action-buttons">
-                            <a href="${pageContext.request.contextPath}/company/get-cust-by-id?custid=${custmer.id}" class="action-btn btn-invoice">
-                                <i class="fas fa-file-invoice"></i> Invoice
-                            </a>
-                            <a href="${pageContext.request.contextPath}/company/get-bal-credit-page/${custmer.id}" class="action-btn btn-deposit">
-                                <i class="fas fa-donate"></i> Deposit
-                            </a>
-                            <a href="${pageContext.request.contextPath}/company/cust-history?custid=${custmer.id}" target="_blank" class="action-btn btn-history">
-                                <i class="fas fa-list-ol"></i> History
-                            </a>
-                            <a href="${pageContext.request.contextPath}/company/update-customer/${custmer.id}" class="action-btn btn-edit">
-                                <i class="fas fa-edit"></i> Edit
-                            </a>
-                        </div>
-                    </div>
-                </c:forEach>
-            </div>
-
-            <!-- Pagination -->
-            <div id="paginationContainer" class="d-flex justify-content-center mt-3">
-                <ul class="pagination pagination-sm mb-0">
-                    <c:if test="${page > 0}">
-                        <li class="page-item"><a class="page-link" href="${pageContext.request.contextPath}/company/get-all-customers?page=${page - 1}">&laquo; Prev</a></li>
-                    </c:if>
-                    <c:forEach begin="${page - 2 < 0 ? 0 : page - 2}" end="${page + 2 >= totalPages ? totalPages - 1 : page + 2}" var="i">
-                        <li class="page-item ${page == i ? 'active' : ''}">
-                            <a class="page-link" href="${pageContext.request.contextPath}/company/get-all-customers?page=${i}">${i + 1}</a>
-                        </li>
-                    </c:forEach>
-                    <c:if test="${page < totalPages - 1}">
-                        <li class="page-item"><a class="page-link" href="${pageContext.request.contextPath}/company/get-all-customers?page=${page + 1}">Next &raquo;</a></li>
-                    </c:if>
-                </ul>
-            </div>
         </div>
-    </div>
+      </div>
+      <div class="sb-sidenav-footer">
+        <div class="small">Logged in as:</div>
+        ${pageContext.request.userPrincipal.name}
+      </div>
+    </nav>
+  </div>
+
+  <!-- Main -->
+  <div id="layoutSidenav_content">
+    <main>
+      <div class="container-fluid px-4 mt-4">
+
+        <!-- Success toast -->
+        <c:if test="${not empty msg}">
+          <div class="alert alert-success alert-dismissible fade show enhanced-card border-0 fade-in-up" role="alert" id="success-alert">
+            <i class="bi bi-check-circle-fill me-2"></i><strong>Success!</strong> ${msg}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+          </div>
+        </c:if>
+
+
+
+      </div> <!-- /container-fluid -->
+    </main>
+  </div>
 </div>
 
-<!-- Logout Form -->
+<!-- Modal: Add Customer -->
+
+
+<!-- Logout form -->
 <form id="logoutForm" method="POST" action="${pageContext.request.contextPath}/logout">
-    <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+  <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
 </form>
 
-<!-- Scripts -->
+<!-- JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="${pageContext.request.contextPath}/resources/js/scripts.js"></script>
+<script src="${pageContext.request.contextPath}/resources/js/timeout.js"></script>
+<script src="${pageContext.request.contextPath}/resources/js/datatables-simple-demo.js"></script>
+
 <script>
-    const contextPath = '${pageContext.request.contextPath}';
-    const searchInput = document.getElementById('searchBox');
-    const cardContainer = document.getElementById('customerCardContainer');
-    const paginationContainer = document.getElementById('paginationContainer');
-    const loader = document.getElementById('loader');
-    let debounceTimer;
+// Theme toggle functionality
+function toggleTheme() {
+    const body = document.body;
+    const themeIcon = document.getElementById('theme-icon');
+    const currentTheme = body.getAttribute("data-theme");
+    const newTheme = currentTheme === "dark" ? "light" : "dark";
 
-    function showLoader(){ loader.style.display = 'block'; }
-    function hideLoader(){ loader.style.display = 'none'; }
+    body.setAttribute("data-theme", newTheme);
 
-    function renderCards(customers) {
-        cardContainer.innerHTML = '';
+    // Update icon
+    if (newTheme === "dark") {
+        themeIcon.className = "fas fa-sun";
+    } else {
+        themeIcon.className = "fas fa-moon";
+    }
 
-        customers.forEach(function (custmer, index) {
-            // Generate avatar initials
-            var nameWords = custmer.custName.split(' ');
-            var initials = nameWords.length > 1
-                ? nameWords[0].charAt(0).toUpperCase() + nameWords[1].charAt(0).toUpperCase()
-                : custmer.custName.charAt(0).toUpperCase() + (custmer.custName.charAt(1) || '').toUpperCase();
+    // Save preference
+    localStorage.setItem('theme', newTheme);
+}
 
-            var card = document.createElement('div');
-            card.className = 'customer-card';
+// Wait for DOM to be fully loaded
+document.addEventListener('DOMContentLoaded', function() {
+  // Load saved theme
+  const savedTheme = localStorage.getItem('theme') || 'light';
+  const body = document.body;
+  const themeIcon = document.getElementById('theme-icon');
 
-            // Add staggered animation delay
-            card.style.animationDelay = (index * 0.1) + 's';
+  body.setAttribute("data-theme", savedTheme);
 
-            card.innerHTML =
-                '<div class="card-header">' +
-                    '<div class="customer-avatar">' + initials + '</div>' +
-                    '<h3 class="customer-name">' + custmer.custName + '</h3>' +
-                '</div>' +
+  if (savedTheme === "dark") {
+      themeIcon.className = "fas fa-sun";
+  } else {
+      themeIcon.className = "fas fa-moon";
+  }
 
-                '<div class="card-content">' +
-                    '<div class="info-item">' +
-                        '<div class="info-icon address-icon">' +
-                            '<i class="fas fa-map-marker-alt"></i>' +
-                        '</div>' +
-                        '<span class="info-text">' + (custmer.address || 'No address provided') + '</span>' +
-                    '</div>' +
+  console.log('DOM loaded, initializing modals...');
 
-                    '<div class="info-item">' +
-                        '<div class="info-icon phone-icon">' +
-                            '<i class="fab fa-whatsapp"></i>' +
-                        '</div>' +
-                        '<a href="https://wa.me/' + custmer.phoneNo + '" target="_blank" class="whatsapp-link">' +
-                            '<span class="info-text">' + custmer.phoneNo + '</span>' +
-                        '</a>' +
-                    '</div>' +
-                '</div>' +
+  // Initialize modal functionality
+  const addCustomerBtn = document.getElementById('addCustomerBtn');
+  const addCustomerModal = document.getElementById('addCustomerModal');
 
-                '<div class="amount-section">' +
-                    '<div class="amount-card total-card">' +
-                        '<div class="amount-label">Total</div>' +
-                        '<div class="amount-value">₹' + formatNumber(custmer.totalAmount) + '</div>' +
-                    '</div>' +
-                    '<div class="amount-card paid-card">' +
-                        '<div class="amount-label">Paid</div>' +
-                        '<div class="amount-value">₹' + formatNumber(custmer.paidAmout) + '</div>' +
-                    '</div>' +
-                    '<div class="amount-card balance-card">' +
-                        '<div class="amount-label">Balance</div>' +
-                        '<div class="amount-value">₹' + formatNumber(custmer.currentOusting) + '</div>' +
-                    '</div>' +
-                '</div>' +
+  if (addCustomerBtn && addCustomerModal) {
+    console.log('Modal elements found, setting up event listener');
 
-                '<div class="action-buttons">' +
-                    '<a href="' + contextPath + '/company/get-cust-by-id?custid=' + custmer.id + '" class="action-btn btn-invoice">' +
-                        '<i class="fas fa-file-invoice"></i>Invoice' +
-                    '</a>' +
-                    '<a href="' + contextPath + '/company/get-bal-credit-page/' + custmer.id + '" class="action-btn btn-deposit">' +
-                        '<i class="fas fa-donate"></i>Deposit' +
-                    '</a>' +
-                    '<a href="' + contextPath + '/company/cust-history?custid=' + custmer.id + '" target="_blank" class="action-btn btn-history">' +
-                        '<i class="fas fa-list-ol"></i>History' +
-                    '</a>' +
-                    '<a href="' + contextPath + '/company/update-customer/' + custmer.id + '" class="action-btn btn-edit">' +
-                        '<i class="fas fa-edit"></i>Edit' +
-                    '</a>' +
-                '</div>';
+    addCustomerBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      console.log('Add Customer button clicked');
 
-            cardContainer.appendChild(card);
+      try {
+        const modal = new bootstrap.Modal(addCustomerModal, {
+          backdrop: 'static',
+          keyboard: false
         });
-
-        // Update card counter
-        updateCardCounter();
-    }
-
-    // Helper function to format numbers with commas
-    function formatNumber(num) {
-        if (num === null || num === undefined) return '0';
-        return parseFloat(num).toLocaleString('en-IN');
-    }
-
-    // Helper function to update card counter
-    function updateCardCounter() {
-        var cards = document.querySelectorAll('.customer-card');
-        var counter = document.getElementById('cardCounter');
-        if (counter) {
-            counter.textContent = 'Total Customers: ' + cards.length;
+        modal.show();
+        console.log('Modal shown successfully');
+      } catch (error) {
+        console.error('Error showing modal:', error);
+        // Fallback: try jQuery
+        if (typeof $ !== 'undefined') {
+          $('#addCustomerModal').modal('show');
         }
-    }
+      }
+    });
+  } else {
+    console.error('Modal elements not found');
+  }
 
-    // Alternative version with error handling and better performance
-    function renderCardsOptimized(customers) {
-        if (!customers || customers.length === 0) {
-            cardContainer.innerHTML = '<div class="no-customers">No customers found</div>';
-            return;
-        }
+  // Success alert auto-hide
+  const successAlert = document.getElementById('success-alert');
+  if (successAlert) {
+    setTimeout(() => {
+      const alert = bootstrap.Alert.getOrCreateInstance(successAlert);
+      alert.close();
+    }, 3500);
+  }
 
-        // Create document fragment for better performance
-        var fragment = document.createDocumentFragment();
+  // Form validation
+  const forms = document.querySelectorAll('.needs-validation');
+  forms.forEach(form => {
+    form.addEventListener('submit', function(event) {
+      if (!form.checkValidity()) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+      form.classList.add('was-validated');
+    });
+  });
+});
 
-        customers.forEach(function (custmer, index) {
-            // Validate customer data
-            if (!custmer || !custmer.custName) {
-                console.warn('Invalid customer data at index', index);
-                return;
+// Global functions
+function openModal() {
+  const modal = new bootstrap.Modal(document.getElementById('expiringModal'));
+  modal.show();
+}
+
+// Chart Data and Configuration
+const totalAmount = ${totalAmount != null ? totalAmount : 0};
+const paidAmount = ${paidAmount != null ? paidAmount : 0};
+const currentOusting = ${currentOutstanding != null ? currentOutstanding : 0};
+const toK = v => v >= 1000 ? (v/1000).toFixed(1)+'K' : v.toLocaleString();
+
+// Pie Chart
+const ctx = document.getElementById('paymentPieChart');
+if (ctx) {
+  const pieCtx = ctx.getContext('2d');
+
+  // Gradients
+  const gradient1 = pieCtx.createLinearGradient(0, 0, 0, 400);
+  gradient1.addColorStop(0, '#6a11cb');
+  gradient1.addColorStop(1, '#2575fc');
+
+  const gradient2 = pieCtx.createLinearGradient(0, 0, 0, 400);
+  gradient2.addColorStop(0, '#ff416c');
+  gradient2.addColorStop(1, '#ff4b2b');
+
+  const gradient3 = pieCtx.createLinearGradient(0, 0, 0, 400);
+  gradient3.addColorStop(0, '#00f260');
+  gradient3.addColorStop(1, '#0575e6');
+
+  new Chart(pieCtx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Total Amount', 'Balance Amount', 'Paid Amount'],
+      datasets: [{
+        data: [totalAmount, currentOusting, paidAmount],
+        backgroundColor: [gradient1, gradient2, gradient3],
+        borderWidth: 0,
+        hoverOffset: 10
+      }]
+    },
+    options: {
+      responsive: true,
+      cutout: '60%',
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: {
+            usePointStyle: true,
+            padding: 20,
+            font: { size: 12, weight: '500' },
+            color: getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim()
+          }
+        },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              return context.label + ': ₹' + toK(context.parsed);
             }
-
-            // Generate avatar initials safely
-            var nameWords = custmer.custName.trim().split(/\s+/);
-            var initials = nameWords.length > 1
-                ? nameWords[0].charAt(0).toUpperCase() + nameWords[1].charAt(0).toUpperCase()
-                : custmer.custName.charAt(0).toUpperCase() + (custmer.custName.charAt(1) || '').toUpperCase();
-
-            var card = document.createElement('div');
-            card.className = 'customer-card';
-            card.style.animationDelay = (index * 0.1) + 's';
-
-            // Safe property access with fallbacks
-            var address = custmer.address || 'Address not provided';
-            var phoneNo = custmer.phoneNo || '';
-            var totalAmount = custmer.totalAmount || 0;
-            var paidAmount = custmer.paidAmout || custmer.paidAmount || 0;
-            var currentOusting = custmer.currentOusting || custmer.balance || 0;
-
-            card.innerHTML =
-                '<div class="card-header">' +
-                    '<div class="customer-avatar">' + initials + '</div>' +
-                    '<h3 class="customer-name">' + escapeHtml(custmer.custName) + '</h3>' +
-                '</div>' +
-
-                '<div class="card-content">' +
-                    '<div class="info-item">' +
-                        '<div class="info-icon address-icon">' +
-                            '<i class="fas fa-map-marker-alt"></i>' +
-                        '</div>' +
-                        '<span class="info-text" title="' + escapeHtml(address) + '">' +
-                            truncateText(address, 50) +
-                        '</span>' +
-                    '</div>' +
-
-                    '<div class="info-item">' +
-                        '<div class="info-icon phone-icon">' +
-                            '<i class="fab fa-whatsapp"></i>' +
-                        '</div>' +
-                        (phoneNo ?
-                            '<a href="https://wa.me/' + phoneNo + '" target="_blank" class="whatsapp-link">' +
-                                '<span class="info-text">' + phoneNo + '</span>' +
-                            '</a>' :
-                            '<span class="info-text">No phone number</span>'
-                        ) +
-                    '</div>' +
-                '</div>' +
-
-                '<div class="amount-section">' +
-                    '<div class="amount-card total-card">' +
-                        '<div class="amount-label">Total</div>' +
-                        '<div class="amount-value">₹' + formatNumber(totalAmount) + '</div>' +
-                    '</div>' +
-                    '<div class="amount-card paid-card">' +
-                        '<div class="amount-label">Paid</div>' +
-                        '<div class="amount-value">₹' + formatNumber(paidAmount) + '</div>' +
-                    '</div>' +
-                    '<div class="amount-card balance-card">' +
-                        '<div class="amount-label">Balance</div>' +
-                        '<div class="amount-value">₹' + formatNumber(currentOusting) + '</div>' +
-                    '</div>' +
-                '</div>' +
-
-                '<div class="action-buttons">' +
-                    '<a href="' + contextPath + '/company/get-cust-by-id?custid=' + custmer.id + '" class="action-btn btn-invoice">' +
-                        '<i class="fas fa-file-invoice"></i>Invoice' +
-                    '</a>' +
-                    '<a href="' + contextPath + '/company/get-bal-credit-page/' + custmer.id + '" class="action-btn btn-deposit">' +
-                        '<i class="fas fa-donate"></i>Deposit' +
-                    '</a>' +
-                    '<a href="' + contextPath + '/company/cust-history?custid=' + custmer.id + '" target="_blank" class="action-btn btn-history">' +
-                        '<i class="fas fa-list-ol"></i>History' +
-                    '</a>' +
-                    '<a href="' + contextPath + '/company/update-customer/' + custmer.id + '" class="action-btn btn-edit">' +
-                        '<i class="fas fa-edit"></i>Edit' +
-                    '</a>' +
-                '</div>';
-
-            fragment.appendChild(card);
-        });
-
-        // Clear container and append all cards at once
-        cardContainer.innerHTML = '';
-        cardContainer.appendChild(fragment);
-
-        // Update card counter
-        updateCardCounter();
-    }
-
-    // Utility functions
-    function escapeHtml(text) {
-        var div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
-    }
-
-    function truncateText(text, maxLength) {
-        if (text.length <= maxLength) return text;
-        return text.substring(0, maxLength) + '...';
-    }
-
-    // CSS for no customers message
-    var noCustomersStyle = `
-        .no-customers {
-            grid-column: 1 / -1;
-            text-align: center;
-            padding: 3rem;
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 1.2rem;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 16px;
-            backdrop-filter: blur(10px);
+          }
         }
-    `;
+      }
+    }
+  });
+}
 
-    // Add the style to the page if it doesn't exist
-    if (!document.getElementById('no-customers-style')) {
-        var style = document.createElement('style');
-        style.id = 'no-customers-style';
-        style.textContent = noCustomersStyle;
-        document.head.appendChild(style);
+// Bar Chart
+const barCtx = document.getElementById('paymentBarChart');
+if (barCtx) {
+  const totalAmount1 = ${dailySummary.totalAmount != null ? dailySummary.totalAmount : 0};
+  const paidAmount1 = ${dailySummary.collectedAmount != null ? dailySummary.collectedAmount : 0};
+  const currentOusting1 = ${dailySummary.totalBalanceAmount != null ? dailySummary.totalBalanceAmount : 0};
+
+  new Chart(barCtx.getContext('2d'), {
+    type: 'bar',
+    data: {
+      labels: ['Total Amt', 'Collected', 'Balance'],
+      datasets: [{
+        label: 'Amount',
+        data: [totalAmount1, paidAmount1, currentOusting1],
+        backgroundColor: [
+          'rgba(34, 71, 165, 0.8)',
+          'rgba(16, 185, 129, 0.8)',
+          'rgba(245, 158, 11, 0.8)'
+        ],
+        borderColor: [
+          'rgb(34, 71, 165)',
+          'rgb(16, 185, 129)',
+          'rgb(245, 158, 11)'
+        ],
+        borderWidth: 2,
+        borderRadius: 8,
+        borderSkipped: false
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              return '₹' + toK(context.raw);
+            }
+          }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: {
+            callback: function(value) {
+              return '₹' + toK(value);
+            },
+            color: getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim()
+          },
+          grid: {
+            color: 'rgba(0,0,0,0.1)'
+          }
+        },
+        x: {
+          ticks: {
+            color: getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim()
+          },
+          grid: {
+            display: false
+          }
+        }
+      }
+    }
+  });
+}
+
+// Line Chart for Expenses Trend
+const expenseCtx = document.getElementById('expensesTrendChart');
+if (expenseCtx) {
+  const trendLabels = [
+    <c:forEach var="exp" items="${dailyExpenses}" varStatus="s">
+      '<fmt:formatDate value="${exp.date}" pattern="dd MMM"/>'<c:if test="${!s.last}">,</c:if>
+    </c:forEach>
+  ];
+  const trendData = [
+    <c:forEach var="exp" items="${dailyExpenses}" varStatus="s">
+      ${exp.amount}<c:if test="${!s.last}">,</c:if>
+    </c:forEach>
+  ];
+
+  new Chart(expenseCtx.getContext('2d'), {
+    type: 'line',
+    data: {
+      labels: trendLabels,
+      datasets: [{
+        label: 'Daily Expenses',
+        data: trendData,
+        borderColor: 'rgb(239, 68, 68)',
+        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+        fill: true,
+        tension: 0.4,
+        pointBackgroundColor: 'rgb(239, 68, 68)',
+        pointBorderColor: '#fff',
+        pointBorderWidth: 2,
+        pointRadius: 6,
+        pointHoverRadius: 8
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          mode: 'index',
+          intersect: false,
+          callbacks: {
+            label: function(context) {
+              return '₹' + context.raw.toLocaleString();
+            }
+          }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: {
+            callback: function(value) {
+              return '₹' + value.toLocaleString();
+            },
+            color: getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim()
+          },
+          grid: {
+            color: 'rgba(0,0,0,0.1)'
+          }
+        },
+        x: {
+          ticks: {
+            color: getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim()
+          },
+          grid: {
+            display: false
+          }
+        }
+      },
+      interaction: {
+        intersect: false,
+        mode: 'index'
+      }
+    }
+  });
+}
+
+// Animation on scroll
+const observerOptions = {
+  threshold: 0.1,
+  rootMargin: '0px 0px -50px 0px'
+};
+
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.style.opacity = '1';
+      entry.target.style.transform = 'translateY(0)';
+    }
+  });
+}, observerOptions);
+
+document.querySelectorAll('.fade-in-up').forEach(el => {
+  el.style.opacity = '0';
+  el.style.transform = 'translateY(30px)';
+  el.style.transition = 'all 0.6s ease-out';
+  observer.observe(el);
+});
+
+// Parallax effect for floating shapes
+window.addEventListener('scroll', function() {
+    const scrolled = window.pageYOffset;
+    const shapes = document.querySelectorAll('.floating-shape');
+
+    shapes.forEach((shape, index) => {
+        const speed = 0.5 + (index * 0.1);
+        const yPos = -(scrolled * speed);
+        shape.style.transform = `translateY(${yPos}px)`;
+    });
+});
+
+// Add particle effect on mouse move (subtle for dashboard)
+let particleCount = 0;
+document.addEventListener('mousemove', function(e) {
+    if (particleCount > 5) return; // Limit particles
+
+    const cursor = document.createElement('div');
+    cursor.className = 'cursor-particle';
+    cursor.style.left = e.clientX + 'px';
+    cursor.style.top = e.clientY + 'px';
+
+    document.body.appendChild(cursor);
+    particleCount++;
+
+    setTimeout(() => {
+        cursor.remove();
+        particleCount--;
+    }, 1000);
+});
+
+// Add CSS for cursor particles
+const style = document.createElement('style');
+style.textContent = `
+    .cursor-particle {
+        position: fixed;
+        width: 3px;
+        height: 3px;
+        background: var(--primary-color);
+        border-radius: 50%;
+        pointer-events: none;
+        opacity: 0.5;
+        animation: fadeParticle 1s ease-out forwards;
+        z-index: 9999;
     }
 
-
-    searchInput.addEventListener('input', function () {
-        const query = this.value.trim();
-        clearTimeout(debounceTimer);
-
-        if (!query) {
-            location.href = contextPath + '/company/get-all-customers';
-            return;
+    @keyframes fadeParticle {
+        to {
+            opacity: 0;
+            transform: scale(0);
         }
-        if (query.length < 3) return;
+    }
 
-        debounceTimer = setTimeout(() => {
-            showLoader();
-            fetch(contextPath + '/company/search?query=' + encodeURIComponent(query))
-                .then(res => res.json())
-                .then(data => {
-                    hideLoader();
-                    if (!data || data.length === 0) {
-                        cardContainer.innerHTML = '<div class="col-12 text-center text-muted">🙁 No matching customers found</div>';
-                        paginationContainer.style.display = 'none';
-                        return;
-                    }
-                    renderCards(data);
-                    paginationContainer.style.display = 'none';
-                })
-                .catch(() => hideLoader());
-        }, 300);
-    });
+    .cursor-particle:nth-child(2n) {
+        background: var(--success-color);
+    }
+`;
+document.head.appendChild(style);
 
-    // Sidebar toggle
-    document.getElementById('sidebarToggle').addEventListener('click', function () {
-        document.body.classList.toggle('sb-sidenav-toggled');
-        document.getElementById('sidebarOverlay').classList.toggle('active');
-    });
-    document.getElementById('sidebarOverlay').addEventListener('click', function () {
-        document.body.classList.remove('sb-sidenav-toggled');
-        this.classList.remove('active');
-    });
+// Update charts on theme change
+function updateChartsTheme() {
+    // This function can be called when theme changes to update chart colors
+    // You can extend this to update all charts with theme-appropriate colors
+}
 </script>
+
 </body>
 </html>
