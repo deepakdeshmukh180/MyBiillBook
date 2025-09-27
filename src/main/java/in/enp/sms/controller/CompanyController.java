@@ -124,6 +124,13 @@ public class CompanyController {
         return currentDateTime;
     }
 
+    public static String getFirstDayOfMonth() {
+        LocalDate today = LocalDate.now();
+        LocalDate firstDay = today.withDayOfMonth(1);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        return firstDay.format(formatter);
+    }
+
     // Product management methods
     @GetMapping("/delete-product-by-id")
     public String deleteProduct(HttpServletRequest request, Model model) {
@@ -836,7 +843,7 @@ public class CompanyController {
     @GetMapping("/get-all-invoices")
     public String getAllInvoiceList(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "12") int size,
             Model model,
             HttpServletRequest request) {
 
@@ -926,6 +933,19 @@ public class CompanyController {
         return map;
     }
 
+
+    @GetMapping("/get-shop-profile/{ownerId}")
+    public String getShopDetailsByOwnerId(Model model, @PathVariable String ownerId, HttpServletRequest request) {
+        Boolean isSuperAdmin = Utility.getSuperAdminFromSession(request);
+        if (isSuperAdmin) {
+            List<OwnerInfo> ownerDetails = ownerInfoRepository.findAll();
+            model.addAttribute("ownerDetails", ownerDetails);
+            OwnerInfo matchedOwner = ownerDetails.stream().filter(o -> o.getOwnerId().equals(ownerId)).findFirst().orElse(null);
+            model.addAttribute("ownerInfo", matchedOwner);
+        }
+        return "admin-dashoard";
+    }
+
     // Report methods
     @GetMapping("/reports")
     public String getReportPage(HttpServletRequest request, Model model,
@@ -935,15 +955,23 @@ public class CompanyController {
         String ownerId = Utility.getOwnerIdFromSession(request);
         LocalDate today = LocalDate.now();
 
-        List<InvoiceDetails> records = invoiceDetailsRepository.findByOwnerIdAndDate(ownerId, today);
-        List<BalanceDeposite> balanceDeposits = balanceDepositeRepository.findByOwnerIdAndDate(ownerId, today);
+
+        // Start date of the current month
+        LocalDate startOfMonth = today.withDayOfMonth(1);
+
+        List<InvoiceDetails> records = invoiceDetailsRepository.findByDateBetweenAndOwnerId(startOfMonth, today, ownerId);
+
+        List<BalanceDeposite>   balanceDeposits = balanceDepositeRepository.findByDateBetweenAndOwnerId(startOfMonth, today, ownerId);
+
+
+
 
         InvoiceDetails summary = calculateDailySummary(records, balanceDeposits);
 
         model.addAttribute("invoicetotal", summary);
         model.addAttribute("Invoices", records);
         model.addAttribute("transactions", balanceDeposits);
-        model.addAttribute("startDate", getCurrentDateOtherFormat());
+        model.addAttribute("startDate", getFirstDayOfMonth());
         model.addAttribute("endDate", getCurrentDateOtherFormat());
 
         LOGGER.info("Report page retrieved successfully");
@@ -1567,8 +1595,25 @@ public class CompanyController {
         model.addAttribute("biller", itemDetails.getCreatedBy());
         model.addAttribute("invoiceNo", itemDetails.getInvoiceId());
 
-        List<ItemDetails> items = itemRepository.findByInvoiceNoAndCustIdAndStatus(
-                itemDetails.getInvoiceId(), itemDetails.getCustId(), true);
+        List<ItemDetails> items = itemRepository
+                .findByInvoiceNoAndCustIdAndStatusOrderByItemNoAsc(
+                        itemDetails.getInvoiceId(),
+                        itemDetails.getCustId(),
+                        true
+                );
+        String ownerId = Utility.getOwnerIdFromSession(request);
+        OwnerInfo existingInfo = ownerInfoRepository.findById(ownerId)
+                .orElseThrow(() -> new RuntimeException("Owner info not found"));
+
+     if( existingInfo.getInvoiceColms().contains("BRAND")){
+         for (ItemDetails item : items) {
+             String updatedName = Utility.buildProductNameWithoutBrand(item.getDescription());
+             item.setDescription(updatedName);
+         }
+
+     }
+
+
 
         model.addAttribute("totalQty", itemDetails.getTotQty());
         model.addAttribute("totalAmout", itemDetails.getTotInvoiceAmt());

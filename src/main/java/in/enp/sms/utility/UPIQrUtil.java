@@ -6,6 +6,7 @@ import com.google.zxing.WriterException;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
+import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -30,11 +31,16 @@ public class UPIQrUtil {
                 URLEncoder.encode(formattedAmount, StandardCharsets.UTF_8.toString())
         );
 
+        // QR writer with high error correction
         QRCodeWriter qrWriter = new QRCodeWriter();
         Map<EncodeHintType, Object> hints = new HashMap<>();
         hints.put(EncodeHintType.CHARACTER_SET, "UTF-8");
+        hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.H); // High error correction
+        hints.put(EncodeHintType.MARGIN, 1); // Small white border
 
-        BitMatrix bitMatrix = qrWriter.encode(upiString, BarcodeFormat.QR_CODE, 200, 200, hints);
+        // HD size (e.g., 1000x1000 pixels)
+        int size = 600;
+        BitMatrix bitMatrix = qrWriter.encode(upiString, BarcodeFormat.QR_CODE, size, size, hints);
         BufferedImage qrImage = MatrixToImageWriter.toBufferedImage(bitMatrix);
 
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
@@ -43,6 +49,4 @@ public class UPIQrUtil {
             return Base64.getEncoder().encodeToString(imageBytes);
         }
     }
-
-
 }

@@ -4,640 +4,929 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<title>Invoice #${invoiceNo} – ${profile.custName}</title>
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" />
-<style>
-  body {
-    font-family: 'Segoe UI', sans-serif;
-    background: #f7fafc;
-    margin: 0;
-    padding: 5mm;
-    color: #333;
-    font-size: 8px;
-    line-height: 1.1;
-  }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice #${invoiceNo} – ${profile.custName}</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-  /* A4 page container */
-  .page-container {
-    width: 210mm;
-    min-height: 297mm;
-    margin: 0 auto;
-    background: white;
-    display: flex;
-    flex-direction: column;
-    gap: 5mm;
-    padding: 5mm;
-    box-sizing: border-box;
-  }
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #1e40af;
+            --text-dark: #000000;
+            --text-medium: #1f2937;
+            --text-light: #4b5563;
+            --border-color: #d1d5db;
+            --bg-light: #f9fafb;
+        }
 
-  /* Individual A5 invoice */
-  .invoice {
-    width: 100%;
-    height: 140mm; /* A5 height minus margins */
-    background: #fff;
-    border: solid 1px #333;
-    border-radius: 3px;
-    padding: 3mm;
-    position: relative;
-    overflow: hidden;
-    box-sizing: border-box;
-    page-break-inside: avoid;
-  }
+        body {
+            font-family: 'Arial', 'Helvetica', sans-serif;
+            background: linear-gradient(135deg, #e5e7eb 0%, #f3f4f6 100%);
+            margin: 0;
+            padding: 15px;
+            color: var(--text-dark);
+            font-size: 14px;
+            line-height: 1.4;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
 
-  /* Duplicate invoice container */
-  .invoice-duplicate {
-    border-top: 2px dashed #999;
-    margin-top: 3mm;
-    padding-top: 3mm;
-  }
+        /* A5 Page Container - Exact A5 dimensions */
+        .page-container {
+            width: 210mm;
+            height: 148mm;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            overflow: hidden;
+            position: relative;
+            border: 1px solid var(--border-color);
+        }
 
-  /* Watermark - smaller for A5 */
-  .invoice::before {
-    content: "${ownerInfo.shopName}";
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) rotate(-30deg);
-    font-size: 2.5rem;
-    color: rgba(0, 0, 0, 0.05);
-    white-space: nowrap;
-    pointer-events: none;
-    z-index: 0;
-  }
+        /* Invoice Content */
+        .invoice {
+            width: 100%;
+            height: 100%;
+            padding: 8mm;
+            background: white;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+        }
 
-  .invoice * {
-    position: relative;
-    z-index: 1;
-  }
+        /* Header Section */
+        .invoice-header {
+            border-bottom: 3px solid var(--text-dark);
+            padding-bottom: 4mm;
+            margin-bottom: 4mm;
+        }
 
-  /* Header - compact for A5 */
-  .header {
-    text-align: center;
-    margin-bottom: 2mm;
-    border-bottom: 1px solid #ddd;
-    padding-bottom: 2mm;
-  }
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 3mm;
+        }
 
-  .header-top {
-    display: flex;
-    justify-content: space-between;
-    font-size: 7px;
-    margin-bottom: 1mm;
-    color: #666;
-    font-weight: bold;
-  }
+        .company-info h1 {
+            font-size: 18px;
+            font-weight: 900;
+            margin-bottom: 2mm;
+            color: var(--text-dark);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
 
-  .header h2 {
-    font-size: 11px;
-    color: #2c5282;
-    margin: 1mm 0;
-    font-weight: bold;
-  }
+        .company-details {
+            font-size: 9px;
+            line-height: 1.3;
+            color: var(--text-medium);
+        }
 
-  .header small {
-    font-size: 6px;
-    color: #555;
-    line-height: 1.2;
-    display: block;
-  }
+        .company-details p {
+            margin-bottom: 1px;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+        }
 
-  /* Tables - compact */
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 1mm 0;
-  }
+        .company-details i {
+            width: 10px;
+            font-size: 8px;
+        }
 
-  .info-table td {
-    padding: 1mm;
-    vertical-align: top;
-    font-size: 7px;
-    border-bottom: 1px solid #eee;
-  }
+        .invoice-meta {
+            text-align: right;
+            border: 2px solid var(--text-dark);
+            padding: 3mm;
+            background: white;
+            min-width: 35mm;
+            position: relative;
+        }
 
-  .items-table th, .items-table td {
-    border: 1px solid #ccc;
-    padding: 1mm;
-    text-align: center;
-    font-size: 6px;
-    line-height: 1.2;
-  }
+        .invoice-meta h2 {
+            font-size: 14px;
+            margin-bottom: 2mm;
+            font-weight: 900;
+            color: var(--text-dark);
+        }
 
-  .items-table th {
-    background: #2c5282;
-    color: #fff;
-    font-weight: bold;
-  }
+        /* QR Code in header */
+        .header-qr {
+            position: absolute;
+            top: 3mm;
+            left: -25mm;
+            width: 20mm;
+            height: 20mm;
+            border: 1px solid var(--text-dark);
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
 
-  .items-table td.description {
-    text-align: left;
-    font-size: 6px;
-  }
+        .header-qr img {
+            max-width: 18mm;
+            max-height: 18mm;
+        }
 
-  /* Merged bottom section - redesigned for A5 */
-  .merged-block {
-    display: flex;
-    gap: 2mm;
-    margin-top: 2mm;
-    font-size: 6px;
-  }
+        .header-qr i {
+            font-size: 14px;
+            color: var(--text-dark);
+        }
 
-  .merged-left {
-    flex: 1.2;
-    border: 1px solid #ccc;
-    border-radius: 2px;
-    padding: 2mm;
-    background: #fbfbfb;
-  }
+        .invoice-meta .meta-item {
+            margin-bottom: 1mm;
+            font-size: 9px;
+            font-weight: 600;
+            color: var(--text-medium);
+        }
 
-  .terms-title {
-    font-weight: bold;
-    font-size: 7px;
-    margin-bottom: 1mm;
-    color: #2c5282;
-  }
+        /* Customer Section */
+        .customer-section {
+            background: var(--bg-light);
+            border: 1px solid var(--border-color);
+            padding: 3mm;
+            margin-bottom: 3mm;
+            border-left: 4px solid var(--text-dark);
+        }
 
-  .terms-text {
-    font-size: 6px;
-    line-height: 1.2;
-    max-height: 8mm;
-    overflow: hidden;
-  }
+        .customer-title {
+            font-weight: 900;
+            font-size: 12px;
+            margin-bottom: 3mm;
+            color: var(--text-dark);
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 2mm;
+            letter-spacing: 0.5px;
+        }
 
-  .sign-row {
-    display: flex;
-    gap: 1mm;
-    margin-top: 2mm;
-  }
+        .customer-details {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2mm;
+        }
 
-  .sign-box {
-    flex: 1;
-    border: 1px solid #ccc;
-    padding: 3mm 1mm;
-    text-align: center;
-    font-size: 6px;
-    border-radius: 2px;
-    background: white;
-  }
+        .customer-item {
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--text-medium);
+            line-height: 1.3;
+        }
 
-  .merged-center {
-    flex: 0 0 20mm;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid #ccc;
-    border-radius: 2px;
-    background: #fff;
-  }
+        .customer-item strong {
+            color: var(--text-dark);
+            font-weight: 900;
+        }
 
-  .qr-wrap img {
-    max-width: 18mm;
-    max-height: 18mm;
-  }
+        /* Items Table - Print Optimized */
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 3mm;
+            border: 2px solid var(--text-dark);
+            flex: 1;
+        }
 
-  .merged-right {
-    flex: 0 0 35mm;
-    border: 1px solid #ccc;
-    border-radius: 2px;
-    padding: 2mm;
-    background: #fff;
-  }
+        .items-table thead th {
+            background: var(--text-dark);
+            color: white;
+            padding: 2mm 1mm;
+            font-weight: 900;
+            text-align: center;
+            font-size: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            border-right: 1px solid white;
+        }
 
-  .summary-row td {
-    padding: 0.5mm;
-    font-size: 6px;
-    line-height: 1.3;
-  }
+        .items-table thead th:last-child {
+            border-right: none;
+        }
 
-  .highlight {
-    background: #fff3cd;
-    font-weight: bold;
-    border-left: 2px solid #ff8f00;
-  }
+        .items-table thead th.text-left {
+            text-align: left;
+        }
 
-  .current-balance {
-    background: #d1ecf1;
-    font-weight: bold;
-    border-left: 2px solid #1976d2;
-  }
+        .items-table thead th.text-right {
+            text-align: right;
+        }
 
-  /* Footer */
-  .vertical-footer {
-    font-size: 6px;
-    padding: 1mm;
-    margin-top: 2mm;
-    text-align: center;
-    border-top: 1px solid #eee;
-    color: #666;
-  }
+        .items-table tbody tr {
+            border-bottom: 1px solid var(--border-color);
+        }
 
-  /* Buttons - only show on screen */
-  .btns {
-    margin: 5mm auto;
-    display: flex;
-    gap: 2mm;
-    justify-content: center;
-  }
+        .items-table tbody tr:nth-child(even) {
+            background: #f8f9fa;
+        }
 
-  .btn {
-    font-size: 9px;
-    padding: 2mm 4mm;
-    border: 1px solid #ccc;
-    border-radius: 15px;
-    cursor: pointer;
-    background: white;
-    text-decoration: none;
-    color: #333;
-    display: inline-flex;
-    align-items: center;
-    gap: 1mm;
-  }
+        .items-table tbody td {
+            padding: 1.5mm 1mm;
+            font-size: 8px;
+            color: var(--text-dark);
+            font-weight: 700;
+            text-align: center;
+            border-right: 1px solid var(--border-color);
+        }
 
-  .btn:hover {
-    background: #f0f0f0;
-  }
+        .items-table tbody td:last-child {
+            border-right: none;
+        }
 
-  .btn-success {
-    background: #25d366;
-    color: white;
-    border-color: #25d366;
-  }
+        .items-table .description {
+            text-align: left !important;
+            font-weight: 900;
+        }
 
-  /* Print styles */
-  @media print {
-    body {
-      background: white;
-      padding: 0;
-      margin: 0;
-    }
+        .items-table .text-right {
+            text-align: right !important;
+            font-weight: 900;
+        }
 
-    .page-container {
-      width: 210mm;
-      min-height: 297mm;
-      padding: 5mm;
-      margin: 0;
-      box-shadow: none;
-    }
+        .items-table .amount {
+            font-weight: 900;
+            color: var(--text-dark);
+        }
 
-    .hidden-print {
-      display: none !important;
-    }
+        /* Bottom Section */
+        .bottom-section {
+            display: grid;
+            grid-template-columns: 1.2fr 50mm;
+            gap: 3mm;
+            margin-top: auto;
+        }
 
-    .invoice {
-      border: solid 1px #000;
-      break-inside: avoid;
-    }
+        /* Terms Section */
+        .terms-section {
+            border: 1px solid var(--border-color);
+            padding: 2mm;
+            background: white;
+        }
 
-    .invoice-duplicate {
-      border-top: 2px dashed #000;
-    }
+        .terms-title {
+            font-weight: 900;
+            margin-bottom: 1mm;
+            font-size: 8px;
+            color: var(--text-dark);
+            text-transform: uppercase;
+        }
 
-    /* Ensure proper page breaks */
-    .page-container {
-      page-break-after: always;
-    }
+        .terms-text {
+            font-size: 7px;
+            line-height: 1.2;
+            color: var(--text-medium);
+            margin-bottom: 2mm;
+            height: 8mm;
+            overflow: hidden;
+        }
 
-    .page-container:last-child {
-      page-break-after: auto;
-    }
-  }
+        .signature-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2mm;
+        }
 
-  /* Screen-only styles */
-  @media screen {
-    .page-container {
-      box-shadow: 0 0 10mm rgba(0,0,0,0.1);
-      margin-bottom: 10mm;
-    }
-  }
+        .signature-box {
+            border: 1px dashed var(--border-color);
+            padding: 2mm;
+            text-align: center;
+            font-size: 7px;
+            font-weight: 700;
+            color: var(--text-medium);
+            height: 8mm;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
 
-  /* Responsive adjustments for smaller screens */
-  @media screen and (max-width: 800px) {
-    .page-container {
-      width: 100%;
-      padding: 2mm;
-    }
+        /* QR Section - Remove from bottom */
+        .qr-section {
+            display: none;
+        }
 
-    .merged-block {
-      flex-direction: column;
-    }
+        /* Invoice Summary - Split into two columns */
+        .invoice-summary {
+            background: white;
+            border: 2px solid var(--text-dark);
+            padding: 2mm;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2mm;
+        }
 
-    .merged-right {
-      flex: none;
-    }
-  }
-</style>
+        .summary-left, .summary-right {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .summary-left {
+            border-right: 1px solid var(--border-color);
+            padding-right: 2mm;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1mm 0;
+            font-size: 7px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .summary-row:last-child {
+            border-bottom: none;
+        }
+
+        .summary-row.highlight {
+            background: #f3f4f6;
+            margin: 1mm -2mm;
+            padding: 2mm;
+            font-weight: 900;
+            color: var(--text-dark);
+            border: 1px solid var(--text-dark);
+        }
+
+        .summary-row.current-balance {
+            background: var(--text-dark);
+            color: white;
+            margin: 2mm -2mm 0;
+            padding: 2mm;
+            font-weight: 900;
+            font-size: 8px;
+        }
+
+        .summary-row .amount {
+            font-weight: 900;
+        }
+
+        /* Footer */
+        .invoice-footer {
+            text-align: center;
+            padding: 1mm 0;
+            margin-top: 2mm;
+            border-top: 1px solid var(--border-color);
+            font-size: 7px;
+            color: var(--text-light);
+        }
+
+        /* Action Buttons - Screen Only */
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            padding: 20px;
+            background: white;
+            margin-top: 20px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            border: 2px solid;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .btn-primary:hover {
+            background: var(--secondary-color);
+            border-color: var(--secondary-color);
+        }
+
+        .btn-success {
+            background: #059669;
+            color: white;
+            border-color: #059669;
+        }
+
+        .btn-success:hover {
+            background: #047857;
+            border-color: #047857;
+        }
+
+        .btn-outline {
+            background: white;
+            color: var(--text-dark);
+            border-color: var(--text-dark);
+        }
+
+        .btn-outline:hover {
+            background: var(--text-dark);
+            color: white;
+        }
+
+        /* Print Styles - Critical for A5 */
+        @media print {
+            @page {
+                size: A5 landscape;
+                margin: 0;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            * {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            body {
+                background: white !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                font-size: 12px !important;
+                color: black !important;
+            }
+
+            .page-container {
+                width: 210mm !important;
+                height: 148mm !important;
+                max-width: none !important;
+                margin: 0 !important;
+                box-shadow: none !important;
+                border-radius: 0 !important;
+                background: white !important;
+                border: none !important;
+                overflow: visible !important;
+            }
+
+            .invoice {
+                padding: 5mm !important;
+                height: 138mm !important;
+                background: white !important;
+            }
+
+            .action-buttons {
+                display: none !important;
+            }
+
+            /* Ensure black text for printing */
+            .invoice-header,
+            .company-info h1,
+            .invoice-meta h2,
+            .customer-title,
+            .items-table thead th,
+            .items-table tbody td,
+            .terms-title,
+            .summary-row {
+                color: black !important;
+            }
+
+            /* Ensure borders print correctly */
+            .invoice-header {
+                border-bottom: 2px solid black !important;
+            }
+
+            .invoice-meta {
+                border: 2px solid black !important;
+            }
+
+            .customer-section {
+                border-left: 3px solid black !important;
+                border: 1px solid black !important;
+                background: white !important;
+            }
+
+            .items-table {
+                border: 2px solid black !important;
+            }
+
+            .items-table thead th {
+                background: black !important;
+                color: white !important;
+            }
+
+            .items-table tbody tr:nth-child(even) {
+                background: #f5f5f5 !important;
+            }
+
+            .summary-row.highlight {
+                background: #f0f0f0 !important;
+                border: 1px solid black !important;
+            }
+
+            .summary-row.current-balance {
+                background: black !important;
+                color: white !important;
+            }
+
+            .terms-section,
+            .summary-left {
+                border-right: 1px solid black !important;
+            }
+
+            .invoice-summary {
+                border: 2px solid black !important;
+            }
+
+            .qr-section {
+                border: 1px solid black !important;
+            }
+
+            /* Font adjustments for print */
+            .company-info h1 {
+                font-size: 16px !important;
+            }
+
+            .company-details {
+                font-size: 8px !important;
+            }
+
+            .invoice-meta .meta-item {
+                font-size: 8px !important;
+            }
+
+            .customer-item {
+                font-size: 7px !important;
+            }
+
+            .items-table thead th {
+                font-size: 7px !important;
+                padding: 1mm !important;
+            }
+
+            .items-table tbody td {
+                font-size: 7px !important;
+                padding: 1mm !important;
+            }
+
+            .summary-row {
+                font-size: 6px !important;
+            }
+
+            .summary-row.current-balance {
+                font-size: 7px !important;
+            }
+        }
+
+        /* Screen only styles */
+        @media screen {
+            .page-container {
+                box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+                margin-bottom: 20px;
+            }
+        }
+
+        /* Mobile Responsive */
+        @media screen and (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .page-container {
+                width: 100%;
+                height: auto;
+                min-height: 148mm;
+            }
+
+            .invoice {
+                height: auto;
+                padding: 15px;
+            }
+
+            .header-top {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .customer-details {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+
+            .bottom-section {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
 </head>
 <body>
 <c:if test="${pageContext.request.userPrincipal.name != null}">
 
-<div class="page-container">
-  <!-- First Invoice (Original) -->
-  <div class="invoice">
-    <!-- Header -->
-    <div class="header">
-      <div class="header-top">
-        <div><strong>Invoice:</strong> #${invoiceNo}</div>
-        <div><strong>TAX INVOICE</strong></div>
-        <div><strong>Date:</strong> ${date}</div>
-      </div>
-      <h2>${ownerInfo.shopName}</h2>
-      <small>
-        <i class="fa fa-map-marker"></i> ${ownerInfo.address} |
-        <i class="fa fa-user"></i> ${ownerInfo.ownerName} |
-        <i class="fa fa-phone"></i> ${ownerInfo.mobNumber}<br/>
-        <i class="fa fa-id-card"></i><strong>LC:</strong> ${ownerInfo.lcNo} |
-        <strong>GST:</strong> ${ownerInfo.gstNumber}
-      </small>
-    </div>
+<div class="page-container" id="invoice-container">
+    <!-- Single Invoice -->
+    <div class="invoice">
+        <!-- Header -->
+        <div class="invoice-header">
+            <div class="header-top">
+                <div class="company-info">
+                    <h1>${ownerInfo.shopName}</h1>
+                    <div class="company-details">
+                        <p><i class="fas fa-map-marker-alt"></i> ${ownerInfo.address}</p>
+                        <p><i class="fas fa-user"></i> ${ownerInfo.ownerName}</p>
+                        <p><i class="fas fa-phone"></i> ${ownerInfo.mobNumber}</p>
+                        <p><i class="fas fa-id-card"></i> <strong>LC:</strong> ${ownerInfo.lcNo} | <strong>GST:</strong> ${ownerInfo.gstNumber}</p>
+                    </div>
+                </div>
 
-    <!-- Customer Info -->
-    <table class="info-table">
-      <tr>
-        <td><strong>Name:</strong> ${profile.custName}</td>
-        <td><strong>Contact:</strong> ${profile.phoneNo}</td>
-        <td><strong>Address:</strong> ${profile.address}</td>
-      </tr>
-    </table>
+                <div class="invoice-meta">
+                    <!-- QR Code in header -->
+                    <div class="header-qr">
+                        <c:choose>
+                            <c:when test="${not empty QRCODE}">
+                                <img src="data:image/png;base64,${QRCODE}" alt="QR Code" />
+                            </c:when>
+                            <c:otherwise>
+                                <i class="fas fa-qrcode"></i>
+                            </c:otherwise>
+                        </c:choose>
+                    </div>
 
-    <!-- Items Table -->
-    <table class="items-table">
-      <thead>
-        <tr>
-          <th style="width:8%">SR</th>
-          <th style="width:30%">Description</th>
-
-          <c:if test="${invoiceColms.contains('BRAND')}">
-            <th style="width:12%">Brand</th>
-          </c:if>
-
-          <c:if test="${invoiceColms.contains('BATCHNO')}">
-            <th style="width:10%">Batch</th>
-          </c:if>
-
-          <c:if test="${invoiceColms.contains('EXPD')}">
-            <th style="width:8%">Exp.</th>
-          </c:if>
-
-          <c:if test="${invoiceColms.contains('MRP')}">
-            <th style="width:10%">MRP</th>
-          </c:if>
-
-          <th style="width:8%">Qty</th>
-          <th style="width:12%">Rate</th>
-          <th style="width:12%">Amount</th>
-        </tr>
-      </thead>
-
-      <tbody>
-        <c:forEach items="${items}" var="item">
-          <tr>
-            <td>${item.itemNo}</td>
-            <td class="description">${item.description}</td>
-
-            <c:if test="${invoiceColms.contains('BRAND')}">
-              <td>${empty item.brand ? 'NA' : item.brand}</td>
-            </c:if>
-
-            <c:if test="${invoiceColms.contains('BATCHNO')}">
-              <td>${item.batchNo}</td>
-            </c:if>
-
-            <c:if test="${invoiceColms.contains('EXPD')}">
-              <td>${empty item.expDate ? 'NA' : item.expDate}</td>
-            </c:if>
-
-            <c:if test="${invoiceColms.contains('MRP')}">
-              <td style="text-align:right;">₹${item.mrp}</td>
-            </c:if>
-
-            <td>${item.qty}</td>
-            <td style="text-align:right;">₹${item.rate}</td>
-            <td style="text-align:right;">₹${item.amount}</td>
-          </tr>
-        </c:forEach>
-      </tbody>
-    </table>
-
-    <!-- Merged Section -->
-    <div class="merged-block">
-      <!-- Terms & Conditions + Sign -->
-      <div class="merged-left">
-        <div class="terms-title">Terms &amp; Conditions</div>
-        <div class="terms-text">
-          ${ownerInfo.terms}
+                    <h2>TAX INVOICE</h2>
+                    <div class="meta-item"><strong>Invoice #:</strong> ${invoiceNo}</div>
+                    <div class="meta-item"><strong>Date:</strong> ${date}</div>
+                </div>
+            </div>
         </div>
-        <div class="sign-row">
-          <div class="sign-box">Customer Sign</div>
-          <div class="sign-box">For ${ownerInfo.shopName}</div>
+
+        <!-- Customer Section -->
+        <div class="customer-section">
+
+            <div class="customer-details">
+                <div class="customer-item">
+                    <strong>Name:</strong> ${profile.custName}
+                </div>
+                <div class="customer-item">
+                    <strong>Contact:</strong> ${profile.phoneNo}
+                </div>
+                <div class="customer-item">
+                    <strong>Address:</strong> ${profile.address}
+                </div>
+            </div>
         </div>
-      </div>
 
-      <!-- QR Code -->
-      <div class="merged-center qr-wrap">
-        <img src="data:image/png;base64,${QRCODE}" alt="QR Code" />
-      </div>
-
-      <!-- Invoice Summary -->
-      <div class="merged-right">
-        <table>
-          <tr class="summary-row"><td>Sub Total</td><td style="text-align:right;">₹${totalAmout}</td></tr>
-          <tr class="summary-row"><td>Paid</td><td style="text-align:right;">₹${advamount}</td></tr>
-          <tr class="summary-row highlight"><td>Net Total</td><td style="text-align:right;">₹${totalAmout-advamount}</td></tr>
-          <tr class="summary-row"><td>GST</td><td style="text-align:right;">₹${currentinvoiceitems.tax}</td></tr>
-          <tr class="summary-row"><td>Prev Balance</td><td style="text-align:right;">₹${currentinvoiceitems.preBalanceAmt}</td></tr>
-          <tr class="summary-row current-balance"><td>Current Balance</td><td style="text-align:right;">₹${profile.currentOusting}</td></tr>
+        <!-- Items Table -->
+        <table class="items-table">
+            <thead>
+                <tr>
+                    <th style="width:6%">SR</th>
+                    <th style="width:32%" class="text-left">Description</th>
+                    <c:if test="${invoiceColms.contains('BRAND')}">
+                        <th style="width:10%">Brand</th>
+                    </c:if>
+                    <c:if test="${invoiceColms.contains('BATCHNO')}">
+                        <th style="width:8%">Batch</th>
+                    </c:if>
+                    <c:if test="${invoiceColms.contains('EXPD')}">
+                        <th style="width:7%">Exp.</th>
+                    </c:if>
+                    <c:if test="${invoiceColms.contains('MRP')}">
+                        <th style="width:9%" class="text-right">MRP</th>
+                    </c:if>
+                    <th style="width:6%">Qty</th>
+                    <th style="width:11%" class="text-right">Rate</th>
+                    <th style="width:11%" class="text-right">Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                <c:forEach items="${items}" var="item">
+                    <tr>
+                        <td>${item.itemNo}</td>
+                        <td class="description">${item.description}</td>
+                        <c:if test="${invoiceColms.contains('BRAND')}">
+                            <td>${empty item.brand ? 'N/A' : item.brand}</td>
+                        </c:if>
+                        <c:if test="${invoiceColms.contains('BATCHNO')}">
+                            <td>${item.batchNo}</td>
+                        </c:if>
+                        <c:if test="${invoiceColms.contains('EXPD')}">
+                            <td>${empty item.expDate ? 'N/A' : item.expDate}</td>
+                        </c:if>
+                        <c:if test="${invoiceColms.contains('MRP')}">
+                            <td class="text-right">₹${item.mrp}</td>
+                        </c:if>
+                        <td>${item.qty}</td>
+                        <td class="text-right">₹${item.rate}</td>
+                        <td class="text-right amount">₹${item.amount}</td>
+                    </tr>
+                </c:forEach>
+            </tbody>
         </table>
-      </div>
-    </div>
 
-    <!-- Footer -->
-    <div class="vertical-footer">
-      Generated by <strong>MyBillBook Solution</strong> • Contact: 8180080378
-    </div>
-  </div>
+        <!-- Bottom Section -->
+        <div class="bottom-section">
+            <!-- Terms & Conditions -->
+            <div class="terms-section">
+                <div class="terms-title">
+                    <i class="fas fa-file-contract"></i>
+                    Terms & Conditions
+                </div>
+                <div class="terms-text">
+                    ${ownerInfo.terms}
+                </div>
+                <div class="signature-section">
+                    <div class="signature-box">Customer Signature</div>
+                    <div class="signature-box">For ${ownerInfo.shopName}</div>
+                </div>
+            </div>
 
-  <!-- Second Invoice (Duplicate Copy) -->
-  <div class="invoice invoice-duplicate">
-    <!-- Header -->
-    <div class="header">
-      <div class="header-top">
-        <div><strong>Invoice:</strong> #${invoiceNo}</div>
-        <div><strong>DUPLICATE COPY</strong></div>
-        <div><strong>Date:</strong> ${date}</div>
-      </div>
-      <h2>${ownerInfo.shopName}</h2>
-      <small>
-        <i class="fa fa-map-marker"></i> ${ownerInfo.address} |
-        <i class="fa fa-user"></i> ${ownerInfo.ownerName} |
-        <i class="fa fa-phone"></i> ${ownerInfo.mobNumber}<br/>
-        <i class="fa fa-id-card"></i><strong>LC:</strong> ${ownerInfo.lcNo} |
-        <strong>GST:</strong> ${ownerInfo.gstNumber}
-      </small>
-    </div>
+            <!-- Invoice Summary -->
+            <div class="invoice-summary">
+                <!-- Left Column -->
+                <div class="summary-left">
+                    <div class="summary-row">
+                        <span>Sub Total</span>
+                        <span class="amount">₹${totalAmout}</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Paid Amount</span>
+                        <span class="amount">₹${advamount}</span>
+                    </div>
+                    <div class="summary-row highlight">
+                        <span>Net Total</span>
+                        <span class="amount">₹${totalAmout - advamount}</span>
+                    </div>
+                </div>
 
-    <!-- Customer Info -->
-    <table class="info-table">
-      <tr>
-        <td><strong>Name:</strong> ${profile.custName}</td>
-        <td><strong>Contact:</strong> ${profile.phoneNo}</td>
-        <td><strong>Address:</strong> ${profile.address}</td>
-      </tr>
-    </table>
-
-    <!-- Items Table -->
-    <table class="items-table">
-      <thead>
-        <tr>
-          <th style="width:8%">SR</th>
-          <th style="width:30%">Description</th>
-
-          <c:if test="${invoiceColms.contains('BRAND')}">
-            <th style="width:12%">Brand</th>
-          </c:if>
-
-          <c:if test="${invoiceColms.contains('BATCHNO')}">
-            <th style="width:10%">Batch</th>
-          </c:if>
-
-          <c:if test="${invoiceColms.contains('EXPD')}">
-            <th style="width:8%">Exp.</th>
-          </c:if>
-
-          <c:if test="${invoiceColms.contains('MRP')}">
-            <th style="width:10%">MRP</th>
-          </c:if>
-
-          <th style="width:8%">Qty</th>
-          <th style="width:12%">Rate</th>
-          <th style="width:12%">Amount</th>
-        </tr>
-      </thead>
-
-      <tbody>
-        <c:forEach items="${items}" var="item">
-          <tr>
-            <td>${item.itemNo}</td>
-            <td class="description">${item.description}</td>
-
-            <c:if test="${invoiceColms.contains('BRAND')}">
-              <td>${empty item.brand ? 'NA' : item.brand}</td>
-            </c:if>
-
-            <c:if test="${invoiceColms.contains('BATCHNO')}">
-              <td>${item.batchNo}</td>
-            </c:if>
-
-            <c:if test="${invoiceColms.contains('EXPD')}">
-              <td>${empty item.expDate ? 'NA' : item.expDate}</td>
-            </c:if>
-
-            <c:if test="${invoiceColms.contains('MRP')}">
-              <td style="text-align:right;">₹${item.mrp}</td>
-            </c:if>
-
-            <td>${item.qty}</td>
-            <td style="text-align:right;">₹${item.rate}</td>
-            <td style="text-align:right;">₹${item.amount}</td>
-          </tr>
-        </c:forEach>
-      </tbody>
-    </table>
-
-    <!-- Merged Section -->
-    <div class="merged-block">
-      <!-- Terms & Conditions + Sign -->
-      <div class="merged-left">
-        <div class="terms-title">Terms &amp; Conditions</div>
-        <div class="terms-text">
-          ${ownerInfo.terms}
+                <!-- Right Column -->
+                <div class="summary-right">
+                    <div class="summary-row">
+                        <span>GST</span>
+                        <span class="amount">₹${currentinvoiceitems.tax}</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Prev Balance</span>
+                        <span class="amount">₹${currentinvoiceitems.preBalanceAmt}</span>
+                    </div>
+                    <div class="summary-row highlight">
+                        <span>Curr.Balance</span>
+                        <span class="amount">₹${profile.currentOusting}</span>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="sign-row">
-          <div class="sign-box">Customer Sign</div>
-          <div class="sign-box">For ${ownerInfo.shopName}</div>
+
+        <!-- Footer -->
+        <div class="invoice-footer">
+            Generated by <strong>MyBillBook Solution</strong> • Contact: 8180080378
         </div>
-      </div>
-
-      <!-- QR Code -->
-      <div class="merged-center qr-wrap">
-        <img src="data:image/png;base64,${QRCODE}" alt="QR Code" />
-      </div>
-
-      <!-- Invoice Summary -->
-      <div class="merged-right">
-        <table>
-          <tr class="summary-row"><td>Sub Total</td><td style="text-align:right;">₹${totalAmout}</td></tr>
-          <tr class="summary-row"><td>Paid</td><td style="text-align:right;">₹${advamount}</td></tr>
-          <tr class="summary-row highlight"><td>Net Total</td><td style="text-align:right;">₹${totalAmout-advamount}</td></tr>
-          <tr class="summary-row"><td>GST</td><td style="text-align:right;">₹${currentinvoiceitems.tax}</td></tr>
-          <tr class="summary-row"><td>Prev Balance</td><td style="text-align:right;">₹${currentinvoiceitems.preBalanceAmt}</td></tr>
-          <tr class="summary-row current-balance"><td>Current Balance</td><td style="text-align:right;">₹${profile.currentOusting}</td></tr>
-        </table>
-      </div>
     </div>
-
-    <!-- Footer -->
-    <div class="vertical-footer">
-      Generated by <strong>MyBillBook Solution</strong> • Contact: 8180080378
-    </div>
-  </div>
 </div>
 
-<!-- Buttons -->
-<div class="btns hidden-print">
-  <button class="btn" onclick="location.href='${pageContext.request.contextPath}/login/home'">
-    <i class="fa fa-home"></i> Home
-  </button>
-  <button class="btn" onclick="downloadPDF()">
-    <i class="fa fa-file-pdf-o"></i> Download PDF
-  </button>
-  <a href="https://wa.me/${profile.phoneNo}/?text=Namaste!!!%20*${profile.custName}*,%20%E0%A4%A4%E0%A5%81%E0%A4%AE%E0%A4%9A%E0%A5%87%20%E0%A4%87%E0%A4%A8%E0%A5%8D%E0%A4%B5%E0%A5%8D%E0%A4%B9%E0%A5%89%E0%A4%87%E0%A4%B8%20%E0%A4%A4%E0%A5%8D%E0%A4%AF%E0%A4%BE%E0%A4%B0%20%E0%A4%9D%E0%A4%BE%E0%A4%B2%E0%A5%87%20%E0%A4%86%E0%A4%B9%E0%A5%87.%20%E0%A4%95%E0%A5%83%E0%A4%AA%E0%A4%AF%E0%A4%BE%20%E0%A4%A4%E0%A4%AA%E0%A4%B6%E0%A5%80%E0%A4%B2%20%E0%A4%AA%E0%A4%B9%E0%A4%BE..." target="_blank" class="btn btn-success">
-    <i class="fa fa-whatsapp"></i> WhatsApp करा
-  </a>
+<!-- Action Buttons -->
+<div class="action-buttons">
+    <button class="btn btn-outline" onclick="window.location.href='${pageContext.request.contextPath}/login/home'">
+        <i class="fas fa-home"></i> Home
+    </button>
+    <button class="btn btn-outline" onclick="printInvoice()">
+        <i class="fas fa-print"></i> Print A5
+    </button>
+    <button class="btn btn-primary" onclick="downloadPDF()">
+        <i class="fas fa-file-pdf"></i> Download A5 PDF
+    </button>
+    <a href="https://wa.me/${profile.phoneNo}/?text=Namaste!!!%20*${profile.custName}*,%20आपका%20बिल%20तैयार%20है।%20Invoice%20%23${invoiceNo}%20-%20₹${profile.currentOusting}%0A%0AThank%20you%20for%20your%20business!%0A%0A-%20${ownerInfo.shopName}" target="_blank" class="btn btn-success">
+        <i class="fab fa-whatsapp"></i> WhatsApp करें
+    </a>
 </div>
 
 </c:if>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script>
-// PDF download function
-function downloadPDF(){
-  const element = document.querySelector('.page-container');
+    // A5 Print Function
+    function printInvoice() {
+        // Create print-specific styles
+        const printStyle = document.createElement('style');
+        printStyle.textContent = `
+            @media print {
+                @page {
+                    size: A5 landscape;
+                    margin: 0mm;
+                }
+                body * {
+                    visibility: hidden;
+                }
+                #invoice-container, #invoice-container * {
+                    visibility: visible;
+                }
+                #invoice-container {
+                    position: absolute;
+                    left: 0;
+                    top: 0;
+                    width: 210mm !important;
+                    height: 148mm !important;
+                }
+            }
+        `;
+        document.head.appendChild(printStyle);
 
-  html2pdf().set({
-    margin: [5, 5, 5, 5], // 5mm margins
-    filename: '${profile.custName}_Invoice_${invoiceNo}_A5.pdf',
-    image: {type: 'jpeg', quality: 0.98},
-    html2canvas: {
-      scale: 2,
-      useCORS: true,
-      letterRendering: true
-    },
-    jsPDF: {
-      unit: 'mm',
-      format: 'a4',
-      orientation: 'portrait'
+        // Print
+        window.print();
+
+        // Remove print styles after printing
+        setTimeout(() => {
+            document.head.removeChild(printStyle);
+        }, 1000);
     }
-  }).from(element).save();
-}
 
-// Auto print on page load
-window.addEventListener('load', function() {
-  // Small delay to ensure fonts and images are loaded
-  setTimeout(function() {
-    window.print();
-  }, 500);
-});
+    // Enhanced A5 PDF Download
+    function downloadPDF() {
+        const element = document.getElementById('invoice-container');
+        const customerName = '${profile.custName}' || 'Customer';
+        const invoiceNo = '${invoiceNo}' || 'INV001';
 
-// Print-specific styling
-window.addEventListener('beforeprint', function() {
-  document.body.style.background = 'white';
-});
+        const opt = {
+            margin: [0, 0, 0, 0],
+            filename: `${customerName}_Invoice_${invoiceNo}_A5.pdf`,
+            image: {
+                type: 'jpeg',
+                quality: 1.0
+            },
+            html2canvas: {
+                scale: 3,
+                useCORS: true,
+                allowTaint: true,
+                backgroundColor: '#ffffff',
+                width: 794, // A5 landscape width in pixels at 96 DPI
+                height: 559, // A5 landscape height in pixels at 96 DPI
+                scrollX: 0,
+                scrollY: 0
+            },
+            jsPDF: {
+                unit: 'mm',
+                format: [210, 148], // A5 landscape
+                orientation: 'landscape',
+                compress: true
+            }
+        };
 
-window.addEventListener('afterprint', function() {
-  document.body.style.background = '#f7fafc';
-});
+        // Generate PDF
+        html2pdf().set(opt).from(element).save().catch((error) => {
+            console.error('PDF generation failed:', error);
+            alert('PDF generation failed. Please try the print option instead.');
+        });
+    }
+
+    // Enhanced print event handlers
+    window.addEventListener('beforeprint', function() {
+        document.body.style.background = 'white';
+
+        // Ensure proper A5 formatting
+        const container = document.getElementById('invoice-container');
+        if (container) {
+            container.style.width = '210mm';
+            container.style.height = '148mm';
+            container.style.transform = 'scale(1)';
+            container.style.transformOrigin = 'top left';
+        }
+    });
+
+    window.addEventListener('afterprint', function() {
+        document.body.style.background = 'linear-gradient(135deg, #e5e7eb 0%, #f3f4f6 100%)';
+    });
+
+    // Auto-adjust for different screen sizes
+    function adjustPageSize() {
+        const container = document.getElementById('invoice-container');
+        const screenWidth = window.innerWidth;
+
+        if (screenWidth < 768) {
+            // Mobile adjustment
+            container.style.transform = 'scale(0.4)';
+            container.style.transformOrigin = 'top center';
+            container.style.marginBottom = '50px';
+        } else if (screenWidth < 1024) {
+            // Tablet adjustment
+            container.style.transform = 'scale(0.7)';
+            container.style.transformOrigin = 'top center';
+        } else {
+            // Desktop - no scaling needed
+            container.style.transform = 'scale(1)';
+        }
+    }
+
+    // Apply on load and resize
+    window.addEventListener('load', adjustPageSize);
+    window.addEventListener('resize', adjustPageSize);
+
+    // Ensure fonts are loaded before operations
+    document.fonts.ready.then(() => {
+        console.log('All fonts loaded successfully for A5 invoice');
+    });
 </script>
 
 </body>

@@ -1,19 +1,3 @@
-<%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %> <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %> <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %> <%@ page contentType="text/html;charset=UTF-8" language="java" %> <!DOCTYPE html> <html
-
-pasted
-
-Looking at your login/registration page, I can see it's a well-structured Spring MVC application with Bootstrap styling. I notice you have a logo that appears to be a base64-encoded image. Let me help you improve this page with some suggestions and optimizations.
-
-
-Enhanced Login/Registration Page
-Interactive artifact
-
-
-
-
-5-hour limit reached ∙ resets 11:30 PM
-Upgrade
-Continue
 
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
@@ -22,7 +6,7 @@ Continue
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>My Bill Book - Login/Register</title>
+    <title>BillMatePro - Login/Register</title>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
@@ -32,8 +16,8 @@ Continue
 
     <style>
         :root {
-            --primary-color: #6366f1;
-            --primary-dark: #4f46e5;
+            --primary-color: #2247a5;
+            --primary-dark: #145fa0;
             --success-color: #10b981;
             --danger-color: #ef4444;
             --warning-color: #f59e0b;
@@ -89,7 +73,7 @@ Continue
             width: 100%;
             height: 100%;
             background: linear-gradient(135deg, var(--primary-color) 0%, var(--success-color) 100%);
-            opacity: 0.1;
+            opacity: 0.05;
             z-index: -2;
         }
 
@@ -181,43 +165,50 @@ Continue
             margin-bottom: 2rem;
         }
 
-        .logo-icon {
-            width: 80px;
-            height: 80px;
-            background: linear-gradient(135deg, var(--primary-color), var(--success-color));
-            border-radius: 20px;
+        .logo-container {
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 1rem;
-            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3);
-            animation: pulse 2s infinite;
+            margin-bottom: 1rem;
+            animation: fadeInUp 0.8s ease;
         }
 
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
+        .app-logo {
+            max-width: 280px;
+            height: auto;
+            filter: drop-shadow(0 4px 15px rgba(34, 71, 165, 0.2));
+            transition: all 0.3s ease;
         }
 
-        .logo-icon i {
-            font-size: 2rem;
-            color: white;
+        .app-logo:hover {
+            transform: scale(1.02);
+            filter: drop-shadow(0 8px 25px rgba(34, 71, 165, 0.3));
         }
 
-        .app-title {
-            font-size: 1.8rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-            background: linear-gradient(135deg, var(--primary-color), var(--success-color));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+        [data-theme="dark"] .app-logo {
+            filter:
+                drop-shadow(0 4px 15px rgba(34, 71, 165, 0.2))
+                brightness(1.1)
+                contrast(1.05);
         }
 
         .app-subtitle {
             color: var(--text-color);
             opacity: 0.7;
             font-size: 0.9rem;
+            margin-top: 0.5rem;
+            font-weight: 500;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         /* Tab styling */
@@ -246,7 +237,7 @@ Continue
             background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
             color: white;
             opacity: 1;
-            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+            box-shadow: 0 4px 15px rgba(34, 71, 165, 0.3);
         }
 
         /* Form styling */
@@ -267,7 +258,7 @@ Continue
 
         .form-control:focus {
             border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+            box-shadow: 0 0 0 3px rgba(34, 71, 165, 0.1);
             background: var(--card-bg);
             color: var(--text-color);
         }
@@ -320,12 +311,12 @@ Continue
 
         .btn-primary {
             background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+            box-shadow: 0 4px 15px rgba(34, 71, 165, 0.3);
         }
 
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+            box-shadow: 0 8px 25px rgba(34, 71, 165, 0.4);
         }
 
         .btn-success {
@@ -458,8 +449,12 @@ Continue
                 height: 45px;
             }
 
-            .app-title {
-                font-size: 1.5rem;
+            .app-logo {
+                max-width: 250px;
+            }
+
+            .app-subtitle {
+                font-size: 0.8rem;
             }
         }
 
@@ -499,11 +494,12 @@ Continue
 <div class="auth-container">
     <div class="auth-card">
         <div class="logo-section">
-            <div class="logo-icon">
-                <i class="fas fa-receipt"></i>
+            <div class="logo-container">
+                <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDMwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxkZWZzPgo8bGluZWFyR3JhZGllbnQgaWQ9InBhaW50MF9saW5lYXJfMV8xIiB4MT0iMTIiIHkxPSI4IiB4Mj0iNjAiIHkyPSI1NiIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPgo8c3RvcCBzdG9wLWNvbG9yPSIjMjI0N0E1Ii8+CjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzE0NUZBMCIvPgo8L2xpbmVhckdyYWRpZW50Pgo8bGluZWFyR3JhZGllbnQgaWQ9InBhaW50MV9saW5lYXJfMV8xIiB4MT0iNDAiIHkxPSIzMiIgeDI9IjY4IiB5Mj0iNjAiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj4KPHN0b3Agc3RvcC1jb2xvcj0iIzEwQjk4MSIvPgo8c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwNTk2NjkiLz4KPC9saW5lYXJHcmFkaWVudD4KPC9kZWZzPgo8IS0tIERvY3VtZW50L0JpbGwgSWNvbiAtLT4KPHJlY3QgeD0iMTIiIHk9IjgiIHdpZHRoPSI0OCIgaGVpZ2h0PSI0OCIgcng9IjgiIGZpbGw9InVybCgjcGFpbnQwX2xpbmVhcl8xXzEpIi8+CjwhLS0gTGluZXMgb24gZG9jdW1lbnQgLS0+CjxwYXRoIGQ9Ik0yMiAyMGgxOG0tMTggNmgxMm0tMTIgNmgxNiIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIyLjUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgo8IS0tIENoZWNrbWFyayAtLT4KPGNpcmNsZSBjeD0iNTQiIGN5PSI0NiIgcj0iMTQiIGZpbGw9InVybCgjcGFpbnQxX2xpbmVhcl8xXzEpIi8+CjxwYXRoIGQ9Im00OCA0NiA0IDQgOC04IiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjMiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8IS0tIFRleHQgLS0+Cjx0ZXh0IHg9IjkwIiB5PSIzMCIgZm9udC1mYW1pbHk9IkludGVyLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjI0IiBmb250LXdlaWdodD0iNzAwIiBmaWxsPSIjMjI0N0E1Ij4KQmlsbE1hdGVQcm88L3RleHQ+Cjx0ZXh0IHg9IjkwIiB5PSI0NiIgZm9udC1mYW1pbHk9IkludGVyLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjEyIiBmaWxsPSIjNjM3NThBIj4KWW91ciBQcm9mZXNzaW9uYWwgQmlsbGluZyBQYXJ0bmVyLjwvdGV4dD4KPC9zdmc+"
+                     alt="BillMatePro Logo"
+                     class="app-logo">
             </div>
-            <h1 class="app-title">My Bill Book</h1>
-            <p class="app-subtitle">Manage your bills with ease</p>
+            <p class="app-subtitle">Secure Login to Your Professional Billing Dashboard</p>
         </div>
 
         <ul class="nav nav-tabs justify-content-center" id="authTabs" role="tablist">
@@ -554,7 +550,7 @@ Continue
                     </c:if>
 
                     <button type="submit" class="btn btn-primary btn-enhanced w-100">
-                        <i class="fas fa-sign-in-alt me-2"></i>Sign In
+                        <i class="fas fa-sign-in-alt me-2"></i>Sign In to BillMatePro
                     </button>
                 </form>
             </div>
@@ -606,7 +602,7 @@ Continue
 
                     <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
                     <button type="submit" id="registerBtn" class="btn btn-success btn-enhanced w-100">
-                        <i class="fas fa-user-plus me-2"></i>Create Account
+                        <i class="fas fa-user-plus me-2"></i>Join BillMatePro
                     </button>
                 </form:form>
             </div>
