@@ -36,7 +36,7 @@ public class MailUtil {
     private static final String SMTP_HOST = "smtp.gmail.com";
     private static final String SMTP_PORT = "587";
     private static final String SMTP_USER = "mybillbooksolution@gmail.com";
-    private static final String SMTP_PASSWORD = "gjac rhjh hhxf uvzc";
+    private static final String SMTP_PASSWORD = "vaha rjxs ztvp bwzp";
 
 
     @Autowired
@@ -396,7 +396,9 @@ public class MailUtil {
 
     public static void sendMailOwner(InvoiceDetails itemDetails, CustProfile profile, OwnerSession ownerInfo) throws Exception {
         logger.info("Sending email to owner and customer for invoice ID: {}", itemDetails.getInvoiceId());
-        List<ItemDetails> items = itemRepository.findByInvoiceNoAndCustId(itemDetails.getInvoiceId(), itemDetails.getCustId());
+        logger.info("Data: {}---{}", itemDetails.getInvoiceId(),profile.getId());
+
+        List<ItemDetails> items = itemRepository.findItemsByInvoiceNoAndCustId(itemDetails.getInvoiceId(), profile.getId());
 
         String productTable = MailUtil.generateProductTable(items);
         String emailContent = MailUtil.generateEmailContent(itemDetails, profile, ownerInfo, productTable);

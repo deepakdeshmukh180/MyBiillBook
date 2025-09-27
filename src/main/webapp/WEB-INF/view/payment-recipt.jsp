@@ -10,121 +10,398 @@
 
     <!-- Fonts & Icons -->
     <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 
     <style>
+        :root {
+            --primary-black: #000000;
+            --secondary-black: #333333;
+            --light-gray: #f5f5f5;
+            --medium-gray: #cccccc;
+            --border-color: #666666;
+            --white: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* A5 Optimized Layout */
         body {
-            font-family: 'Segoe UI', sans-serif;
-            background: #f4f6f9;
-            padding: 16px;
-            color: #333;
-            font-size: 12px;
+            font-family: 'Roboto', Arial, sans-serif;
+            background: #e9ecef;
+            color: var(--primary-black);
+            font-size: 10px;
+            line-height: 1.3;
+            padding: 15px;
         }
+
         .invoice {
-            max-width: 750px;
-            margin: auto;
-            background: #fff;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-            padding: 16px 20px;
+            /* A5 dimensions: 5.83 x 8.27 inches */
+            width: 100%;
+            max-width: 420px; /* A5 width optimized for screen */
+            margin: 0 auto;
+            background: var(--white);
+            border: 2px solid var(--primary-black);
+            padding: 20px 15px;
             position: relative;
+            min-height: 580px; /* A5 height optimized */
         }
-        /* ===== Watermark ===== */
+
+        /* Sharp Watermark for B&W */
         .invoice::before {
             content: "${ownerInfo.shopName}";
             position: absolute;
             top: 50%;
             left: 50%;
-            transform: translate(-50%, -219%) rotate(0deg);
+            transform: translate(-50%, -50%) rotate(-45deg);
             font-size: 2.5rem;
-            color: rgba(0, 0, 0, 0.06);
-            font-weight: 600;
+            color: rgba(0, 0, 0, 0.05);
+            font-weight: 900;
             white-space: nowrap;
             z-index: 0;
+            letter-spacing: 3px;
         }
-        .invoice * { position: relative; z-index: 1; }
 
-        .header { text-align: center; margin-bottom: 16px; }
+        .invoice * {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Header Section - Compact A5 */
+        .header {
+            text-align: center;
+            margin-bottom: 15px;
+            padding-bottom: 12px;
+            border-bottom: 3px solid var(--primary-black);
+        }
+
+        .header .meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 8px;
+            color: var(--secondary-black);
+            margin-bottom: 8px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .header .meta div {
+            padding: 3px 8px;
+            background: var(--light-gray);
+            border: 1px solid var(--border-color);
+            border-radius: 3px;
+        }
+
         .header h2 {
             font-size: 1.4rem;
-            color: #3f51b5;
-            margin: 6px 0;
+            color: var(--primary-black);
+            margin: 8px 0 6px;
             font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
+
+        .receipt-badge {
+            display: inline-block;
+            background: var(--primary-black);
+            color: var(--white);
+            padding: 4px 12px;
+            font-size: 8px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 5px 0;
+        }
+
         .header small {
-            font-size: 0.8rem;
-            color: #555;
+            font-size: 9px;
+            color: var(--secondary-black);
             line-height: 1.4;
             display: block;
-        }
-        .header .meta {
-            display:flex;
-            justify-content:space-between;
-            font-size: 0.8rem;
-            color:#666;
-            margin-bottom: 8px;
+            font-weight: 400;
         }
 
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        .info-table td { padding: 4px 6px; font-size: 0.8rem; vertical-align: top; }
+        .header small i {
+            margin-right: 4px;
+            width: 12px;
+            text-align: center;
+        }
+
+        /* Compact Tables for A5 */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+        }
+
+        .info-table {
+            background: var(--light-gray);
+            border: 1px solid var(--border-color);
+        }
+
+        .info-table td {
+            padding: 6px 8px;
+            font-size: 9px;
+            vertical-align: top;
+            border-right: 1px solid var(--border-color);
+            font-weight: 500;
+        }
+
+        .info-table td:last-child {
+            border-right: none;
+        }
+
+        .info-table strong {
+            font-weight: 700;
+            color: var(--primary-black);
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        .amount-table {
+            margin: 12px 0;
+            border: 2px solid var(--primary-black);
+        }
 
         .amount-table td {
-            border: 1px solid #ccc;
+            border: 1px solid var(--border-color);
             padding: 6px 8px;
-            font-size: 0.85rem;
+            font-size: 10px;
+            font-weight: 500;
         }
-        .amount-table tr td:first-child { font-weight: 600; }
-        .amount-table tr:nth-child(even) { background: #fafafa; }
-        .amount-table tr.highlight td { background: #fff8e1; color:#c62828; font-weight: 700; }
-        .amount-table tr.current-balance td { background: #e3f2fd; color:#1565c0; font-weight: 700; }
 
-        .field { margin: 8px 0; font-size: 0.9rem; }
-        .field label { font-weight: 600; margin-right: 6px; }
+        .amount-table tr td:first-child {
+            font-weight: 700;
+            background: var(--light-gray);
+            width: 65%;
+        }
 
+        .amount-table tr td:last-child {
+            text-align: right;
+            font-weight: 700;
+        }
+
+        .amount-table tr.current-balance td {
+            background: var(--medium-gray);
+            color: var(--primary-black);
+            font-weight: 900;
+            font-size: 11px;
+            border: 2px solid var(--primary-black);
+        }
+
+        /* Compact Fields */
+        .field {
+            margin: 8px 0;
+            font-size: 10px;
+            padding: 6px 8px;
+            background: var(--light-gray);
+            border-left: 3px solid var(--primary-black);
+            font-weight: 500;
+        }
+
+        .field label {
+            font-weight: 700;
+            margin-right: 6px;
+            color: var(--primary-black);
+        }
+
+        .amount-highlight {
+            background: var(--primary-black);
+            color: var(--white);
+            padding: 2px 6px;
+            font-weight: 700;
+            font-size: 11px;
+        }
+
+        /* Compact Signature Section */
         .sign-row {
             display: flex;
             justify-content: space-between;
-            margin-top: 20px;
+            margin-top: 15px;
             gap: 10px;
         }
+
         .sign-box {
             flex: 1;
-            border: 1px dashed #aaa;
-            padding: 0px;
+            border: 2px dashed var(--border-color);
+            padding: 10px 5px;
             text-align: center;
-            font-size: 0.8rem;
-            border-radius: 4px;
-            min-height: 40px;
+            font-size: 8px;
+            min-height: 35px;
+            font-weight: 700;
+            color: var(--secondary-black);
+            text-transform: uppercase;
         }
 
+        /* Footer */
         .vertical-footer {
-            font-size: 0.75rem;
-            padding: 6px;
-            margin-top: 20px;
+            font-size: 8px;
+            padding: 8px;
+            margin-top: 15px;
             text-align: center;
-            border-top: 1px solid #ddd;
-            color:#777;
+            border-top: 2px solid var(--primary-black);
+            color: var(--secondary-black);
+            font-weight: 500;
+            background: var(--light-gray);
         }
 
-        .btns { margin-top: 14px; gap: 6px; display: flex; justify-content: center; flex-wrap: wrap; }
+        /* Action Buttons */
+        .btns {
+            margin-top: 15px;
+            gap: 8px;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
         .btn {
-            font-size: 0.85rem;
-            padding: 6px 14px;
+            font-size: 10px;
+            padding: 8px 15px;
             border-radius: 20px;
             cursor: pointer;
-            border: none;
+            border: 2px solid var(--primary-black);
+            background: var(--white);
+            color: var(--primary-black);
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            text-transform: uppercase;
             transition: all 0.2s ease;
-            background: #3f51b5;
-            color: #fff;
         }
-        .btn:hover { background: #303f9f; }
-        .btn-success { background: #25d366; }
-        .btn-success:hover { background: #1da851; }
 
+        .btn:hover {
+            background: var(--primary-black);
+            color: var(--white);
+        }
+
+        .btn-success {
+            border-color: #28a745;
+            color: #28a745;
+        }
+
+        .btn-success:hover {
+            background: #28a745;
+            color: var(--white);
+        }
+
+        /* A5 Print Optimization */
         @media print {
             .hidden-print { display: none !important; }
-            body { background: #fff; }
-            .invoice { box-shadow: none; border: 1px solid #999; }
+
+            body {
+                background: var(--white) !important;
+                padding: 0 !important;
+                font-size: 9px !important;
+            }
+
+            .invoice {
+                border: 3px solid var(--primary-black) !important;
+                box-shadow: none !important;
+                max-width: none !important;
+                width: 100% !important;
+                height: auto !important;
+                min-height: auto !important;
+                padding: 15px !important;
+                margin: 0 !important;
+            }
+
+            .amount-table tr.current-balance td {
+                background: #d0d0d0 !important;
+                color: var(--primary-black) !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            .receipt-badge,
+            .amount-highlight {
+                background: var(--primary-black) !important;
+                color: var(--white) !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            .field,
+            .info-table,
+            .vertical-footer {
+                background: #f0f0f0 !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            /* A5 page setup */
+            @page {
+                size: A5;
+                margin: 0.5cm;
+            }
+        }
+
+        /* Preview Modal for PDF */
+        .preview-modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+        }
+
+        .preview-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--white);
+            padding: 20px;
+            border-radius: 8px;
+            max-width: 90%;
+            max-height: 90%;
+            overflow: auto;
+        }
+
+        .preview-invoice {
+            transform: scale(0.8);
+            transform-origin: top center;
+        }
+
+        .close-preview {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            font-size: 20px;
+            cursor: pointer;
+            background: var(--primary-black);
+            color: var(--white);
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Loading state */
+        .btn.loading {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        /* Mobile Responsive for A5 */
+        @media (max-width: 480px) {
+            body { padding: 8px; }
+            .invoice { padding: 12px 10px; }
+            .header .meta {
+                flex-direction: column;
+                gap: 4px;
+                align-items: center;
+            }
+            .sign-row { gap: 5px; }
         }
     </style>
 </head>
@@ -135,67 +412,77 @@
         <!-- Header -->
         <div class="header">
             <div class="meta">
-                <div><strong>Invoice No:</strong> #${balanceDeposite.id}</div>
-                <div><strong>Payment Receipt</strong></div>
-                <div><strong>Date:</strong> ${balanceDeposite.createdAt}</div>
+                <div><i class="fa fa-file-text"></i> #${balanceDeposite.id}</div>
+                <div class="receipt-badge">PAYMENT RECEIPT</div>
+                <div><i class="fa fa-calendar"></i> ${balanceDeposite.createdAt}</div>
             </div>
             <h2>${ownerInfo.shopName}</h2>
             <small>
-                <i class="fa fa-map-marker"></i> ${ownerInfo.address} |
+                <i class="fa fa-map-marker"></i> ${ownerInfo.address}<br/>
                 <i class="fa fa-user"></i> ${ownerInfo.ownerName} |
-                <i class="fa fa-phone"></i> ${ownerInfo.mobNumber} <br/>
-                <i class="fa fa-id-card"></i> <strong>LC No:</strong> ${ownerInfo.lcNo} |
-                <strong>GST:</strong> ${ownerInfo.gstNumber}
+                <i class="fa fa-phone"></i> ${ownerInfo.mobNumber}<br/>
+                <i class="fa fa-id-card"></i> <strong>LC:</strong> ${ownerInfo.lcNo} |
+                <i class="fa fa-building"></i> <strong>GST:</strong> ${ownerInfo.gstNumber}
             </small>
         </div>
 
         <!-- Customer Info -->
         <table class="info-table">
             <tr>
-                <td><strong>Name:</strong> ${profile.custName}</td>
-                <td><strong>Contact:</strong> ${profile.phoneNo}</td>
-                <td><strong>Address:</strong> ${profile.address}</td>
+                <td><strong><i class="fa fa-user"></i> CUSTOMER</strong><br/>${profile.custName}</td>
+                <td><strong><i class="fa fa-phone"></i> CONTACT</strong><br/>${profile.phoneNo}</td>
+                <td><strong><i class="fa fa-home"></i> ADDRESS</strong><br/>${profile.address}</td>
             </tr>
         </table>
 
         <!-- Receipt Fields -->
+        <div class="field">
+            <label><i class="fa fa-money"></i> RECEIVED AMOUNT:</label>
+            <span class="amount-highlight">₹ ${balanceDeposite.advAmt}</span>
+            <em>(${AMOUNT_WORD} Only)</em>
+        </div>
 
         <div class="field">
-            <label>Received Amount:</label> ₹ ${balanceDeposite.advAmt} (${AMOUNT_WORD} Only)
-        </div>
-        <div class="field">
-            <label>Purpose:</label> ${balanceDeposite.description}
+            <label><i class="fa fa-info-circle"></i> PURPOSE:</label>
+            ${balanceDeposite.description}
         </div>
 
         <!-- Amount Table -->
         <table class="amount-table">
             <tr>
-                <td>Previous Balance</td>
-                <td style="text-align:right;">₹ ${balanceDeposite.currentOusting}</td>
+                <td><i class="fa fa-history"></i> Previous Balance</td>
+                <td>₹ ${balanceDeposite.currentOusting}</td>
             </tr>
             <tr>
-                <td>Credited Amount</td>
-                <td style="text-align:right;">₹ ${balanceDeposite.advAmt}</td>
+                <td><i class="fa fa-plus-circle"></i> Credited Amount</td>
+                <td>₹ ${balanceDeposite.advAmt}</td>
             </tr>
             <tr class="current-balance">
-                <td>Current Balance Due</td>
-                <td style="text-align:right;">₹ ${profile.currentOusting}</td>
+                <td><i class="fa fa-calculator"></i> CURRENT BALANCE DUE</td>
+                <td>₹ ${profile.currentOusting}</td>
             </tr>
             <tr>
-                <td>Payment Mode</td>
-                <td style="text-align:right;">${balanceDeposite.modeOfPayment}</td>
+                <td><i class="fa fa-credit-card"></i> Payment Mode</td>
+                <td>${balanceDeposite.modeOfPayment}</td>
             </tr>
         </table>
 
         <!-- Signatures -->
         <div class="sign-row">
-            <div class="sign-box">Customer Sign</div>
-            <div class="sign-box">For ${ownerInfo.shopName}</div>
+            <div class="sign-box">
+                <i class="fa fa-pencil"></i><br/>
+                CUSTOMER SIGN
+            </div>
+            <div class="sign-box">
+                <i class="fa fa-stamp"></i><br/>
+                AUTHORIZED SIGN
+            </div>
         </div>
 
         <!-- Footer -->
         <div class="vertical-footer">
-            Generated by <strong>MyBillBook Solution</strong> • Contact: 8180080378
+            <strong>MyBillBook Solution</strong> • Ph: 8180080378 •
+            Generated: <span id="current-time"></span>
         </div>
     </div>
 
@@ -204,31 +491,144 @@
         <button class="btn" onclick="location.href='${pageContext.request.contextPath}/login/home'">
             <i class="fa fa-home"></i> Home
         </button>
+        <button class="btn" onclick="showPreview()">
+            <i class="fa fa-eye"></i> Preview
+        </button>
         <button class="btn" onclick="downloadPDF()">
             <i class="fa fa-file-pdf-o"></i> Download PDF
         </button>
-        <a href="https://wa.me/${profile.phoneNo}/?text=Hello%20*${profile.custName}*,%20Your%20invoice%20is%20ready.%20Please%20check%20the%20details%20attached."
+        <button class="btn" onclick="window.print()">
+            <i class="fa fa-print"></i> Print
+        </button>
+        <a href="https://wa.me/${profile.phoneNo}/?text=Hello%20*${profile.custName}*,%20Your%20payment%20receipt%20is%20ready.%20Amount:%20₹${balanceDeposite.advAmt}.%20Balance:%20₹${profile.currentOusting}.%20Thank%20you!"
            target="_blank" class="btn btn-success">
-            <i class="fa fa-whatsapp"></i> Send via WhatsApp
+            <i class="fa fa-whatsapp"></i> WhatsApp
         </a>
     </div>
 </c:if>
 
-<!-- JS for PDF -->
+<!-- Preview Modal -->
+<div id="previewModal" class="preview-modal">
+    <div class="preview-content">
+        <div class="close-preview" onclick="closePreview()">&times;</div>
+        <div id="preview-invoice" class="preview-invoice"></div>
+        <div style="text-align: center; margin-top: 15px;">
+            <button class="btn" onclick="downloadFromPreview()">
+                <i class="fa fa-download"></i> Download This Preview
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- JS Libraries -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script>
+    // High-quality PDF generation optimized for A5
     function downloadPDF(){
-        html2pdf().set({
-            margin: [0.5, 0.5, 0.5, 0.5],
-            filename: '${profile.custName}_Receipt_${invoiceNo}.pdf',
-            image: {type: 'jpeg', quality: 1},
-            html2canvas: {scale: 2},
-            jsPDF: {unit: 'in', format: 'a4', orientation: 'portrait'}
-        }).from(document.querySelector('.invoice')).save();
+        const element = document.querySelector('.invoice');
+        const btn = event.target.closest('.btn');
+
+        // Show loading state
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating...';
+        btn.classList.add('loading');
+        btn.disabled = true;
+
+        const opt = {
+            margin: [0.2, 0.2, 0.2, 0.2],
+            filename: '${profile.custName}_Receipt_${invoiceNo}_A5.pdf',
+            image: {
+                type: 'jpeg',
+                quality: 1.0  // Maximum quality
+            },
+            html2canvas: {
+                scale: 4,  // High scale for sharp text
+                useCORS: true,
+                letterRendering: true,
+                allowTaint: false,
+                backgroundColor: '#ffffff',
+                removeContainer: true,
+                logging: false,
+                width: 420,  // A5 width
+                height: 580  // A5 height
+            },
+            jsPDF: {
+                unit: 'mm',
+                format: 'a5',  // A5 format
+                orientation: 'portrait',
+                compress: false,  // No compression for better quality
+                precision: 16
+            }
+        };
+
+        html2pdf().set(opt).from(element).save().then(() => {
+            btn.innerHTML = originalText;
+            btn.classList.remove('loading');
+            btn.disabled = false;
+        }).catch(() => {
+            btn.innerHTML = originalText;
+            btn.classList.remove('loading');
+            btn.disabled = false;
+            alert('Error generating PDF. Please try again.');
+        });
     }
 
-    // Auto print on load
-    window.onload = function() { window.print(); };
+    // Preview functionality
+    function showPreview() {
+        const modal = document.getElementById('previewModal');
+        const previewContainer = document.getElementById('preview-invoice');
+        const originalInvoice = document.querySelector('.invoice');
+
+        // Clone the invoice for preview
+        const clonedInvoice = originalInvoice.cloneNode(true);
+        previewContainer.innerHTML = '';
+        previewContainer.appendChild(clonedInvoice);
+
+        modal.style.display = 'block';
+    }
+
+    function closePreview() {
+        document.getElementById('previewModal').style.display = 'none';
+    }
+
+    function downloadFromPreview() {
+        closePreview();
+        setTimeout(downloadPDF, 100);
+    }
+
+    // Set current time
+    window.onload = function() {
+        document.getElementById('current-time').textContent =
+            new Date().toLocaleString('en-IN', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+    };
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+        if (e.ctrlKey && e.key === 'p') {
+            e.preventDefault();
+            window.print();
+        }
+        if (e.ctrlKey && e.key === 's') {
+            e.preventDefault();
+            downloadPDF();
+        }
+        if (e.key === 'Escape') {
+            closePreview();
+        }
+    });
+
+    // Close preview when clicking outside
+    document.getElementById('previewModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closePreview();
+        }
+    });
 </script>
 
 </body>

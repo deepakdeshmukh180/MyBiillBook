@@ -462,6 +462,27 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+
+         /* Logo section */
+                .logo-section {
+                    text-align: center;
+                    margin-bottom: 2rem;
+                }
+
+                .logo-container {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    margin-bottom: 1rem;
+                    animation: fadeInUp 0.8s ease;
+                }
+
+                .app-logo {
+                    max-width: 280px;
+                    height: auto;
+                    filter: drop-shadow(0 4px 15px rgba(34, 71, 165, 0.2));
+                    transition: all 0.3s ease;
+                }
     </style>
 </head>
 <body>
@@ -484,11 +505,15 @@
     </div>
 
     <div class="container py-5">
-        <div class="card main-card shadow">
+        <div class="card main-card ">
             <div class="card-header">
-                <h1 class="brand-gradient">
-                    <i class="fas fa-calculator"></i> My Bill Book
-                </h1>
+  <div class="logo-section">
+            <div class="logo-container">
+                <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDMwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxkZWZzPgo8bGluZWFyR3JhZGllbnQgaWQ9InBhaW50MF9saW5lYXJfMV8xIiB4MT0iMTIiIHkxPSI4IiB4Mj0iNjAiIHkyPSI1NiIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPgo8c3RvcCBzdG9wLWNvbG9yPSIjMjI0N0E1Ii8+CjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzE0NUZBMCIvPgo8L2xpbmVhckdyYWRpZW50Pgo8bGluZWFyR3JhZGllbnQgaWQ9InBhaW50MV9saW5lYXJfMV8xIiB4MT0iNDAiIHkxPSIzMiIgeDI9IjY4IiB5Mj0iNjAiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj4KPHN0b3Agc3RvcC1jb2xvcj0iIzEwQjk4MSIvPgo8c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwNTk2NjkiLz4KPC9saW5lYXJHcmFkaWVudD4KPC9kZWZzPgo8IS0tIERvY3VtZW50L0JpbGwgSWNvbiAtLT4KPHJlY3QgeD0iMTIiIHk9IjgiIHdpZHRoPSI0OCIgaGVpZ2h0PSI0OCIgcng9IjgiIGZpbGw9InVybCgjcGFpbnQwX2xpbmVhcl8xXzEpIi8+CjwhLS0gTGluZXMgb24gZG9jdW1lbnQgLS0+CjxwYXRoIGQ9Ik0yMiAyMGgxOG0tMTggNmgxMm0tMTIgNmgxNiIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIyLjUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgo8IS0tIENoZWNrbWFyayAtLT4KPGNpcmNsZSBjeD0iNTQiIGN5PSI0NiIgcj0iMTQiIGZpbGw9InVybCgjcGFpbnQxX2xpbmVhcl8xXzEpIi8+CjxwYXRoIGQ9Im00OCA0NiA0IDQgOC04IiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjMiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8IS0tIFRleHQgLS0+Cjx0ZXh0IHg9IjkwIiB5PSIzMCIgZm9udC1mYW1pbHk9IkludGVyLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjI0IiBmb250LXdlaWdodD0iNzAwIiBmaWxsPSIjMjI0N0E1Ij4KQmlsbE1hdGVQcm88L3RleHQ+Cjx0ZXh0IHg9IjkwIiB5PSI0NiIgZm9udC1mYW1pbHk9IkludGVyLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjEyIiBmaWxsPSIjNjM3NThBIj4KWW91ciBQcm9mZXNzaW9uYWwgQmlsbGluZyBQYXJ0bmVyLjwvdGV4dD4KPC9zdmc+"
+                     alt="BillMatePro Logo"
+                     class="app-logo">
+            </div>
+        </div>
                 <p class="brand-subtitle">Complete your registration in 4 simple steps</p>
             </div>
 

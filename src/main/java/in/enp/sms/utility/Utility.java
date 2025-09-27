@@ -3,7 +3,6 @@ package in.enp.sms.utility;
 import in.enp.sms.entities.Product;
 import in.enp.sms.entities.User;
 import in.enp.sms.pojo.OwnerSession;
-import in.enp.sms.pojo.StudentInfoDTO;
 import in.enp.sms.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -169,6 +168,22 @@ public class Utility {
         }
         return Arrays.asList(invoiceColms.split("\\s*,\\s*"));
     }
+
+
+    public static String buildProductNameWithoutBrand(String description) {
+        if (description == null || description.trim().isEmpty()) {
+            return "";
+        }
+
+        // Remove anything inside [ ... ]
+        String result = description.replaceAll("\\[.*?\\]", "").trim();
+
+        // Remove double spaces if any left
+        result = result.replaceAll("\\s{2,}", " ");
+
+        return result;
+    }
+
 
 
 }

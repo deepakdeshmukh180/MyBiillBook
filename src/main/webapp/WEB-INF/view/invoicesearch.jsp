@@ -19,6 +19,9 @@
         --soft: #f4f6f9;
         --ink: #33475b;
         --radius-lg: 18px;
+        --success-light: #d1edff;
+        --warning-light: #fff3cd;
+        --danger-light: #f8d7da;
     }
 
     body {
@@ -31,7 +34,7 @@
     .section-title {
         font-weight: 700;
         color: var(--ink);
-            padding-top: 2%;
+        padding-top: 2%;
     }
 
     .brand-gradient {
@@ -49,6 +52,115 @@
 
     .search-bar {
         max-width: 350px;
+    }
+
+    /* Invoice Cards Styling */
+    .invoice-card {
+        border: none;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        height: 100%;
+    }
+
+    .invoice-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .invoice-card.paid {
+        border-left: 4px solid #28a745;
+        background: linear-gradient(135deg, #ffffff, var(--success-light));
+    }
+
+    .invoice-card.partial {
+        border-left: 4px solid #ffc107;
+        background: linear-gradient(135deg, #ffffff, var(--warning-light));
+    }
+
+    .invoice-card.credit {
+        border-left: 4px solid #dc3545;
+        background: linear-gradient(135deg, #ffffff, var(--danger-light));
+    }
+
+    .invoice-header {
+        border-bottom: 1px solid #e9ecef;
+        padding-bottom: 12px;
+        margin-bottom: 12px;
+    }
+
+    .invoice-number {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--brand);
+        text-decoration: none;
+    }
+
+    .invoice-number:hover {
+        color: #0a58ca;
+    }
+
+    .customer-name {
+        font-size: 0.9rem;
+        color: #6c757d;
+        text-transform: capitalize;
+        margin-bottom: 0;
+    }
+
+    .amount-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        margin-bottom: 12px;
+    }
+
+    .amount-item {
+        text-align: center;
+        padding: 8px;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.7);
+    }
+
+    .amount-label {
+        font-size: 0.75rem;
+        color: #6c757d;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 2px;
+    }
+
+    .amount-value {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--ink);
+    }
+
+    .status-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: auto;
+        padding-top: 8px;
+    }
+
+    .qty-badge {
+        background: #f8f9fa;
+        color: var(--ink);
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        font-weight: 500;
+    }
+
+    .no-invoices {
+        text-align: center;
+        padding: 60px 20px;
+        color: #6c757d;
+    }
+
+    .spinner-container {
+        text-align: center;
+        padding: 60px 20px;
     }
 
     /* Sidebar */
@@ -93,7 +205,12 @@
         }
 
         body.sidebar-open {
-            overflow: hidden; /* Prevent background scroll */
+            overflow: hidden;
+        }
+
+        .amount-grid {
+            grid-template-columns: 1fr;
+            gap: 6px;
         }
     }
 
@@ -116,9 +233,10 @@
 
 <!-- Navbar -->
 <nav class="sb-topnav navbar navbar-expand navbar-dark brand-gradient">
-    <a class="navbar-brand ps-3 fw-bold" href="${pageContext.request.contextPath}/login/home">
-        My <i class="fa fa-calculator text-warning"></i> Bill Book
-    </a>
+    <a class="navbar-brand ps-3 fw-bold" href="#" onclick="showSection('dashboard')">
+          <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgwIiBoZWlnaHQ9IjQwIiB2aWV3Qm94PSIwIDAgMTgwIDQwIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8ZGVmcz4KPGxpbmVhckdyYWRpZW50IGlkPSJwYWludDBfbGluZWFyIiB4MT0iNSIgeTE9IjMiIHgyPSIyNSIgeTI9IjI3IiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+CjxzdG9wIHN0b3AtY29sb3I9IiNmZmZmZmYiLz4KPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjZjJmMmYyIi8+CjwvbGluZWFyR3JhZGllbnQ+CjxsaW5lYXJHcmFkaWVudCBpZD0icGFpbnQxX2xpbmVhciIgeDE9IjE3IiB5MT0iMTMiIHgyPSIyOCIgeTI9IjI0IiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+CjxzdG9wIHN0b3AtY29sb3I9IiMxMEI5ODEiLz4KPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMDU5NjY5Ii8+CjwvbGluZWFyR3JhZGllbnQ+CjwvZGVmcz4KPCEtLSBEb2N1bWVudC9CaWxsIEljb24gLS0+CjxyZWN0IHg9IjUiIHk9IjMiIHdpZHRoPSIyMCIgaGVpZ2h0PSIyNCIgcng9IjMiIGZpbGw9InVybCgjcGFpbnQwX2xpbmVhcikiLz4KPCEtLSBMaW5lcyBvbiBkb2N1bWVudCAtLT4KPHBhdGggZD0iTTkgOWg4bS04IDNaNW0tNSAzaDciIHN0cm9rZT0iIzJGNDc1OSIgc3Ryb2tlLXdpZHRoPSIxIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KPCEtLSBDaGVja21hcmsgLS0+CjxjaXJjbGUgY3g9IjIyLjUiIGN5PSIxOC41IiByPSI1LjUiIGZpbGw9InVybCgjcGFpbnQxX2xpbmVhcikiLz4KPHBhdGggZD0ibTIwIDE4LjUgMiAyIDQtNCIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8IS0tIFRleHQgLS0+Cjx0ZXh0IHg9IjM1IiB5PSIxNiIgZm9udC1mYW1pbHk9IkludGVyLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjEyIiBmb250LXdlaWdodD0iNzAwIiBmaWxsPSJ3aGl0ZSI+CkJpbGxNYXRlUHJvPC90ZXh0Pgo8dGV4dCB4PSIzNSIgeT0iMjYiIGZvbnQtZmFtaWx5PSJJbnRlciwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSI4IiBmaWxsPSIjZTJlOGYwIj4KWW91ciBCaWxsaW5nIFBhcnRuZXI8L3RleHQ+Cjwvc3ZnPg=="
+               alt="BillMatePro" style="height: 50px; margin-right: 8px;">
+        </a>
     <button class="btn btn-outline-light btn-sm ms-2" id="sidebarToggle">
         <i class="fas fa-bars"></i>
     </button>
@@ -173,12 +291,12 @@
     <div id="layoutSidenav_content">
         <div class="container-fluid px-4">
 
-        <h4 class="section-title mb-4">
-                            <i class="bi bi-receipt me-2"></i> Invoice Section
-                        </h4>
+            <h4 class="section-title mb-4">
+                <i class="bi bi-receipt me-2"></i> Invoice Section
+            </h4>
 
-            <!-- Invoices Card -->
-            <div class="card my-4 p-3 shadow-soft rounded-18">
+            <!-- Header Controls -->
+            <div class="card my-4 p-3 shadow-soft rounded-lg">
                 <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-3">
                     <h5 class="mb-0">
                         <i class="fa fa-file-invoice text-primary me-2"></i> Invoices
@@ -187,47 +305,57 @@
                     <input id="searchBox" type="text" class="form-control form-control-sm search-bar mt-2 mt-md-0"
                            placeholder="Search Invoice ID / Customer Name..."/>
                 </div>
+            </div>
 
-                <!-- Responsive Table -->
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle text-center table-bordered mb-0">
-                        <thead class="table-light small text-nowrap">
-                        <tr>
-                            <th>Invoice No</th>
-                            <th>Customer</th>
-                            <th class="text-end">Qty</th>
-                            <th class="text-end">Invoice</th>
-                            <th class="text-end">Balance</th>
-                            <th class="text-end">Discount</th>
-                            <th class="text-end">Paid</th>
-                            <th>Status</th>
-                        </tr>
-                        </thead>
-                        <tbody id="invoiceTableBody">
-                        <c:forEach var="invoice" items="${invoices}">
-                            <tr class="
-                                <c:choose>
-                                    <c:when test='${invoice.invoiceType eq "CREDIT"}'>table-danger</c:when>
-                                    <c:when test='${invoice.invoiceType eq "PARTIAL"}'>table-warning</c:when>
-                                    <c:when test='${invoice.invoiceType eq "PAID"}'>table-success</c:when>
-                                </c:choose>
-                            ">
-                                <td class="text-nowrap">
+            <!-- Invoice Cards Container -->
+            <div id="invoiceCardsContainer" class="row g-3">
+                <c:forEach var="invoice" items="${invoices}">
+                    <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
+                        <div class="card invoice-card shadow-soft
+                            <c:choose>
+                                <c:when test='${invoice.invoiceType eq "CREDIT"}'>credit</c:when>
+                                <c:when test='${invoice.invoiceType eq "PARTIAL"}'>partial</c:when>
+                                <c:when test='${invoice.invoiceType eq "PAID"}'>paid</c:when>
+                            </c:choose>
+                        " onclick="window.open('${pageContext.request.contextPath}/company/get-invoice/${invoice.custId}/${invoice.invoiceId}', '_blank')">
+                            <div class="card-body d-flex flex-column">
+                                <!-- Header -->
+                                <div class="invoice-header">
                                     <a href="${pageContext.request.contextPath}/company/get-invoice/${invoice.custId}/${invoice.invoiceId}"
-                                       class="fw-bold text-decoration-none text-primary" target="_blank">
-                                        ${invoice.invoiceId}
+                                       class="invoice-number" target="_blank" onclick="event.stopPropagation()">
+                                        #${invoice.invoiceId}
                                     </a>
-                                </td>
-                                <td class="fw-semibold text-capitalize">${invoice.custName}</td>
-                                <td class="text-end">${invoice.totQty}</td>
-                                <td class="text-end">₹<fmt:formatNumber value="${invoice.totInvoiceAmt}" type="number" minFractionDigits="2" /></td>
-                                <td class="text-end">₹<fmt:formatNumber value="${invoice.balanceAmt}" type="number" minFractionDigits="2" /></td>
-                                <td class="text-end">₹<fmt:formatNumber value="${invoice.discount}" type="number" minFractionDigits="2" /></td>
-                                <td class="text-end">₹<fmt:formatNumber value="${invoice.advanAmt}" type="number" minFractionDigits="2" /></td>
-                                <td>
+                                    <p class="customer-name">${invoice.custName}</p>
+                                </div>
+
+                                <!-- Amount Grid -->
+                                <div class="amount-grid">
+                                    <div class="amount-item">
+                                        <div class="amount-label">Invoice</div>
+                                        <div class="amount-value">₹<fmt:formatNumber value="${invoice.totInvoiceAmt}" type="number" minFractionDigits="2" /></div>
+                                    </div>
+                                    <div class="amount-item">
+                                        <div class="amount-label">Balance</div>
+                                        <div class="amount-value">₹<fmt:formatNumber value="${invoice.balanceAmt}" type="number" minFractionDigits="2" /></div>
+                                    </div>
+                                    <div class="amount-item">
+                                        <div class="amount-label">Discount</div>
+                                        <div class="amount-value">₹<fmt:formatNumber value="${invoice.discount}" type="number" minFractionDigits="2" /></div>
+                                    </div>
+                                    <div class="amount-item">
+                                        <div class="amount-label">Paid</div>
+                                        <div class="amount-value">₹<fmt:formatNumber value="${invoice.advanAmt}" type="number" minFractionDigits="2" /></div>
+                                    </div>
+                                </div>
+
+                                <!-- Footer -->
+                                <div class="status-footer">
+                                    <span class="qty-badge">
+                                        <i class="fas fa-boxes me-1"></i>${invoice.totQty} items
+                                    </span>
                                     <span class="badge
                                         <c:choose>
-                                            <c:when test='${invoice.invoiceType eq "CREDIT"}'>bg-danger text-dark</c:when>
+                                            <c:when test='${invoice.invoiceType eq "CREDIT"}'>bg-danger</c:when>
                                             <c:when test='${invoice.invoiceType eq "PARTIAL"}'>bg-warning text-dark</c:when>
                                             <c:when test='${invoice.invoiceType eq "PAID"}'>bg-success</c:when>
                                             <c:otherwise>bg-secondary</c:otherwise>
@@ -235,16 +363,15 @@
                                     ">
                                         ${invoice.invoiceType}
                                     </span>
-                                </td>
-                            </tr>
-                        </c:forEach>
-                        </tbody>
-                    </table>
-                </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </c:forEach>
             </div>
 
             <!-- Pagination -->
-            <div id="paginationContainer" class="d-flex justify-content-between flex-wrap gap-2">
+            <div id="paginationContainer" style="style=" padding-bottom: 4%;" class="d-flex justify-content-between flex-wrap gap-2 mt-4">
                 <div class="text-muted small">Page <strong>${page + 1}</strong> of <strong>${totalPages}</strong></div>
                 <c:if test="${totalPages > 0}">
                     <ul class="pagination pagination-sm mb-0 flex-wrap">
@@ -277,85 +404,107 @@
 <!-- Scripts -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
+<div id="invoiceCardContainer" class="row g-3">
+    <!-- Original cards here -->
+</div>
+
+<div id="paginationContainer" class="d-flex justify-content-center mt-3">
+    <!-- Original pagination here -->
+</div>
+
 <script>
-const contextPath = '${pageContext.request.contextPath}';
+    const contextPath = '${pageContext.request.contextPath}';
 const searchInput = document.getElementById('searchBox');
-const tbody = document.getElementById('invoiceTableBody');
+const cardContainer = document.getElementById('invoiceCardsContainer'); // Use JSP container
 const paginationContainer = document.getElementById('paginationContainer');
 let debounceTimer;
 
-// Save original table & pagination
-const originalTable = tbody.innerHTML;
+// Save original cards & pagination
+const originalCards = cardContainer.innerHTML;
 const originalPagination = paginationContainer.innerHTML;
 
-// Show spinner
+// Spinner function
 function showSpinner() {
-    tbody.innerHTML = `
-        <tr>
-            <td colspan="8" class="text-center py-4">
-                <div class="spinner-border text-primary" role="status"></div>
-                <div class="mt-2 text-muted small">Searching invoices...</div>
-            </td>
-        </tr>`;
+    cardContainer.innerHTML =
+        '<div class="col-12 text-center py-4">' +
+            '<div class="spinner-border text-primary" role="status"></div>' +
+            '<div class="mt-2 text-muted small">Searching invoices...</div>' +
+        '</div>';
+}
+
+// Render one invoice card
+function renderInvoiceCard(inv) {
+    var cardTypeClass = '', badgeClass = '';
+    if (inv.invoiceType === "CREDIT") { cardTypeClass = 'credit'; badgeClass = 'bg-danger'; }
+    else if (inv.invoiceType === "PARTIAL") { cardTypeClass = 'partial'; badgeClass = 'bg-warning text-dark'; }
+    else if (inv.invoiceType === "PAID") { cardTypeClass = 'paid'; badgeClass = 'bg-success'; }
+    else { cardTypeClass = ''; badgeClass = 'bg-secondary'; }
+
+    return '' +
+    '<div class="col-12 col-sm-6 col-lg-4 col-xl-3">' +
+        '<div class="card invoice-card shadow-soft ' + cardTypeClass + '" onclick="window.open(\'' + contextPath + '/company/get-invoice/' + inv.custId + '/' + inv.invoiceId + '\', \'_blank\')">' +
+            '<div class="card-body d-flex flex-column">' +
+                '<div class="invoice-header">' +
+                    '<a href="' + contextPath + '/company/get-invoice/' + inv.custId + '/' + inv.invoiceId + '" class="invoice-number" target="_blank" onclick="event.stopPropagation()">' +
+                        '#' + inv.invoiceId +
+                    '</a>' +
+                    '<p class="customer-name">' + inv.custName + '</p>' +
+                '</div>' +
+                '<div class="amount-grid">' +
+                    '<div class="amount-item"><div class="amount-label">Invoice</div><div class="amount-value">₹' + Number(inv.totInvoiceAmt || 0).toFixed(2) + '</div></div>' +
+                    '<div class="amount-item"><div class="amount-label">Balance</div><div class="amount-value">₹' + Number(inv.balanceAmt || 0).toFixed(2) + '</div></div>' +
+                    '<div class="amount-item"><div class="amount-label">Discount</div><div class="amount-value">₹' + Number(inv.discount || 0).toFixed(2) + '</div></div>' +
+                    '<div class="amount-item"><div class="amount-label">Paid</div><div class="amount-value">₹' + Number(inv.advanAmt || 0).toFixed(2) + '</div></div>' +
+                '</div>' +
+                '<div class="status-footer">' +
+                    '<span class="qty-badge"><i class="fas fa-boxes me-1"></i>' + (inv.totQty || 0) + ' items</span>' +
+                    '<span class="badge ' + badgeClass + '">' + inv.invoiceType + '</span>' +
+                '</div>' +
+            '</div>' +
+        '</div>' +
+    '</div>';
 }
 
 // Search functionality
 searchInput.addEventListener('input', function () {
-    const query = this.value.trim();
+    var query = this.value.trim();
     clearTimeout(debounceTimer);
 
-    if (query.length < 2) {
-        tbody.innerHTML = originalTable;
+    if (query.length < 3) {
+        cardContainer.innerHTML = originalCards;
         paginationContainer.innerHTML = originalPagination;
         paginationContainer.style.display = 'flex';
         return;
     }
 
-    debounceTimer = setTimeout(() => {
+    debounceTimer = setTimeout(function () {
         showSpinner();
 
         fetch(contextPath + '/company/search-invoices?query=' + encodeURIComponent(query))
-            .then(res => {
+            .then(function (res) {
                 if (!res.ok) throw new Error("HTTP error " + res.status);
                 return res.json();
             })
-            .then(data => {
-                tbody.innerHTML = '';
+            .then(function (data) {
+                cardContainer.innerHTML = '';
                 if (!data || data.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="8" class="text-muted">No matching invoices found.</td></tr>';
+                    cardContainer.innerHTML = '<div class="col-12 text-center text-muted py-4">No matching invoices found.</div>';
                     paginationContainer.style.display = 'none';
                     return;
                 }
                 paginationContainer.style.display = 'none';
-
-                data.forEach(inv => {
-                    let rowClass = "", badgeClass = "";
-                    if (inv.invoiceType === "CREDIT") { rowClass = "table-danger"; badgeClass = "bg-danger text-dark"; }
-                    else if (inv.invoiceType === "PARTIAL") { rowClass = "table-warning"; badgeClass = "bg-warning text-dark"; }
-                    else if (inv.invoiceType === "PAID") { rowClass = "table-success"; badgeClass = "bg-success"; }
-                    else { badgeClass = "bg-secondary"; }
-
-                    const tr = document.createElement('tr');
-                    tr.className = rowClass;
-                    tr.innerHTML =
-                        '<td><a href="' + contextPath + '/company/get-invoice/' + inv.custId + '/' + inv.invoiceId + '" target="_blank" class="fw-bold text-decoration-none text-primary">' + inv.invoiceId + '</a></td>' +
-                        '<td class="fw-semibold text-capitalize">' + inv.custName + '</td>' +
-                        '<td class="text-end">' + (inv.totQty ?? 0) + '</td>' +
-                        '<td class="text-end">₹' + Number(inv.totInvoiceAmt || 0).toFixed(2) + '</td>' +
-                        '<td class="text-end">₹' + Number(inv.balanceAmt || 0).toFixed(2) + '</td>' +
-                        '<td class="text-end">₹' + Number(inv.discount || 0).toFixed(2) + '</td>' +
-                        '<td class="text-end">₹' + Number(inv.advanAmt || 0).toFixed(2) + '</td>' +
-                        '<td><span class="badge ' + badgeClass + '">' + inv.invoiceType + '</span></td>';
-                    tbody.appendChild(tr);
+                data.forEach(function (inv) {
+                    cardContainer.insertAdjacentHTML('beforeend', renderInvoiceCard(inv));
                 });
             })
-            .catch(err => {
+            .catch(function (err) {
                 console.error('Search error:', err);
-                tbody.innerHTML = '<tr><td colspan="8" class="text-danger">Error loading search results.</td></tr>';
+                cardContainer.innerHTML = '<div class="col-12 text-center text-danger py-4">Error loading search results.</div>';
                 paginationContainer.style.display = 'none';
             });
     }, 400);
 });
+
 
 // Sidebar toggle
 document.getElementById('sidebarToggle').addEventListener('click', function () {
