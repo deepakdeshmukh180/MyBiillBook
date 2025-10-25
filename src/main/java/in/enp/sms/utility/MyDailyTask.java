@@ -1,9 +1,6 @@
 package in.enp.sms.utility;
 
-import in.enp.sms.entities.CustProfile;
-import in.enp.sms.entities.InvoiceDetails;
-import in.enp.sms.entities.OwnerInfo;
-import in.enp.sms.entities.User;
+import in.enp.sms.entities.*;
 import in.enp.sms.pojo.BalanceDeposite;
 import in.enp.sms.repository.*;
 import in.enp.sms.service.PdfGenerator;
@@ -45,7 +42,11 @@ public class MyDailyTask {
     @Autowired
     private UserRepository userRepository;
 
-    @Scheduled(cron = "0 45 10 * * ?")
+
+    @Autowired
+    DailyExpenseRepository dailyExpenseRepository;
+
+    @Scheduled(cron = "0 29 2 * * ?")
     public void DailyReports() {
         logger.info("Starting daily reports generation at {}", new Date());
         
@@ -78,10 +79,12 @@ public class MyDailyTask {
                         ownerInfo.getOwnerId(), Utility.getDate(currentDateTime));
                     List<CustProfile> custProfiles = custProfileRepository.findByOwnerIdOrderByCustNameAsc(
                         ownerInfo.getOwnerId());
+
+                    List<DailyExpense> expenses =dailyExpenseRepository.findByDateAndOwnerId(new Date(),ownerInfo.getOwnerId());
                     
                     String date = LocalDate.now().toString();
                     ByteArrayOutputStream pdfOutput = generator.generateStatementPdf(
-                        invoices, deposits, custProfiles, ownerInfo, date);
+                        invoices, deposits, custProfiles,expenses, ownerInfo, date);
                     
                     File pdfFile = writePdfToTempFile(pdfOutput, 
                         "DailyReport_" + ownerInfo.getShopName().replaceAll(" ", "_") + date, ".pdf");

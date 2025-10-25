@@ -58,6 +58,9 @@ public class OwnerSession implements Serializable {
         }
     }
 
+    public OwnerSession() {
+    }
+
     public String getTerms() {
         return terms;
     }

@@ -12,8 +12,6 @@ public interface ItemRepository extends JpaRepository<ItemDetails, String> {
 
     List<ItemDetails> findByInvoiceNoAndCustId(String invoiceNo, String custId);
 
-    List<ItemDetails> findByCustId(String custId);
-
     List<ItemDetails> findByInvoiceNoAndStatus(String invoiceId, boolean b);
 
     List<ItemDetails> findByInvoiceNoAndCustIdAndStatusOrderByItemNoAsc(String invoiceId, String custId, boolean b);

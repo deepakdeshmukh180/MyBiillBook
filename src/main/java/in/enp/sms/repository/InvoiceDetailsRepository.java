@@ -51,5 +51,8 @@ public interface InvoiceDetailsRepository extends JpaRepository<InvoiceDetails, 
             @Param("query") String query);
 
 
+    long countByOwnerId(String ownerId);
+
+    List<InvoiceDetails> findByOwnerId(String ownerId);
 }
     

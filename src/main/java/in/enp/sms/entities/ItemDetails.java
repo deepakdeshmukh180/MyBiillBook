@@ -170,5 +170,27 @@ public class ItemDetails {
         this.custId = custId;
     }
 
-
+    @Override
+    public String toString() {
+        final StringBuffer sb = new StringBuffer("ItemDetails{");
+        sb.append("id='").append(id).append('\'');
+        sb.append(", invoiceNo='").append(invoiceNo).append('\'');
+        sb.append(", itemNo=").append(itemNo);
+        sb.append(", description='").append(description).append('\'');
+        sb.append(", qty=").append(qty);
+        sb.append(", rate=").append(rate);
+        sb.append(", amount=").append(amount);
+        sb.append(", batchNo='").append(batchNo).append('\'');
+        sb.append(", mrp=").append(mrp);
+        sb.append(", status=").append(status);
+        sb.append(", productId=").append(productId);
+        sb.append(", taxAmount=").append(taxAmount);
+        sb.append(", brand='").append(brand).append('\'');
+        sb.append(", expDate='").append(expDate).append('\'');
+        sb.append(", custId='").append(custId).append('\'');
+        sb.append(", taxPercetage=").append(taxPercetage);
+        sb.append(", priTaxAmt=").append(priTaxAmt);
+        sb.append('}');
+        return sb.toString();
+    }
 }

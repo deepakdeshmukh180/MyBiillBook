@@ -34,4 +34,6 @@ public interface CustProfileRepository extends JpaRepository<CustProfile, String
     List<CustProfile> findByCustNameContainingIgnoreCaseOrAddressContainingIgnoreCaseOrPhoneNoContainingAndOwnerId(String query, String query1, String query2, String ownerId);
 
     List<CustProfile> findByOwnerIdOrderByCustNameAsc(String ownerId);
+
+    long countByOwnerId(String ownerId);
 }

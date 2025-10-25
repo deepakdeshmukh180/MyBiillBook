@@ -34,7 +34,7 @@ public class ExpenseSchedulerService {
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM");
 
     // Run every day at 2 AM
-    @Scheduled(cron = "0 3 0 * * *")
+    @Scheduled(cron = "0 04 16 * * ?", zone = "Asia/Kolkata")
     public void recalcFinancialYearExpenses() {
         LocalDate now = LocalDate.now();
         LocalDate startDate;

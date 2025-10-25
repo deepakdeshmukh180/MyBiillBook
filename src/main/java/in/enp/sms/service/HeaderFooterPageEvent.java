@@ -10,7 +10,7 @@ class HeaderFooterPageEvent extends PdfPageEventHelper {
 
     public HeaderFooterPageEvent() throws Exception {
         logo = Image.getInstance("src/main/resources/img.png"); // your path
-        logo.scaleToFit(50, 50); // small size
+        logo.scaleToFit(150, 50); // small size
     }
 
     @Override
