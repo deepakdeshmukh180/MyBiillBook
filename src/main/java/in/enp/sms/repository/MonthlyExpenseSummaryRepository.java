@@ -7,4 +7,7 @@ import java.util.List;
 
 public interface MonthlyExpenseSummaryRepository extends JpaRepository<MonthlyExpenseSummary, Long> {
     List<MonthlyExpenseSummary> findByOwnerIdOrderByMonth(String ownerId);
+
+
+    MonthlyExpenseSummary findByOwnerIdAndMonth(String ownerId, String currentMonth);
 }

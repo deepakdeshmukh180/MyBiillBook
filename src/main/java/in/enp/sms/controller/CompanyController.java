@@ -348,7 +348,7 @@ public class CompanyController {
         CustProfile finalProfile = profile;
         CompletableFuture.runAsync(() -> {
             try {
-                sendMailOwner(itemDetails, finalProfile, ownerInfo);
+                sendMailOwner(itemDetails, finalProfile, ownerInfo,items);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -662,7 +662,7 @@ public class CompanyController {
                 .findByProductNameContainingIgnoreCaseAndOwnerId(query.trim(), ownerId);
 
         return products.stream()
-                .map(product -> new ProductDto(product.getProductId(), product.getProductName(), product.getPrice()))
+                .map(product -> new ProductDto(product.getProductId(), product.getProductName(), product.getPrice() ,product.getBatchNo() ,product.getExpdate(), product.getStock()))
                 .collect(Collectors.toList());
     }
 
@@ -1632,6 +1632,7 @@ public class CompanyController {
                     .orElseThrow(() -> new RuntimeException(CUSTOMER_NOT_FOUND_MSG));
 
             model.addAttribute("profile", profile);
+            model.addAttribute("date", getCurrentDateOtherFormat());
             List<BalanceDeposite> balanceDeposits = balanceDepositeRepository.findByCustId(profile.getId());
             model.addAttribute("balanceDeposits", balanceDeposits);
 

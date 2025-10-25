@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.util.Optional;
 import java.util.UUID;
 
 @Controller
@@ -73,12 +74,29 @@ public class DealerController {
     }
 
 
-    @GetMapping("/view-dealer/{dealerId}")
-    public String getViewDealerDetailsById(Model model ,@PathVariable String dealerId,HttpServletRequest request, @RequestParam("billNo") String billNo) {
-        model.addAttribute("dealer", dealerRepository.getOne(dealerId));
-        model.addAttribute("dropdown", productRepository.findByOwnerId(Utility.getOwnerIdFromSession(request)));
-        model.addAttribute("itemsNo",  1); // Item count + 1
-        model.addAttribute("billNo",  billNo);
-        return "viewdealerinfo";
+    @PostMapping("/view-dealer/{dealerId}")
+    public String getViewDealerDetailsById(@PathVariable String dealerId,
+                                           @RequestParam("billNo") String billNo,
+                                           Model model,
+                                           HttpServletRequest request) {
+        String ownerId = Utility.getOwnerIdFromSession(request);
+
+        // Add dropdown data
+        model.addAttribute("dropdown", productRepository.findByOwnerId(ownerId));
+
+        // Fetch the dealer
+        Optional<DealerInfo> dealerOpt = dealerRepository.findByOwnerIdAndId(ownerId, dealerId);
+        if (dealerOpt.isPresent()) {
+            model.addAttribute("dealer", dealerOpt.get());
+        } else {
+            return "error/404";
+        }
+
+        // Set invoice and item count
+        model.addAttribute("itemsNo", 1);
+        model.addAttribute("billNo", billNo); // use the actual bill number from the form
+
+        return "viewdealerinfo"; // name of the JSP/Thymeleaf page
     }
+
 }

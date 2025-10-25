@@ -38,4 +38,5 @@ public interface DailyExpenseRepository extends JpaRepository<DailyExpense, Long
     List<Object[]> findMonthlyExpensesForYearRange(@Param("startDate") Date startDate,
                                                    @Param("endDate") Date endDate);
 
+    List<DailyExpense> findByDateAndOwnerId(Date date, String ownerId);
 }

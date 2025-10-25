@@ -6,226 +6,166 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Dashboard - My Bill Book</title>
 
-    <!-- CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
-    <link href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.min.css" rel="stylesheet"/>
-    <link href="${pageContext.request.contextPath}/resources/css/styles.css" rel="stylesheet"/>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet"/>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css" rel="stylesheet"/>
 
-    <!-- JS (head) -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<jsp:include page="../view/logo.jsp"></jsp:include>
 
-    <style>
-        :root{ --brand:#0d6efd; --soft:#f4f6f9; --ink:#2b3643; }
-        body{ background:var(--soft); font-family: 'Segoe UI', system-ui, sans-serif; }
-        .brand-gradient{ background:linear-gradient(135deg,#3c7bff,#70a1ff); }
-        .kpi{ border:0; border-radius:18px; box-shadow:0 10px 24px rgba(0,0,0,.08); transition:.2s; }
-        .kpi:hover{ transform:translateY(-4px); }
-        .card-modern{ border:0; border-radius:18px; box-shadow:0 8px 22px rgba(0,0,0,.08); }
-        .shadow-soft{ box-shadow:0 4px 14px rgba(0,0,0,.08); }
-        .section-heading{ font-size:1rem; font-weight:600; color:#6c757d; margin-bottom:0.25rem; }
-        .section-value{ font-size:1.15rem; font-weight:700; color:var(--ink); }
-        .highlight{ font-size:1.2rem; font-weight:700; color:#0d6efd; }
-    </style>
-</head>
-<body class="sb-nav-fixed">
-
-<!-- Navbar -->
-<nav class="sb-topnav navbar navbar-expand navbar-dark brand-gradient">
-   <a class="navbar-brand ps-3 fw-bold" href="#" onclick="showSection('dashboard')">
-         <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgwIiBoZWlnaHQ9IjQwIiB2aWV3Qm94PSIwIDAgMTgwIDQwIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8ZGVmcz4KPGxpbmVhckdyYWRpZW50IGlkPSJwYWludDBfbGluZWFyIiB4MT0iNSIgeTE9IjMiIHgyPSIyNSIgeTI9IjI3IiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+CjxzdG9wIHN0b3AtY29sb3I9IiNmZmZmZmYiLz4KPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjZjJmMmYyIi8+CjwvbGluZWFyR3JhZGllbnQ+CjxsaW5lYXJHcmFkaWVudCBpZD0icGFpbnQxX2xpbmVhciIgeDE9IjE3IiB5MT0iMTMiIHgyPSIyOCIgeTI9IjI0IiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+CjxzdG9wIHN0b3AtY29sb3I9IiMxMEI5ODEiLz4KPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMDU5NjY5Ii8+CjwvbGluZWFyR3JhZGllbnQ+CjwvZGVmcz4KPCEtLSBEb2N1bWVudC9CaWxsIEljb24gLS0+CjxyZWN0IHg9IjUiIHk9IjMiIHdpZHRoPSIyMCIgaGVpZ2h0PSIyNCIgcng9IjMiIGZpbGw9InVybCgjcGFpbnQwX2xpbmVhcikiLz4KPCEtLSBMaW5lcyBvbiBkb2N1bWVudCAtLT4KPHBhdGggZD0iTTkgOWg4bS04IDNaNW0tNSAzaDciIHN0cm9rZT0iIzJGNDc1OSIgc3Ryb2tlLXdpZHRoPSIxIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KPCEtLSBDaGVja21hcmsgLS0+CjxjaXJjbGUgY3g9IjIyLjUiIGN5PSIxOC41IiByPSI1LjUiIGZpbGw9InVybCgjcGFpbnQxX2xpbmVhcikiLz4KPHBhdGggZD0ibTIwIDE4LjUgMiAyIDQtNCIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8IS0tIFRleHQgLS0+Cjx0ZXh0IHg9IjM1IiB5PSIxNiIgZm9udC1mYW1pbHk9IkludGVyLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjEyIiBmb250LXdlaWdodD0iNzAwIiBmaWxsPSJ3aGl0ZSI+CkJpbGxNYXRlUHJvPC90ZXh0Pgo8dGV4dCB4PSIzNSIgeT0iMjYiIGZvbnQtZmFtaWx5PSJJbnRlciwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSI4IiBmaWxsPSIjZTJlOGYwIj4KWW91ciBCaWxsaW5nIFBhcnRuZXI8L3RleHQ+Cjwvc3ZnPg=="
-              alt="BillMatePro" style="height: 50px; margin-right: 8px;">
-       </a>
-    <button class="btn btn-outline-light btn-sm ms-2" id="sidebarToggle"><i class="fas fa-bars"></i></button>
-
-    <div class="ms-auto d-flex align-items-center gap-3 pe-3">
-        <div class="position-relative" role="button" onclick="openModal()">
-            <i class="bi bi-bell fs-5 text-white"></i>
-            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                ${productList.size()}
-            </span>
-        </div>
-        <div class="dropdown">
-            <a class="nav-link dropdown-toggle text-white" id="navbarDropdown" href="#" data-bs-toggle="dropdown">
-                <i class="fas fa-user fa-fw"></i>
-            </a>
-            <ul class="dropdown-menu dropdown-menu-end">
-                <li><a class="dropdown-item" onclick="document.forms['logoutForm'].submit()">Logout</a></li>
-            </ul>
-        </div>
-    </div>
-</nav>
-
-<div id="layoutSidenav">
-    <!-- Sidebar -->
-    <div id="layoutSidenav_nav">
-        <nav class="sb-sidenav accordion sb-sidenav-dark" id="sidenavAccordion">
-            <div class="sb-sidenav-menu">
-                <div class="nav">
-                    <div class="sb-sidenav-menu-heading">Core</div>
-                    <a class="nav-link" href="${pageContext.request.contextPath}/login/home">
-                        <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div> Dashboard
-                    </a>
-                    <div class="sb-sidenav-menu-heading">Interface</div>
-                    <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseLayouts">
-                        <div class="sb-nav-link-icon"><i class="fas fa-columns"></i></div> Menu
-                        <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
-                    </a>
-                    <div class="collapse" id="collapseLayouts" data-bs-parent="#sidenavAccordion">
-                        <nav class="sb-sidenav-menu-nested nav">
-                            <a class="nav-link" href="${pageContext.request.contextPath}/company/get-all-customers"><i class="fas fa-user-friends me-2 text-white"></i>All Customers</a>
-                            <a class="nav-link" href="${pageContext.request.contextPath}/company/get-all-invoices"><i class="fas fa-file-invoice me-2 text-white"></i>Invoices</a>
-                            <a class="nav-link" href="${pageContext.request.contextPath}/company/reports"><i class="fas fa-chart-line me-2 text-white"></i>Daily/Monthly Reports</a>
-                            <a class="nav-link" href="${pageContext.request.contextPath}/company/get-all-products"><i class="fas fa-leaf me-2 text-white"></i>Products</a>
-                        </nav>
-                    </div>
-                    <div class="sb-sidenav-menu-heading">Addons</div>
-                     <a class="nav-link" href="${pageContext.request.contextPath}/company/get-my-profile">
-                                                    <div class="sb-nav-link-icon"><i class="fa fa-gear fa-spin"></i></div> Account Settings
-                                                  </a>
-                    <a class="nav-link" href="${pageContext.request.contextPath}/company/export-to-pdf">
-                        <div class="sb-nav-link-icon"><i class="fas fa-file-export"></i></div> Export Customers
-                    </a>
-                </div>
-            </div>
-            <div class="sb-sidenav-footer">
-                <div class="small">Logged in as:</div>
-                ${pageContext.request.userPrincipal.name}
-            </div>
-        </nav>
-    </div>
-
-    <!-- Main -->
+    <!-- Main Content -->
     <div id="layoutSidenav_content">
-        <main class="container-fluid px-4">
-            <ol class="breadcrumb mb-4">
-                <li class="breadcrumb-item active"></li>
-            </ol>
+        <main>
+            <div class="container-fluid px-4 py-4">
 
-            <!-- Customer Info Card -->
-            <div class="card card-modern shadow-soft mb-4 p-3">
-                <div class="row text-center text-md-start">
-                    <div class="col-md-3 mb-3 mb-md-0">
-                        <div class="section-heading">Customer Name</div>
-                        <div class="section-value">${profile.custName}</div>
+                <!-- Success Alert -->
+                <c:if test="${not empty msg}">
+                    <div class="alert alert-success alert-dismissible fade show" role="alert" id="success-alert">
+                        <i class="bi bi-check-circle-fill me-2"></i><strong>Success!</strong> ${msg}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     </div>
-                    <div class="col-md-3 mb-3 mb-md-0">
-                        <div class="section-heading">WhatsApp No</div>
-                        <div class="section-value">
-                            <i class="bi bi-whatsapp text-success me-1"></i>${profile.phoneNo}
-                        </div>
-                    </div>
-                    <div class="col-md-3 mb-3 mb-md-0">
-                        <div class="section-heading">Address</div>
-                        <div class="section-value">
-                            <i class="bi bi-geo-alt-fill text-danger me-1"></i>${profile.address}
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="section-heading">Financial Year</div>
-                        <div class="highlight">${financialYear}</div>
-                    </div>
-                </div>
-            </div>
+                </c:if>
 
-            <!-- KPI Cards Row -->
-            <div class="row g-4 mb-4">
-                <div class="col-md-4">
-                    <div class="card kpi text-center p-3">
-                        <div class="card-body">
-                            <h6 class="text-muted">Total Amount</h6>
-                            <h3 class="fw-bold text-primary">
-                                ₹<fmt:formatNumber value="${profile.totalAmount}" type="number" minFractionDigits="2"/>
-                            </h3>
-                        </div>
-                    </div>
+                <!-- Page Header -->
+                <div class="mb-4">
+                    <h2 class="mb-1">Customer Profile</h2>
+                    <p class="text-muted mb-0">View and manage customer details</p>
                 </div>
-                <div class="col-md-4">
-                    <div class="card kpi text-center p-3">
-                        <div class="card-body">
-                            <h6 class="text-muted">Paid Amount</h6>
-                            <h3 class="fw-bold text-success">
-                                ₹<fmt:formatNumber value="${profile.paidAmout}" type="number" minFractionDigits="2"/>
-                            </h3>
+
+                <!-- Customer Info Card -->
+                <div class="card card-modern shadow-sm mb-4">
+                    <div class="card-body p-4">
+                        <div class="row g-4">
+                            <div class="col-md-3">
+                                <div class="section-heading">Customer Name</div>
+                                <div class="section-value">
+                                    <i class="fas fa-user me-2 text-primary"></i>${profile.custName}
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="section-heading">WhatsApp Number</div>
+                                <div class="section-value">
+                                    <i class="bi bi-whatsapp text-success me-2"></i>${profile.phoneNo}
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="section-heading">Address</div>
+                                <div class="section-value">
+                                    <i class="bi bi-geo-alt-fill text-danger me-2"></i>${profile.address}
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="section-heading">Financial Year</div>
+                                <div class="highlight">${financialYear}</div>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <div class="card kpi text-center p-3">
-                        <div class="card-body">
-                            <h6 class="text-muted">Balance Amount</h6>
-                            <h3 class="fw-bold text-danger">
-                                ₹<fmt:formatNumber value="${profile.currentOusting}" type="number" minFractionDigits="2"/>
-                            </h3>
+
+                <!-- KPI Cards -->
+                <div class="row g-3 mb-4">
+                    <div class="col-md-4">
+                        <div class="kpi text-center">
+                            <div class="card-body p-4">
+                                <h6 class="text-muted">Total Amount</h6>
+                                <h3 class="fw-bold text-primary mb-0">
+                                    ₹<fmt:formatNumber value="${profile.totalAmount}" type="number" minFractionDigits="2"/>
+                                </h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="kpi text-center">
+                            <div class="card-body p-4">
+                                <h6 class="text-muted">Paid Amount</h6>
+                                <h3 class="fw-bold text-success mb-0">
+                                    ₹<fmt:formatNumber value="${profile.paidAmout}" type="number" minFractionDigits="2"/>
+                                </h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="kpi text-center">
+                            <div class="card-body p-4">
+                                <h6 class="text-muted">Balance Amount</h6>
+                                <h3 class="fw-bold text-danger mb-0">
+                                    ₹<fmt:formatNumber value="${profile.currentOusting}" type="number" minFractionDigits="2"/>
+                                </h3>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Update Customer Form -->
-            <div class="card card-modern mb-4">
-                <div class="card-header fw-bold">Update Customer Detail</div>
-                <div class="card-body">
-                    <form name="my-form" modelAttribute="CustProfile"
-                          action="${pageContext.request.contextPath}/login/update-profile-details" method="POST" novalidate>
+                <!-- Update Customer Form -->
+                <div class="card card-modern">
+                    <div class="card-header">
+                        <i class="fas fa-edit me-2"></i>Update Customer Details
+                    </div>
+                    <div class="card-body p-4">
+                        <form name="my-form" modelAttribute="CustProfile"
+                              action="${pageContext.request.contextPath}/login/update-profile-details"
+                              method="POST" novalidate>
 
-                        <div class="row mb-3">
-                            <label for="full_name" class="col-md-3 col-form-label">Full Name</label>
-                            <div class="col-md-6">
-                                <input type="text" id="full_name" class="form-control"
-                                       value="${profile.custName}" name="custName" required />
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="full_name" class="form-label">
+                                        <i class="fas fa-user me-2"></i>Full Name
+                                    </label>
+                                    <input type="text" id="full_name" class="form-control"
+                                           value="${profile.custName}" name="custName"
+                                           placeholder="Enter full name" required />
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="phoneNo" class="form-label">
+                                        <i class="fas fa-phone me-2"></i>Phone Number
+                                    </label>
+                                    <input type="tel" id="phoneNo" name="phoneNo"
+                                           value="${profile.phoneNo}" class="form-control"
+                                           pattern="[0-9]{10}" placeholder="10-digit number"
+                                           title="Please enter a 10 digit phone number" required />
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="email_address" class="form-label">
+                                        <i class="fas fa-envelope me-2"></i>Email Address
+                                    </label>
+                                    <input type="email" id="email_address" class="form-control"
+                                           value="${profile.email}" name="email"
+                                           placeholder="example@mail.com" required />
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="addharNo" class="form-label">
+                                        <i class="fas fa-id-card me-2"></i>Aadhaar Number
+                                    </label>
+                                    <input type="text" id="addharNo" pattern="\d{12}"
+                                           title="Please enter a valid 12-digit Aadhaar number"
+                                           minlength="12" maxlength="12" name="addharNo"
+                                           value="${profile.addharNo}" class="form-control"
+                                           placeholder="12-digit Aadhaar" required />
+                                </div>
+
+                                <div class="col-12">
+                                    <label for="address" class="form-label">
+                                        <i class="fas fa-map-marker-alt me-2"></i>Address
+                                    </label>
+                                    <input type="text" id="address" class="form-control"
+                                           value="${profile.address}" name="address"
+                                           placeholder="Enter complete address" required />
+                                </div>
                             </div>
-                        </div>
 
-                        <div class="row mb-3">
-                            <label for="address" class="col-md-3 col-form-label">Address</label>
-                            <div class="col-md-6">
-                                <input type="text" id="address" class="form-control"
-                                       value="${profile.address}" name="address" required />
+                            <!-- Hidden Fields -->
+                            <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+                            <input type="hidden" name="id" value="${profile.id}" />
+
+                            <div class="d-flex justify-content-end gap-2 mt-4">
+                                <button type="submit" name="action" value="update" class="btn btn-primary">
+                                    <i class="fas fa-save me-2"></i>Update Details
+                                </button>
+                                <button type="submit" name="action" value="delete" class="btn btn-danger"
+                                        onclick="return confirm('Are you sure you want to delete this customer? This action cannot be undone.');">
+                                    <i class="fas fa-trash me-2"></i>Delete Customer
+                                </button>
                             </div>
-                        </div>
-
-                        <div class="row mb-3">
-                            <label for="email_address" class="col-md-3 col-form-label">E-Mail</label>
-                            <div class="col-md-6">
-                                <input type="email" id="email_address" class="form-control"
-                                       value="${profile.email}" name="email" required />
-                            </div>
-                        </div>
-
-                        <div class="row mb-3">
-                            <label for="phoneNo" class="col-md-3 col-form-label">Phone Number</label>
-                            <div class="col-md-6">
-                                <input type="tel" id="phoneNo" name="phoneNo"
-                                       value="${profile.phoneNo}" class="form-control"
-                                       pattern="[0-9]{10}" title="Please enter a 10 digit phone number" required />
-                            </div>
-                        </div>
-
-                        <div class="row mb-3">
-                            <label for="addharNo" class="col-md-3 col-form-label">Aadhaar Number</label>
-                            <div class="col-md-6">
-                                <input type="text" id="addharNo" pattern="\d{12}"
-                                       title="Please enter a valid 12-digit Aadhaar number"
-                                       minlength="12" maxlength="12" name="addharNo"
-                                       value="${profile.addharNo}" class="form-control" required />
-                            </div>
-                        </div>
-
-                        <!-- Hidden -->
-                        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
-                        <input type="hidden" name="id" value="${profile.id}" />
-
-                        <div class="d-flex justify-content-end gap-2 mt-4">
-                            <button type="submit" name="action" value="update" class="btn btn-primary">Update</button>
-                            <button type="submit" name="action" value="delete" class="btn btn-danger"
-                                    onclick="return confirm('Are you sure you want to delete this customer?');">Delete</button>
                         </div>
                     </form>
                 </div>

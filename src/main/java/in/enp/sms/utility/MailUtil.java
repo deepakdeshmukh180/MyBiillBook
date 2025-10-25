@@ -278,127 +278,174 @@ public class MailUtil {
                 .replace("{{CUR_BAL}}", String.valueOf(profile.getCurrentOusting()));
     }
 
-
-
     private static String getMailFormat() {
         return "<!DOCTYPE html>" +
                 "<html lang='en'>" +
                 "<head>" +
                 "<meta charset='UTF-8'>" +
                 "<meta name='viewport' content='width=device-width, initial-scale=1.0'>" +
+                "<title>Invoice Email</title>" +
                 "<style>" +
-                "body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f7fafc; margin: 0; padding: 0; color: #333; }" +
-                ".container { max-width: 750px; margin: 30px auto; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }" +
-                ".header { background: linear-gradient(135deg, #4CAF50, #45a049); padding: 20px; text-align: center; color: white; }" +
-                ".header h2 { margin: 0; font-size: 26px; }" +
-                ".header p { font-size: 14px; margin-top: 5px; }" +
-
-                ".content { padding: 20px; }" +
-                ".details-row { display: flex; flex-wrap: wrap; justify-content: space-between; margin-top: 20px; }" +
-                ".details-column { width: 48%; background: #f9f9f9; padding: 12px; border-radius: 6px; }" +
-                ".details-column h4 { margin-bottom: 8px; font-size: 16px; color: #2e7d32; border-bottom: 2px solid #e0e0e0; padding-bottom: 4px; }" +
-                ".details-column p { font-size: 14px; margin: 4px 0; }" +
-
-                "table { width: 100%; border-collapse: collapse; margin-top: 25px; font-size: 14px; }" +
-                "th, td { padding: 10px; text-align: left; border: 1px solid #ddd; }" +
-                "th { background-color: #4CAF50; color: white; }" +
-                "tr:nth-child(even) { background-color: #f9f9f9; }" +
-                "tr:nth-child(odd) { background-color: #ffffff; }" +
-
-                ".totals { margin-top: 25px; }" +
-                ".totals table { border: none; }" +
-                ".totals td { padding: 10px; font-size: 15px; font-weight: bold; border: none; }" +
-                ".totals td:first-child { text-align: right; color: #555; width: 70%; }" +
-
-                ".footer { background: #f0f0f0; padding: 12px; text-align: center; font-size: 12px; color: #777777; }" +
-                "@media(max-width: 600px) { .details-column { width: 100%; margin-bottom: 15px; } }" +
+                "body { margin:0; padding:0; font-family:Arial, Helvetica, sans-serif; background-color:#f3f4f6; }" +
+                "table { border-collapse:collapse; width:100%; }" +
+                "img { display:block; }" +
+                "@media only screen and (max-width:600px) {" +
+                "  .container { width:100% !important; }" +
+                "  .content-table, .info-table { width:100% !important; }" +
+                "}" +
                 "</style>" +
                 "</head>" +
-                "<body>" +
-                "<div class='container'>" +
+                "<body style='margin:0; padding:0; background-color:#f3f4f6;'>" +
 
-                "<div class='header'>" +
-                "<h2>{{SHOP_NAME}}</h2>" +
-                "<p>{{OWNER_NAME}} | {{PHONE}}<br/>{{ADDRESS}}</p>" +
-                "</div>" +
+                "<table align='center' cellpadding='0' cellspacing='0' width='100%' style='max-width:750px; margin:auto; background-color:#ffffff; border-radius:10px; overflow:hidden; box-shadow:0 8px 30px rgba(0,0,0,0.12);'>" +
 
-                "<div class='content'>" +
-                "<div class='details-row'>" +
-                "<div class='details-column'>" +
-                "<h4>Customer Info</h4>" +
-                "<p><strong>Name:</strong> {{CUST_NAME}}</p>" +
-                "<p><strong>Phone:</strong> {{CUST_PHONE}}</p>" +
-                "<p><strong>Address:</strong> {{CUST_ADDRESS}}</p>" +
-                "</div>" +
+                // ===== HEADER SECTION =====
+                "<tr>" +
+                "<td style='background:#4CAF50; background:linear-gradient(135deg,#4CAF50 0%,#45a049 100%); color:#fff; padding:25px 20px; text-align:center;'>" +
+                "<h1 style='font-size:26px; margin:0; font-weight:700;'>{{SHOP_NAME}}</h1>" +
+                "<p style='margin-top:8px; font-size:14px;'>👤 {{OWNER_NAME}} | 📞 {{PHONE}} | 📍 {{ADDRESS}}</p>" +
+                "</td>" +
+                "</tr>" +
 
-                "<div class='details-column'>" +
-                "<h4>Invoice Info</h4>" +
-                "<p><strong>Invoice No:</strong> {{INVOICE_NO}}</p>" +
-                "<p><strong>Date:</strong> {{DATE}}</p>" +
-                "</div>" +
-                "</div>" +
-
-                "<div class='product-table'>{{PRODUCT_ROWS}}</div>" +
-
-                "<div class='totals'>" +
-                "<table>" +
-                "<tr><td>Total Amount:</td><td>{{TOTAL}}</td></tr>" +
-                "<tr><td>Advance Paid:</td><td>{{ADV_AMT}}</td></tr>" +
-                "<tr><td>Current Balance:</td><td>{{CUR_BAL}}</td></tr>" +
+                // ===== INVOICE HEADER =====
+                "<tr>" +
+                "<td style='padding:20px;'>" +
+                "<table width='100%' style='border:2px solid #4CAF50; border-radius:10px; background-color:#f8f9fa; box-shadow:0 3px 10px rgba(0,0,0,0.08);'>" +
+                "<tr>" +
+                "<td style='padding:15px; font-size:20px; color:#2e7d32; font-weight:700;'>📄 Tax Invoice</td>" +
+                "<td align='right' style='padding:15px;'>" +
+                "<span style='background:#4CAF50; color:white; padding:6px 16px; border-radius:20px; font-size:12px; font-weight:600;'>✓ Confirmed</span>" +
+                "</td>" +
+                "</tr>" +
                 "</table>" +
-                "</div>" +
-                "</div>" +
+                "</td>" +
+                "</tr>" +
 
-                "<div class='footer'>This is a system-generated invoice from My Bill Book</div>" +
-                "</div>" +
+                // ===== CUSTOMER & INVOICE DETAILS =====
+                "<tr>" +
+                "<td style='padding:10px 20px;'>" +
+                "<table class='info-table' width='100%' cellpadding='0' cellspacing='0' style='border-spacing:0;'>" +
+                "<tr>" +
+                // CUSTOMER INFO
+                "<td valign='top' width='50%' style='background:#f8f9fa; border:1px solid #e0e0e0; border-radius:8px; padding:15px;'>" +
+                "<h4 style='font-size:13px; color:#2e7d32; text-transform:uppercase; margin-bottom:10px; letter-spacing:0.5px;'>Customer Information</h4>" +
+                "<p style='margin:6px 0; font-size:14px;'><strong style='color:#666;'>Name:</strong> {{CUST_NAME}}</p>" +
+                "<p style='margin:6px 0; font-size:14px;'><strong style='color:#666;'>Phone:</strong> {{CUST_PHONE}}</p>" +
+                "<p style='margin:6px 0; font-size:14px;'><strong style='color:#666;'>Address:</strong> {{CUST_ADDRESS}}</p>" +
+                "</td>" +
+
+                // INVOICE INFO
+                "<td valign='top' width='50%' style='background:#f8f9fa; border:1px solid #e0e0e0; border-radius:8px; padding:15px;'>" +
+                "<h4 style='font-size:13px; color:#2e7d32; text-transform:uppercase; margin-bottom:10px; letter-spacing:0.5px;'>Invoice Details</h4>" +
+                "<p style='margin:6px 0; font-size:14px;'><strong style='color:#666;'>Invoice No:</strong> {{INVOICE_NO}}</p>" +
+                "<p style='margin:6px 0; font-size:14px;'><strong style='color:#666;'>Date:</strong> {{DATE}}</p>" +
+                "</td>" +
+                "</tr>" +
+                "</table>" +
+                "</td>" +
+                "</tr>" +
+
+                // ===== PRODUCT DETAILS =====
+                "<tr>" +
+                "<td style='padding:20px;'>" +
+                "<h3 style='color:#2e7d32; font-size:17px; margin-bottom:12px; border-left:4px solid #4CAF50; padding-left:8px;'>Product Details</h3>" +
+                "{{PRODUCT_ROWS}}" +
+                "</td>" +
+                "</tr>" +
+
+                // ===== TOTALS SECTION =====
+                "<tr>" +
+                "<td style='padding:20px;'>" +
+                "<table width='100%' style='border:2px solid #4CAF50; border-radius:8px; background-color:#ffffff;'>" +
+                "<tr><td colspan='2' style='height:10px;'></td></tr>" +
+                "<tr><td align='right' style='padding:10px 12px; font-size:14px; color:#555; font-weight:600;'>Total Amount:</td><td align='right' style='padding:10px 12px; font-size:15px; color:#2e7d32; font-weight:bold;'>₹{{TOTAL}}</td></tr>" +
+                "<tr><td align='right' style='padding:10px 12px; font-size:14px; color:#555; font-weight:600;'>Advance Paid:</td><td align='right' style='padding:10px 12px; font-size:15px; color:#2e7d32; font-weight:bold;'>₹{{ADV_AMT}}</td></tr>" +
+                "<tr style='background:#4CAF50;'><td align='right' style='padding:10px 12px; color:white; font-weight:bold; font-size:16px;'>Current Balance:</td><td align='right' style='padding:10px 12px; color:white; font-weight:bold; font-size:16px;'>₹{{CUR_BAL}}</td></tr>" +
+                "<tr><td colspan='2' style='height:10px;'></td></tr>" +
+                "</table>" +
+                "</td>" +
+                "</tr>" +
+
+                // ===== FOOTER SECTION =====
+                "<tr>" +
+                "<td style='background:#2c3e50; color:#ecf0f1; text-align:center; padding:20px; font-size:12px;'>" +
+                "<p style='margin:6px 0;'>Thank you for your business! 🙏</p>" +
+                "<p style='margin:6px 0;'>For queries contact: {{PHONE}}</p>" +
+                "<p style='margin-top:12px; padding-top:12px; border-top:1px solid rgba(255,255,255,0.2); opacity:0.85;'>Powered by <strong>BillMatePro</strong> - Your Billing Partner</p>" +
+                "</td>" +
+                "</tr>" +
+
+                "</table>" +
                 "</body>" +
                 "</html>";
     }
 
 
 
+
     public static String generateProductTable(List<ItemDetails> items) {
         StringBuilder productTable = new StringBuilder();
 
-        productTable.append("<table style=\"width:100%; border-collapse:collapse; font-family:Arial, sans-serif; font-size:14px;\">")
+        productTable.append("<div style='overflow-x:auto; margin-top:10px;'>")
+                .append("<table style='width:100%; border-collapse:collapse; font-family:Segoe UI, Tahoma, sans-serif; font-size:13px; border-radius:8px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,0.05);'>")
                 .append("<thead>")
-                .append("<tr style=\"background-color:#f0f4f7; color:#333;\">")
-                .append("<th style='border:1px solid #ccc; padding:8px;'>SR NO</th>")
-                .append("<th style='border:1px solid #ccc; padding:8px;'>Description</th>")
-                .append("<th style='border:1px solid #ccc; padding:8px;'>Batch No.</th>")
-                .append("<th style='border:1px solid #ccc; padding:8px;'>Qty</th>")
-                .append("<th style='border:1px solid #ccc; padding:8px;'>MRP</th>")
-                .append("<th style='border:1px solid #ccc; padding:8px;'>Rate</th>")
-                .append("<th style='border:1px solid #ccc; padding:8px;'>Total Amt</th>")
+                .append("<tr style='background:linear-gradient(135deg,#4CAF50 0%,#45a049 100%); color:#fff; text-align:left;'>")
+                .append("<th style='padding:10px; text-transform:uppercase; font-size:11px; letter-spacing:0.5px;'>Sr No</th>")
+                .append("<th style='padding:10px; text-transform:uppercase; font-size:11px; letter-spacing:0.5px;'>Description</th>")
+                .append("<th style='padding:10px; text-transform:uppercase; font-size:11px; letter-spacing:0.5px;'>Batch No.</th>")
+                .append("<th style='padding:10px; text-transform:uppercase; font-size:11px; letter-spacing:0.5px;'>Qty</th>")
+                .append("<th style='padding:10px; text-transform:uppercase; font-size:11px; letter-spacing:0.5px;'>MRP</th>")
+                .append("<th style='padding:10px; text-transform:uppercase; font-size:11px; letter-spacing:0.5px;'>Rate</th>")
+                .append("<th style='padding:10px; text-transform:uppercase; font-size:11px; letter-spacing:0.5px;'>Total Amt</th>")
                 .append("</tr>")
                 .append("</thead><tbody>");
 
         int i = 0;
         for (ItemDetails details : items) {
-            String rowColor = (i % 2 == 0) ? "#ffffff" : "#f9f9f9";
+            String bgColor = (i % 2 == 0) ? "#ffffff" : "#f8f9fa";
             productTable.append("<tr style='background-color:")
-                    .append(rowColor)
-                    .append(";'>")
-                    .append("<td style='border:1px solid #ccc; padding:8px;'>").append(details.getItemNo()).append("</td>")
-                    .append("<td style='border:1px solid #ccc; padding:8px;'>").append(details.getDescription()).append("</td>")
-                    .append("<td style='border:1px solid #ccc; padding:8px;'>").append(details.getBatchNo()).append("</td>")
-                    .append("<td style='border:1px solid #ccc; padding:8px;'>").append(details.getQty()).append("</td>")
-                    .append("<td style='border:1px solid #ccc; padding:8px;'>").append(details.getMrp()).append("</td>")
-                    .append("<td style='border:1px solid #ccc; padding:8px;'>").append(details.getRate()).append("</td>")
-                    .append("<td style='border:1px solid #ccc; padding:8px;'>").append(details.getAmount()).append("</td>")
+                    .append(bgColor)
+                    .append("; border-bottom:1px solid #e0e0e0;'>")
+                    .append("<td style='padding:9px 8px; color:#333;'>").append(details.getItemNo()).append("</td>")
+                    .append("<td style='padding:9px 8px; color:#333; font-weight:500;'>").append(details.getDescription()).append("</td>")
+                    .append("<td style='padding:9px 8px; color:#333;'>").append(details.getBatchNo()).append("</td>")
+                    .append("<td style='padding:9px 8px; color:#333;'>").append(details.getQty()).append("</td>")
+                    .append("<td style='padding:9px 8px; color:#333;'>₹").append(details.getMrp()).append("</td>")
+                    .append("<td style='padding:9px 8px; color:#333;'>₹").append(details.getRate()).append("</td>")
+                    .append("<td style='padding:9px 8px; color:#2e7d32; font-weight:600;'>₹").append(details.getAmount()).append("</td>")
                     .append("</tr>");
             i++;
         }
 
         productTable.append("</tbody></table>");
+
+        // ✅ Add lightweight responsive fallback (for narrow screens)
+        productTable.append("<style>@media only screen and (max-width:600px){")
+                .append("table, thead, tbody, th, td, tr { display:block !important; }")
+                .append("thead tr { display:none !important; }")
+                .append("tr { margin-bottom:15px; border-bottom:2px solid #e0e0e0; }")
+                .append("td { text-align:right !important; padding-left:50% !important; position:relative; font-size:12px !important; }")
+                .append("td::before { content:attr(data-label); position:absolute; left:10px; width:45%; padding-left:10px; font-weight:600; text-align:left; color:#555; }")
+                .append("}</style>")
+                .append("</div>");
+
         return productTable.toString();
     }
 
-    public static void sendMailOwner(InvoiceDetails itemDetails, CustProfile profile, OwnerSession ownerInfo) throws Exception {
-        logger.info("Sending email to owner and customer for invoice ID: {}", itemDetails.getInvoiceId());
-        logger.info("Data: {}---{}", itemDetails.getInvoiceId(),profile.getId());
 
-        List<ItemDetails> items = itemRepository.findItemsByInvoiceNoAndCustId(itemDetails.getInvoiceId(), profile.getId());
+    public static void sendMailOwner(InvoiceDetails itemDetails, CustProfile profile, OwnerSession ownerInfo ,List<ItemDetails> items) throws Exception {
+        logger.info("Sending email to owner and customer for invoice ID: {}", itemDetails.getInvoiceId());
+        logger.info(
+                "Invoice Data => InvoiceId: {} | ProfileId: {} | Customer: {} | Items: {} | Bill Amount: {} | Advance: {} | Type: {}",
+                itemDetails.getInvoiceId(),
+                profile.getId(),
+                profile.getCustName(),
+                itemDetails.getItemDetails(),
+                itemDetails.getTotInvoiceAmt(),
+                itemDetails.getAdvanAmt(),itemDetails.getInvoiceType()
+        );
+
+
 
         String productTable = MailUtil.generateProductTable(items);
         String emailContent = MailUtil.generateEmailContent(itemDetails, profile, ownerInfo, productTable);

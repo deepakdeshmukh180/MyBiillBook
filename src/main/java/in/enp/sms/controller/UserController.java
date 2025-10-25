@@ -26,6 +26,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -559,7 +560,7 @@ public class UserController {
     public String processPasswordReset(HttpServletRequest request,HttpSession session,
             @AuthenticationPrincipal UserDetails userDetails,
             @RequestParam("newPassword") String newPassword,
-            @RequestParam("confirmPassword") String confirmPassword,
+            @RequestParam("confirmPassword") String confirmPassword, RedirectAttributes redirectAttributes,
             Model model) {
         OwnerSession ownerInfo = (OwnerSession) session.getAttribute("sessionOwner");
 
@@ -585,9 +586,9 @@ public class UserController {
             }
         });
         emailExecutor.shutdown();
-
-        model.addAttribute("success", "Password updated successfully!");
-        return "passwordreset";
+        redirectAttributes.addFlashAttribute("message", "Password updated successfully! Please log in again.");
+        session.invalidate();
+        return "redirect:/login";
     }
 
 }

@@ -86,21 +86,21 @@ public class LoginController {
 
 
             List<CustProfile> custProfiles = custProfileRepository.findTop5ByOwnerIdOrderByLastModifiedDateDesc(ownerId);
-
-
             modelAndView.addObject("dailySummary", calculateDailySummary(request));
 
             modelAndView.setViewName("index");
             modelAndView.addObject("custmers", custProfiles);
-            modelAndView.addObject("profilecount", custProfiles.size());
-            modelAndView.addObject("invoicescount", invoiceDetailsRepository.count());
+            modelAndView.addObject("custmerCount",   custProfileRepository.countByOwnerId(ownerId));
+            modelAndView.addObject("invoicesCount", invoiceDetailsRepository.countByOwnerId(ownerId));
             modelAndView.addObject("ownerInfo", ownerInfo);
             modelAndView.addObject("date", getCurretDate());
             modelAndView.addObject("productList", getExpProductByOwnerId(ownerId));
             modelAndView.addObject("daily_expenses", expenseRepository.getDailyTotal(new Date(),ownerId));
             modelAndView.addObject("monthly_expenses",expenseRepository.getCurrentMonthTotal(ownerId));//
-            modelAndView.addObject("dailyExpenses",expenseRepository.findByDateAndOwnerIdOrderByCreatedAtDesc(new Date(),ownerId));
-            modelAndView.addObject("monthlyExpenses",summaryRepository.findByOwnerIdOrderByMonth(ownerId));
+
+
+            //modelAndView.addObject("dailyExpenses",expenseRepository.findByDateAndOwnerIdOrderByCreatedAtDesc(new Date(),ownerId));
+           // modelAndView.addObject("monthlyExpenses",summaryRepository.findByOwnerIdOrderByMonth(ownerId));
 
 
         } catch (Exception e) {
