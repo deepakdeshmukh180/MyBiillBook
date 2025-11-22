@@ -45,7 +45,7 @@
 }
 
 .dropdown-center {
-    width: 360px;          /* keeps dropdown centered & neat */
+    width: 260px;          /* keeps dropdown centered & neat */
     text-align: center;
 }
 
