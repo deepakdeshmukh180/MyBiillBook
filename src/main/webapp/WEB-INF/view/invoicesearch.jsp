@@ -12,7 +12,15 @@
     <div id="layoutSidenav_content">
         <main>
             <div class="container-fluid px-4 mt-4">
+<div id="pageLoader"
+                   style="display:none; position:fixed; z-index:9999; top:0; left:0; width:100%; height:100%;
+                   background:rgba(0,0,0,0.4); backdrop-filter: blur(2px);">
 
+                  <div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%);
+                       padding:20px; background:white; border-radius:8px; font-weight:bold;">
+                       Loading...
+                  </div>
+              </div>
                 <c:if test="${not empty msg}">
                     <div class="alert alert-success alert-dismissible fade show" role="alert">
                         <i class="bi bi-check-circle-fill me-2"></i><strong>Success!</strong> ${msg}
@@ -248,8 +256,7 @@ function simpleLogout() {
         // Initialize search functionality
         initializeSearch();
 
-        // Initialize sidebar
-        initializeSidebar();
+
 
         // Add loading animation for cards
         animateCards();

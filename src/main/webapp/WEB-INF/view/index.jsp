@@ -14,6 +14,16 @@
   <div id="layoutSidenav_content">
     <main>
       <div class="container-fluid px-4 mt-4">
+      <!-- Fullscreen Loader -->
+              <div id="pageLoader"
+                   style="display:none; position:fixed; z-index:9999; top:0; left:0; width:100%; height:100%;
+                   background:rgba(0,0,0,0.4); backdrop-filter: blur(2px);">
+
+                  <div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%);
+                       padding:20px; background:white; border-radius:8px; font-weight:bold;">
+                       Loading...
+                  </div>
+              </div>
 
         <!-- Success toast -->
         <c:if test="${not empty msg}">
@@ -1146,6 +1156,38 @@ searchInput.addEventListener('keypress', function(e) {
         }
     }
 
+
+
 </script>
+
+<div id="google_translate_element" style="display:none;"></div>
+
+<script type="text/javascript">
+    function googleTranslateElementInit() {
+        new google.translate.TranslateElement({
+            pageLanguage: 'en',
+            includedLanguages: 'hi,mr,en',
+            layout: google.translate.TranslateElement.InlineLayout.SIMPLE
+        }, 'google_translate_element');
+    }
+</script>
+
+
+<script>
+    function changeLanguage() {
+        setTimeout(function() {
+            var lang = document.getElementById("languageSelect").value;
+            var combo = document.querySelector(".goog-te-combo");
+
+            if (combo && lang) {
+                combo.value = lang;
+                combo.dispatchEvent(new Event("change"));
+            }
+        }, 500); // wait 0.5 sec
+    }
+
+</script>
+
+
 </body>
 </html>

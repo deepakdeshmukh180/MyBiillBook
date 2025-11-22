@@ -669,103 +669,113 @@
                 <form:form method="POST" modelAttribute="dealer"
                            action="${pageContext.request.contextPath}/dealers/save">
                     <form:errors path="*" cssClass="alert alert-danger" element="div"/>
-                    <form:input path="id" type="hidden"/>
+
+                    <form:hidden path="id"/>
+                    <form:hidden path="ownerId"/>
+                    <form:hidden path="lastModifiedDate"/>
 
                     <div class="row g-3">
-                        <div class="col-lg-3 col-md-4 col-sm-6">
+
+                        <!-- Dealer Name -->
+                        <div class="col-md-4">
                             <div class="form-group">
-                                <label class="form-label">
-                                    <i class="fas fa-user"></i> Dealer Name *
-                                </label>
-                                <form:input path="dealerName" cssClass="form-control"
-                                            placeholder="John Doe" required="required"/>
+                                <label class="form-label"><i class="fas fa-user"></i> Dealer Name *</label>
+                                <form:input path="dealerName" cssClass="form-control" required="required" placeholder="John Doe"/>
                             </div>
                         </div>
 
-                        <div class="col-lg-3 col-md-4 col-sm-6">
+                        <!-- Address -->
+                        <div class="col-md-4">
                             <div class="form-group">
-                                <label class="form-label">
-                                    <i class="fas fa-phone"></i> Mobile No *
-                                </label>
-                                <form:input path="mobileNo" cssClass="form-control"
-                                            placeholder="+91 98765 43210" required="required"/>
+                                <label class="form-label"><i class="fas fa-map-marker-alt"></i> Address *</label>
+                                <form:input path="dealerAddress" cssClass="form-control" required="required" placeholder="City, State"/>
                             </div>
                         </div>
 
-                        <div class="col-lg-3 col-md-4 col-sm-6">
+                        <!-- Mobile -->
+                        <div class="col-md-4">
                             <div class="form-group">
-                                <label class="form-label">
-                                    <i class="fas fa-map-marker-alt"></i> Address *
-                                </label>
-                                <form:input path="dealerAddress" cssClass="form-control"
-                                            placeholder="Street, City" required="required"/>
+                                <label class="form-label"><i class="fas fa-phone"></i> Mobile No *</label>
+                                <form:input path="mobileNo" cssClass="form-control" required="required" placeholder="9876543210"/>
                             </div>
                         </div>
 
-                        <div class="col-lg-3 col-md-4 col-sm-6">
+                        <!-- GST -->
+                        <div class="col-md-4">
                             <div class="form-group">
-                                <label class="form-label">
-                                    <i class="fas fa-file-invoice"></i> GST No *
-                                </label>
-                                <form:input path="gstNo" cssClass="form-control"
-                                            placeholder="22XXXXX1234X1Z5" required="required"/>
+                                <label class="form-label"><i class="fas fa-file-invoice"></i> GST No</label>
+                                <form:input path="gstNo" cssClass="form-control" placeholder="22ABCDE1234F1Z5"/>
                             </div>
                         </div>
 
-                        <div class="col-lg-3 col-md-4 col-sm-6">
+                        <!-- Total Amount -->
+                        <div class="col-md-4">
                             <div class="form-group">
-                                <label class="form-label">
-                                    <i class="fas fa-wallet"></i> Balance Amount *
-                                </label>
-                                <form:input path="balanceAmount" type="number" step="0.01"
-                                            readonly="${not empty dealer.id}"
-                                            cssClass="form-control" placeholder="0.00" required="required"/>
+                                <label class="form-label"><i class="fas fa-coins"></i> Total Amount</label>
+                                <form:input path="totalAmount" type="number" step="0.01" cssClass="form-control" placeholder="0.00"/>
                             </div>
                         </div>
 
-                        <div class="col-lg-3 col-md-4 col-sm-6">
+                        <!-- Paid Amount -->
+                        <div class="col-md-4">
                             <div class="form-group">
-                                <label class="form-label">
-                                    <i class="fas fa-university"></i> Bank Name *
-                                </label>
-                                <form:input path="bankName" cssClass="form-control"
-                                            placeholder="HDFC Bank" required="required"/>
+                                <label class="form-label"><i class="fas fa-hand-holding-usd"></i> Paid Amount</label>
+                                <form:input path="paidAmount" type="number" step="0.01" cssClass="form-control" placeholder="0.00"/>
                             </div>
                         </div>
 
-                        <div class="col-lg-3 col-md-4 col-sm-6">
+                        <!-- Balance -->
+                        <div class="col-md-4">
                             <div class="form-group">
-                                <label class="form-label">
-                                    <i class="fas fa-hashtag"></i> Account Number *
-                                </label>
-                                <form:input path="accountNo" cssClass="form-control"
-                                            placeholder="1234567890" required="required"/>
+                                <label class="form-label"><i class="fas fa-wallet"></i> Balance Amount</label>
+                                <form:input path="balanceAmount" type="number" step="0.01" cssClass="form-control" placeholder="0.00" readonly="${not empty dealer.id}"/>
                             </div>
                         </div>
 
-                        <div class="col-lg-3 col-md-4 col-sm-6">
+                        <!-- Bank Details -->
+                        <div class="col-md-4">
                             <div class="form-group">
-                                <label class="form-label">
-                                    <i class="fas fa-code"></i> IFSC Code *
-                                </label>
-                                <form:input path="ifscCode" cssClass="form-control"
-                                            placeholder="HDFC0001234" required="required"/>
+                                <label class="form-label"><i class="fas fa-university"></i> Bank Name *</label>
+                                <form:input path="bankName" cssClass="form-control" required="required" placeholder="HDFC Bank"/>
                             </div>
                         </div>
 
-                        <div class="col-lg-3 col-md-4 col-sm-6">
+                        <div class="col-md-4">
                             <div class="form-group">
-                                <label class="form-label">
-                                    <i class="fas fa-building"></i> Branch Name *
-                                </label>
-                                <form:input path="branchName" cssClass="form-control"
-                                            placeholder="Main Branch" required="required"/>
+                                <label class="form-label"><i class="fas fa-hashtag"></i> Account Number *</label>
+                                <form:input path="accountNo" cssClass="form-control" required="required" placeholder="1234567890"/>
                             </div>
                         </div>
 
-                        <div class="col-lg-3 col-md-4 col-sm-6">
+                        <div class="col-md-4">
                             <div class="form-group">
-                                <label class="form-label" style="visibility: hidden;">Submit</label>
+                                <label class="form-label"><i class="fas fa-code"></i> IFSC Code *</label>
+                                <form:input path="ifscCode" cssClass="form-control" required="required" placeholder="HDFC0001234"/>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label class="form-label"><i class="fas fa-building"></i> Branch Name *</label>
+                                <form:input path="branchName" cssClass="form-control" required="required" placeholder="Main Branch"/>
+                            </div>
+                        </div>
+
+                        <!-- Status -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label class="form-label"><i class="fas fa-toggle-on"></i> Status</label>
+                                <form:select path="status" cssClass="form-control">
+                                    <form:option value="ACTIVE" label="Active"/>
+                                    <form:option value="INACTIVE" label="Inactive"/>
+                                </form:select>
+                            </div>
+                        </div>
+
+                        <!-- Submit -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label class="form-label" style="visibility:hidden;">Save</label>
                                 <button type="submit" class="btn-submit w-100">
                                     <i class="fas fa-${not empty dealer.id ? 'sync' : 'save'}"></i>
                                     ${not empty dealer.id ? 'Update' : 'Save'}
@@ -775,6 +785,7 @@
                     </div>
                 </form:form>
             </div>
+
 
             <!-- Cards Section -->
             <div class="cards-header d-flex justify-content-between align-items-center flex-wrap">

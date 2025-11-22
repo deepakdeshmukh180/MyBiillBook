@@ -36,6 +36,26 @@
 .modal.show .modal-dialog {
     transform: scale(1);
 }
+.section-header {
+    background: var(--card-bg, #1e1e1e);
+    padding: 15px;
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(255,255,255,0.06);
+}
+
+.dropdown-center {
+    width: 360px;          /* keeps dropdown centered & neat */
+    text-align: center;
+}
+
+.centered-dropdown {
+    height: 38px;
+    font-size: 0.9rem;
+    text-align: center;
+    padding: 5px 10px;
+}
+
 
 .modal-content {
     border: none;
@@ -582,10 +602,7 @@ body.modal-open {
     border-left-color: var(--success-color);
     color: var(--success-color);
 }
-.select2-container--default .select2-results__option--highlighted.select2-results__option--selectable {
-    background-color: #c1d1f5;
-    color: black; /* dark text works better on light backgrounds */
-}
+
 
 
 .alert-modern.alert-warning {
@@ -658,7 +675,15 @@ body.modal-open {
 <div id="layoutSidenav_content">
     <main>
         <div class="container-fluid px-3 py-3">
+ <div id="pageLoader"
+                   style="display:none; position:fixed; z-index:9999; top:0; left:0; width:100%; height:100%;
+                   background:rgba(0,0,0,0.4); backdrop-filter: blur(2px);">
 
+                  <div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%);
+                       padding:20px; background:white; border-radius:8px; font-weight:bold;">
+                       Loading...
+                  </div>
+              </div>
             <!-- Customer Info Cards -->
             <div class="info-card-grid">
                 <div class="info-card">
@@ -729,62 +754,87 @@ body.modal-open {
 
             <!-- Add Item Section -->
             <div class="add-item-section">
-                <div class="section-header d-flex align-items-center mb-2">
-                    <i class="fas fa-plus-circle me-2"></i>
-                    <span>Add Item to Invoice</span>
-                </div>
+               <div class="section-header d-flex flex-column align-items-center mb-3">
 
-                <div class="section-body">
-                    <form id="addItemForm" class="d-flex flex-wrap align-items-end gap-3">
-                        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
-                        <input type="hidden" name="custId" value="${profile.id}">
-                        <input type="hidden" name="description" id="description" required>
-                        <input type="hidden" name="productId" id="productId" required>
-                        <input type="hidden" name="invoiceNo" value="${invoiceNo}">
+                   <!-- Title Row -->
+                   <div class="d-flex align-items-center mb-2">
+                       <i class="fas fa-plus-circle me-2"></i>
+                       <span>Add Item to Invoice</span>
+                   </div>
 
-                        <div class="form-group">
-                            <label class="form-label-modern">Item#</label>
-                            <input type="text" class="form-control-modern text-center" name="itemNo" id="itemNo" readonly value="${itemsNo}">
-                        </div>
+                   <!-- Product Dropdown Centered -->
+                   <div class="form-group dropdown-center">
+                       <select id="productDropdown" class="form-control-modern centered-dropdown"></select>
+                   </div>
 
-                        <div class="form-group flex-grow-1">
-                            <label class="form-label-modern"><i class="fas fa-box-open"></i> Product</label>
-                            <select id="productDropdown" class="form-control-modern" style="width:100%"></select>
-                        </div>
+               </div>
 
-                        <div class="form-group">
-                            <label class="form-label-modern"><i class="fas fa-rupee-sign"></i> Rate</label>
-                            <input type="text" class="form-control-modern text-end" name="rate" id="rate" required
-                                   onkeyup="calAmt()" placeholder="0.00"
-                                   oninput="this.value=this.value.replace(/[^0-9.]/g,'').replace(/(\..*)\./g,'$1');">
-                        </div>
 
-                        <div class="form-group">
-                            <label class="form-label-modern"><i class="fas fa-sort-numeric-up"></i> Qty</label>
-                            <div class="qty-control d-flex">
-                                <button class="btn btn-outline-secondary" type="button" onclick="changeQty(-1)">
-                                    <i class="fas fa-minus"></i>
-                                </button>
-                                <input type="text" class="form-control-modern text-center" name="qty" id="qty" value="1" onkeyup="calAmt()" required style="width:60px;">
-                                <button class="btn btn-outline-secondary" type="button" onclick="changeQty(1)">
-                                    <i class="fas fa-plus"></i>
-                                </button>
-                            </div>
-                        </div>
 
-                        <div class="form-group">
-                            <label class="form-label-modern"><i class="fas fa-calculator"></i> Amount</label>
-                            <input type="text" class="form-control-modern text-end fw-bold" name="amount" id="amount" readonly placeholder="0.00" style="color: var(--primary-color);">
-                        </div>
 
-                        <div>
-                            <button type="submit" class="btn btn-primary btn-compact" id="addItemBtn">
-                                <i class="fa fa-plus"></i> Add
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
+
+               <div class="section-body">
+                   <form id="addItemForm" class="d-flex flex-wrap align-items-end gap-3">
+
+                       <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+                       <input type="hidden" name="custId" value="${profile.id}">
+                       <input type="hidden" name="productId" id="productId" required>
+                       <input type="hidden" name="invoiceNo" value="${invoiceNo}">
+
+                       <!-- Product First -->
+
+
+                 <!-- Item No -->
+                       <div class="form-group">
+                           <label class="form-label-modern">Item#</label>
+                           <input type="text" class="form-control-modern text-center" name="itemNo" id="itemNo" readonly value="${itemsNo}">
+                       </div>
+                       <!-- Description moved to product place -->
+                       <div class="form-group flex-grow-1">
+                           <label class="form-label-modern"><i class="fas fa-align-left"></i> Description</label>
+                           <input type="text" class="form-control-modern" name="description" id="description" required>
+                       </div>
+
+
+
+                       <!-- Rate -->
+                       <div class="form-group">
+                           <label class="form-label-modern"><i class="fas fa-rupee-sign"></i> Rate</label>
+                           <input type="text" class="form-control-modern text-end" name="rate" id="rate" required
+                                  onkeyup="calAmt()" placeholder="0.00"
+                                  oninput="this.value=this.value.replace(/[^0-9.]/g,'').replace(/(\..*)\./g,'$1');">
+                       </div>
+
+                       <!-- Qty -->
+                       <div class="form-group">
+                           <label class="form-label-modern"><i class="fas fa-sort-numeric-up"></i> Qty</label>
+                           <div class="qty-control d-flex">
+                               <button class="btn btn-outline-secondary" type="button" onclick="changeQty(-1)">
+                                   <i class="fas fa-minus"></i>
+                               </button>
+                               <input type="text" class="form-control-modern text-center" name="qty" id="qty" value="1" onkeyup="calAmt()" required style="width:60px;">
+                               <button class="btn btn-outline-secondary" type="button" onclick="changeQty(1)">
+                                   <i class="fas fa-plus"></i>
+                               </button>
+                           </div>
+                       </div>
+
+                       <!-- Amount -->
+                       <div class="form-group">
+                           <label class="form-label-modern"><i class="fas fa-calculator"></i> Amount</label>
+                           <input type="text" class="form-control-modern text-end fw-bold" name="amount" id="amount" readonly placeholder="0.00" style="color: var(--primary-color);">
+                       </div>
+
+                       <!-- Add Button -->
+                       <div>
+                           <button type="submit" class="btn btn-primary btn-compact" id="addItemBtn">
+                               <i class="fa fa-plus"></i> Add
+                           </button>
+                       </div>
+
+                   </form>
+               </div>
+
 
 
             <!-- Alerts Container -->
@@ -875,6 +925,13 @@ body.modal-open {
                                     ₹<span id="totalAmout">${totalAmout}</span>
                                 </div>
                             </div>
+                             <div class="summary-item">
+                                                            <div class="summary-label">Invoice Date</div>
+                                                            <div class="summary-value" style="color: var(--primary-color);">
+<input type="date" name="date"   id="datePicker" class="form-control form-control-sm" style="font-size: 0.70rem; color: var(--text-secondary);" >                                                            </div>
+                                                        </div>
+
+
                         </div>
 
                         <div class="form-group mt-3">
@@ -918,6 +975,7 @@ body.modal-open {
                                         <div class="alert alert-modern alert-info">
                                             <i class="fas fa-info-circle me-2"></i>
                                             Please review the invoice details below before generating.
+
                                         </div>
 
                                         <!-- Customer Summary -->
@@ -966,7 +1024,8 @@ body.modal-open {
                                                     <div class="info-details">
                                                         <div class="info-label">Invoice</div>
                                                         <div class="info-value">${invoiceNo}</div>
-                                                        <small style="font-size: 0.65rem; color: var(--text-secondary);">${date}</small>
+
+
                                                     </div>
                                                 </div>
                                             </div>
@@ -1168,7 +1227,10 @@ body.modal-open {
 // GLOBAL VARIABLES
 // ===================================
 let currentItemNo = ${itemsNo};
-
+window.onload = function () {
+    const dp = document.getElementById("datePicker");
+    dp.value = new Date().toISOString().split("T")[0];
+};
 // ===================================
 // THEME TOGGLE
 // ===================================
@@ -1385,7 +1447,7 @@ $(document).ready(function () {
     $('#productDropdown').select2({
         placeholder: 'Search Product...',
         allowClear: true,
-        minimumInputLength: 2,
+        minimumInputLength: 3,
         ajax: {
             url: '${pageContext.request.contextPath}/company/search-product',
             dataType: 'json',
@@ -1401,7 +1463,7 @@ $(document).ready(function () {
                             text:
                                 "<div style='padding:6px 0;'>" +
                                     "<div style='margin-bottom:4px;'>" +
-                                        "<strong style='color:#333; font-size:0.95rem;'>" +
+                                        "<strong style='color:#333; background-color: chartreuse; font-size:0.95rem;'>" +
                                             "<i class='fas fa-box-open' style='color:#0d6efd; margin-right:6px;'></i>" +
                                             item.productName +
                                         "</strong>" +
@@ -1443,14 +1505,25 @@ $(document).ready(function () {
         }
     });
 
-    // Product selection handler
-    $('#productDropdown').on('select2:select', function (e) {
-        const data = e.params.data;
-        $('#description').val(data.productName);
-        $('#productId').val(data.productId);
-        $('#rate').val(data.price);
-        calAmt();
-    });
+  $('#productDropdown').on('select2:select', function (e) {
+      const data = e.params.data;
+
+      // CASE 1 — User selected from product list
+      if (data.productId) {
+          $('#description').val(data.productName);
+          $('#productId').val(data.productId);
+          $('#rate').val(data.price);
+      }
+      // CASE 2 — User typed a NEW product
+      else {
+          $('#description').val(data.text);  // typed value
+          $('#productId').val("");           // no productId
+          $('#rate').val("");                // clear rate
+      }
+
+      calAmt();
+  });
+
 
     // ===================================
     // ADD ITEM FORM SUBMISSION
@@ -1494,6 +1567,7 @@ $(document).ready(function () {
             },
             success: function(response) {
                 setButtonLoading(addBtn, false);
+                  document.getElementById("pageLoader").style.display = "none";
 
                 if (response.status === 'success') {
                     showAlert('Item added successfully!', 'success');
@@ -1515,12 +1589,17 @@ $(document).ready(function () {
                     }
 
                 } else {
+                              document.getElementById("pageLoader").style.display = "none";
+
                     showAlert(response.message || 'Failed to add item.', 'danger');
+
                 }
             },
             error: function(xhr, status, error) {
                 setButtonLoading(addBtn, false);
                 console.error('AJAX Error:', xhr.responseText);
+                              document.getElementById("pageLoader").style.display = "none";
+
                 showAlert('Error occurred while adding item. Please try again.', 'danger');
             }
         });

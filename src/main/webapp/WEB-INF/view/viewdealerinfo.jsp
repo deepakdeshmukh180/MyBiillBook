@@ -1,805 +1,1187 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
-<%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
-<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
 <html lang="en">
+<jsp:include page="../view/logo.jsp"></jsp:include>
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Daily Expenses - BillMatePro</title>
-
-    <!-- CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
-    <link href="${pageContext.request.contextPath}/resources/css/styles.css" rel="stylesheet"/>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet"/>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Purchase Entry - ${dealer.dealerName}</title>
 
     <style>
         :root {
-            --primary-color: #2247a5;
-            --primary-dark: #145fa0;
+            --primary-color: #6366f1;
+            --primary-dark: #4f46e5;
+            --primary-light: #eef2ff;
             --success-color: #10b981;
-            --danger-color: #ef4444;
             --warning-color: #f59e0b;
-            --bg-light: #f8fafc;
-            --bg-dark: #0f172a;
-            --card-light: #ffffff;
-            --card-dark: #1e293b;
-            --text-light: #1e293b;
-            --text-dark: #f1f5f9;
-            --border-light: #e2e8f0;
-            --border-dark: #334155;
-            --radius-lg: 12px;
-            --shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+            --danger-color: #ef4444;
+            --bg-secondary: #f9fafb;
+            --text-color: #1f2937;
+            --text-secondary: #6b7280;
+            --border-color: #e5e7eb;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --radius-sm: 0.375rem;
+            --radius-md: 0.5rem;
+            --radius-lg: 0.75rem;
+            --radius-xl: 1rem;
+            --transition-base: all 0.3s ease;
+            --transition-fast: all 0.15s ease;
         }
 
         body {
-            font-family: 'Inter', sans-serif;
-            background: var(--bg-color);
-            color: var(--text-color);
-            min-height: 100vh;
-            transition: background 0.3s ease, color 0.3s ease;
+            background-color: #f3f4f6;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
         }
 
-        [data-theme="light"] {
-            --bg-color: var(--bg-light);
-            --text-color: var(--text-light);
-            --card-bg: var(--card-light);
-            --border-color: var(--border-light);
-        }
-
-        [data-theme="dark"] {
-            --bg-color: var(--bg-dark);
-            --text-color: var(--text-dark);
-            --card-bg: var(--card-dark);
-            --border-color: var(--border-dark);
-        }
-
-        /* Page Loader */
-        .page-loader {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--bg-color);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 9999;
-            opacity: 1;
-            visibility: visible;
-            transition: opacity 0.5s ease, visibility 0.5s ease;
-        }
-
-        .page-loader.hidden {
-            opacity: 0;
-            visibility: hidden;
-        }
-
-        .loader-spinner {
-            width: 60px;
-            height: 60px;
-            border: 4px solid var(--border-color);
-            border-top-color: var(--primary-color);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        /* Navigation */
-        .sb-topnav {
-            background: var(--card-bg);
-            border-bottom: 1px solid var(--border-color);
-            box-shadow: var(--shadow);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-
-        /* Sidebar */
-        .sb-sidenav {
-            background: var(--card-bg);
-            border-right: 1px solid var(--border-color);
-        }
-
-        .sb-sidenav .nav-link {
-            color: var(--text-color);
-            border-radius: 8px;
-            margin: 0.25rem 1rem;
-            padding: 0.75rem 1rem;
-            transition: all 0.3s ease;
-        }
-
-        .sb-sidenav .nav-link:hover {
-            background: rgba(34, 71, 165, 0.1);
-            transform: translateX(4px);
-        }
-
-        .sb-sidenav .nav-link.active {
-            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+        .purchase-header-card {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            border-radius: var(--radius-xl);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
             color: white;
+            box-shadow: var(--shadow-lg);
         }
 
-        /* KPI Cards */
-        .kpi {
-            background: var(--card-bg);
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .kpi:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
-        }
-
-        .kpi .icon {
-            width: 50px;
-            height: 50px;
-            border-radius: 12px;
+        .purchase-header-content {
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            justify-content: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .purchase-header-left h4 {
             font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
-        /* Modern Cards */
-        .card-modern {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow);
-            transition: all 0.3s ease;
+        .purchase-invoice-info {
+            display: flex;
+            gap: 2rem;
+            font-size: 0.9rem;
+            opacity: 0.95;
         }
 
-        .card-modern:hover {
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+        .purchase-invoice-info span {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
-        .card-modern .card-header {
-            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+        .btn-purchase-header {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
             color: white;
-            border-bottom: none;
-            border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-            padding: 1rem 1.25rem;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-md);
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition-base);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-purchase-header:hover {
+            background: rgba(255, 255, 255, 0.3);
+            color: white;
+            transform: translateY(-2px);
+            text-decoration: none;
+        }
+
+        .dealer-info-compact {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            margin-top: 1rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .dealer-info-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .dealer-info-label {
+            font-size: 0.75rem;
+            opacity: 0.8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.25rem;
+        }
+
+        .dealer-info-value {
+            font-size: 0.95rem;
             font-weight: 600;
         }
 
-        /* Form Controls */
-        .form-label {
-            font-weight: 500;
+        .content-card {
+            background: white;
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 700;
             color: var(--text-color);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .section-title i {
+            color: var(--primary-color);
+        }
+
+        .purchase-summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .purchase-stat-card {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            padding: 1.25rem;
+            border-left: 4px solid;
+            transition: transform var(--transition-base);
+        }
+
+        .purchase-stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .purchase-stat-card.total { border-left-color: var(--primary-color); }
+        .purchase-stat-card.items { border-left-color: var(--success-color); }
+        .purchase-stat-card.tax { border-left-color: var(--warning-color); }
+
+        .purchase-stat-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            font-weight: 500;
             margin-bottom: 0.5rem;
         }
 
-        .form-control, .form-select {
-            background: var(--card-bg);
+        .purchase-stat-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+        }
+
+        .purchase-stat-card.total .purchase-stat-value { color: var(--primary-color); }
+        .purchase-stat-card.items .purchase-stat-value { color: var(--success-color); }
+        .purchase-stat-card.tax .purchase-stat-value { color: var(--warning-color); }
+
+        .form-label {
+            font-weight: 600;
+            color: var(--text-color);
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .form-label i {
+            color: var(--primary-color);
+            margin-right: 0.25rem;
+        }
+
+        .form-control {
             border: 2px solid var(--border-color);
-            border-radius: 8px;
+            border-radius: var(--radius-md);
             padding: 0.625rem 0.875rem;
-            transition: all 0.3s ease;
-            color: var(--text-color);
+            transition: var(--transition-base);
+            font-size: 0.9375rem;
         }
 
-        .form-control:focus, .form-select:focus {
+        .form-control:focus {
             border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(34, 71, 165, 0.1);
-            background: var(--card-bg);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+            outline: none;
+        }
+
+        .purchase-qty-wrapper {
+            display: flex;
+            align-items: stretch;
+        }
+
+        .purchase-qty-btn {
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            padding: 0.65rem 1rem;
+            cursor: pointer;
+            transition: var(--transition-base);
+            font-weight: 600;
             color: var(--text-color);
         }
 
-        /* Buttons */
-        .btn {
-            border-radius: 8px;
-            padding: 0.625rem 1.25rem;
-            font-weight: 500;
-            transition: all 0.3s ease;
+        .purchase-qty-btn:hover {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+            color: white;
         }
 
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-            border: none;
+        .purchase-qty-btn:first-child {
+            border-radius: var(--radius-md) 0 0 var(--radius-md);
+            border-right: none;
         }
 
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(34, 71, 165, 0.4);
+        .purchase-qty-btn:last-child {
+            border-radius: 0 var(--radius-md) var(--radius-md) 0;
+            border-left: none;
         }
 
-        /* Table */
-        .table {
-            background: var(--card-bg);
-            color: var(--text-color);
+        .purchase-qty-input {
+            text-align: center;
+            border-left: none !important;
+            border-right: none !important;
+            width: 80px;
+            border-radius: 0 !important;
         }
 
-        .table thead th {
-            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+        .purchase-table-wrapper {
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        .purchase-modern-table {
+            margin-bottom: 0;
+            width: 100%;
+        }
+
+        .purchase-modern-table thead {
+            background: linear-gradient(135deg, #1f2937, #111827);
+        }
+
+        .purchase-modern-table thead th {
             color: white;
             font-weight: 600;
+            font-size: 0.85rem;
             text-transform: uppercase;
-            font-size: 0.75rem;
             letter-spacing: 0.5px;
+            padding: 1rem;
             border: none;
         }
 
-        .table tbody tr {
-            transition: background 0.2s ease;
+        .purchase-modern-table tbody tr {
+            transition: background var(--transition-fast);
             border-bottom: 1px solid var(--border-color);
         }
 
-        .table tbody tr:hover {
-            background: rgba(34, 71, 165, 0.05);
+        .purchase-modern-table tbody tr:hover {
+            background: var(--primary-light);
         }
 
-        .table tfoot {
-            background: var(--border-color);
+        .purchase-modern-table tbody td {
+            padding: 1rem;
+            vertical-align: middle;
+            color: var(--text-color);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem !important;
+            color: var(--text-secondary);
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            opacity: 0.3;
+            display: block;
+            margin-bottom: 1rem;
+        }
+
+        .btn {
+            border-radius: var(--radius-md);
+            padding: 0.625rem 1.25rem;
             font-weight: 600;
+            transition: var(--transition-base);
+            border: none;
         }
 
-        /* Theme Toggle */
-        .theme-toggle {
-            position: fixed;
-            top: 5.5rem;
-            right: 2rem;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: var(--card-bg);
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-success {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-danger {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .btn-outline-secondary {
             border: 2px solid var(--border-color);
+            color: var(--text-color);
+            background: white;
+        }
+
+        .btn-outline-secondary:hover {
+            background: var(--bg-secondary);
+            border-color: var(--text-secondary);
+        }
+
+        .alert {
+            border-radius: var(--radius-md);
+            padding: 1rem;
             display: flex;
             align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            z-index: 999;
-            box-shadow: var(--shadow);
-        }
-
-        .theme-toggle:hover {
-            transform: scale(1.1) rotate(15deg);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-        }
-
-        /* Alert Enhancement */
-        .alert {
+            gap: 0.75rem;
             border: none;
-            border-radius: var(--radius-lg);
-            border-left: 4px solid;
-            box-shadow: var(--shadow);
-            animation: slideInDown 0.3s ease;
-        }
-
-        @keyframes slideInDown {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            margin-bottom: 1rem;
         }
 
         .alert-success {
-            border-left-color: var(--success-color);
-            background: rgba(16, 185, 129, 0.1);
-            color: var(--success-color);
+            background: #d1fae5;
+            color: #065f46;
         }
 
-        /* Chart Container */
-        #monthlyExpenseChart {
-            max-height: 300px;
+        .alert-danger {
+            background: #fee2e2;
+            color: #991b1b;
         }
 
-        /* Responsive */
+        .alert-warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .badge {
+            padding: 0.375rem 0.75rem;
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+            font-size: 0.8125rem;
+        }
+
+        .bg-secondary {
+            background-color: #6b7280 !important;
+            color: white;
+        }
+
         @media (max-width: 768px) {
-            .theme-toggle {
-                top: 1rem;
-                right: 1rem;
+            .purchase-header-content {
+                flex-direction: column;
+                align-items: stretch;
             }
 
-            .kpi {
-                margin-bottom: 1rem;
+            .dealer-info-compact {
+                grid-template-columns: 1fr;
             }
+
+            .purchase-summary-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .purchase-invoice-info {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+        }
+
+        /* Select2 Custom Styling */
+        .select2-container--default .select2-selection--single {
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            height: auto;
+            padding: 0.5rem;
+        }
+
+        .select2-container--default .select2-selection--single:focus {
+            border-color: var(--primary-color);
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            color: var(--text-color);
+            line-height: normal;
+        }
+
+        .select2-dropdown {
+            border: 2px solid var(--primary-color);
+            border-radius: var(--radius-md);
+        }
+
+        .select2-results__option {
+            padding: 0.75rem;
+        }
+
+        .select2-results__option--highlighted {
+            background-color: var(--primary-light) !important;
+            color: var(--text-color) !important;
         }
     </style>
 </head>
 
 <body class="sb-nav-fixed" data-theme="light">
 
-<!-- Page Loader -->
-<div class="page-loader" id="pageLoader">
-    <div class="text-center">
-        <div class="loader-spinner mx-auto mb-3"></div>
-        <div class="text-muted">Loading Expenses...</div>
-    </div>
-</div>
+<div id="layoutSidenav_content">
+    <main>
+        <div class="container-fluid px-3 py-3">
 
-<!-- Theme Toggle -->
-<div class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
-    <i class="fas fa-moon" id="theme-icon"></i>
-</div>
+            <!-- Success Alert -->
+            <c:if test="${not empty msg}">
+                <div class="alert alert-success alert-dismissible fade show" id="success-alert">
+                    <i class="fas fa-check-circle fa-lg"></i>
+                    <div>
+                        <strong>Success!</strong> ${msg}
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            </c:if>
 
-<!-- Top Navbar -->
-<nav class="sb-topnav navbar navbar-expand navbar-light">
-    <a class="navbar-brand ps-3 fw-bold" href="${pageContext.request.contextPath}/login/home">
-        <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgwIiBoZWlnaHQ9IjQwIiB2aWV3Qm94PSIwIDAgMTgwIDQwIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8ZGVmcz4KPGxpbmVhckdyYWRpZW50IGlkPSJwYWludDBfbGluZWFyIiB4MT0iNSIgeTE9IjMiIHgyPSIyNSIgeTI9IjI3IiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+CjxzdG9wIHN0b3AtY29sb3I9IiMyMjQ3QTUiLz4KPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMTQ1RkEwIi8+CjwvbGluZWFyR3JhZGllbnQ+CjxsaW5lYXJHcmFkaWVudCBpZD0icGFpbnQxX2xpbmVhciIgeDE9IjE3IiB5MT0iMTMiIHgyPSIyOCIgeTI9IjI0IiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+CjxzdG9wIHN0b3AtY29sb3I9IiMxMEI5ODEiLz4KPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMDU5NjY5Ii8+CjwvbGluZWFyR3JhZGllbnQ+CjwvZGVmcz4KPCEtLSBEb2N1bWVudC9CaWxsIEljb24gLS0+CjxyZWN0IHg9IjUiIHk9IjMiIHdpZHRoPSIyMCIgaGVpZ2h0PSIyNCIgcng9IjMiIGZpbGw9InVybCgjcGFpbnQwX2xpbmVhcikiLz4KPCEtLSBMaW5lcyBvbiBkb2N1bWVudCAtLT4KPHBhdGggZD0iTTkgOWg4bS04IDRINW0tNSAzaDciIHN0cm9rZT0iI2ZmZmZmZiIgc3Ryb2tlLXdpZHRoPSIxIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KPCEtLSBDaGVja21hcmsgLS0+CjxjaXJjbGUgY3g9IjIyLjUiIGN5PSIxOC41IiByPSI1LjUiIGZpbGw9InVybCgjcGFpbnQxX2xpbmVhcikiLz4KPHBhdGggZD0ibTIwIDE4LjUgMiAyIDQtNCIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8IS0tIFRleHQgLS0+Cjx0ZXh0IHg9IjM1IiB5PSIxNiIgZm9udC1mYW1pbHk9IkludGVyLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjEyIiBmb250LXdlaWdodD0iNzAwIiBmaWxsPSIjMjI0N0E1Ij4KQmlsbE1hdGVQcm88L3RleHQ+Cjx0ZXh0IHg9IjM1IiB5PSIyNiIgZm9udC1mYW1pbHk9IkludGVyLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjgiIGZpbGw9IiM2Mzc1OEEiPgpZb3VyIEJpbGxpbmcgUGFydG5lcjwvdGV4dD4KPC9zdmc+"
-             alt="BillMatePro" style="height: 50px;">
-    </a>
-     <button class="btn btn-outline-primary btn-sm ms-2" id="sidebarToggle"><i class="fas fa-bars"></i></button>
+            <!-- Compact Header Card -->
+            <div class="purchase-header-card">
+                <div class="purchase-header-content">
+                    <div class="purchase-header-left">
+                        <h4><i class="fas fa-shopping-cart"></i> Create Purchase Entry</h4>
+                        <div class="purchase-invoice-info">
+                            <span><i class="fas fa-file-invoice"></i> Invoice: <strong>${purchaseNo}</strong></span>
+                            <span><i class="fas fa-calendar"></i> Date: <strong>${date}</strong></span>
+                        </div>
+                    </div>
+                    <div class="header-right">
+                        <a href="${pageContext.request.contextPath}/dealers/view-dealer/${dealer.id}" class="btn-purchase-header">
+                            <i class="fas fa-arrow-left"></i> Back to Dealer
+                        </a>
+                    </div>
+                </div>
 
-
-    <div class="ms-auto d-flex align-items-center gap-3 pe-3">
-        <c:if test="${not empty productList}">
-            <div class="position-relative" role="button">
-                <i class="bi bi-bell fs-5 text-primary"></i>
-                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                    ${fn:length(productList)}
-                </span>
+                <!-- Dealer Info Compact - Aligned with DealerInfo Entity -->
+                <div class="dealer-info-compact">
+                    <div class="dealer-info-item">
+                        <span class="dealer-info-label">Dealer Name</span>
+                        <span class="dealer-info-value">${dealer.dealerName}</span>
+                    </div>
+                    <div class="dealer-info-item">
+                        <span class="dealer-info-label">Mobile</span>
+                        <span class="dealer-info-value">${dealer.mobileNo}</span>
+                    </div>
+                    <div class="dealer-info-item">
+                        <span class="dealer-info-label">GST Number</span>
+                        <span class="dealer-info-value">${not empty dealer.gstNo ? dealer.gstNo : 'N/A'}</span>
+                    </div>
+                    <div class="dealer-info-item">
+                        <span class="dealer-info-label">Total Amount</span>
+                        <span class="dealer-info-value" style="color: var(--primary-color);">₹<fmt:formatNumber value="${dealer.totalAmount}" type="number" minFractionDigits="2" maxFractionDigits="2"/></span>
+                    </div>
+                    <div class="dealer-info-item">
+                        <span class="dealer-info-label">Paid Amount</span>
+                        <span class="dealer-info-value" style="color: var(--success-color);">₹<fmt:formatNumber value="${dealer.paidAmount}" type="number" minFractionDigits="2" maxFractionDigits="2"/></span>
+                    </div>
+                    <div class="dealer-info-item">
+                        <span class="dealer-info-label">Balance Amount</span>
+                        <span class="dealer-info-value" style="color: var(--danger-color);">₹<fmt:formatNumber value="${dealer.balanceAmount}" type="number" minFractionDigits="2" maxFractionDigits="2"/></span>
+                    </div>
+                </div>
             </div>
-        </c:if>
-        <div class="dropdown">
-            <a class="nav-link dropdown-toggle text-primary" id="navbarDropdown" href="#"
-               data-bs-toggle="dropdown" aria-expanded="false" role="button">
-                <i class="fas fa-user fa-fw"></i>
-            </a>
-            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                <li>
-                    <h6 class="dropdown-header">
-                        <i class="fas fa-user-circle me-2"></i>
-                        ${pageContext.request.userPrincipal.name}
-                    </h6>
-                </li>
-                <li><hr class="dropdown-divider"></li>
-                <li>
-                    <a class="dropdown-item" href="${pageContext.request.contextPath}/company/get-my-profile">
-                        <i class="fas fa-cog me-2"></i>Account Settings
-                    </a>
-                </li>
-                <li>
-                    <a class="dropdown-item" href="#" onclick="event.preventDefault(); document.getElementById('logoutForm').submit();">
-                        <i class="fas fa-sign-out-alt me-2"></i>Logout
-                    </a>
-                </li>
-            </ul>
+
+            <!-- Summary Stats -->
+            <div class="purchase-summary-grid">
+                <div class="purchase-stat-card total">
+                    <div class="purchase-stat-label">Total Amount</div>
+                    <div class="purchase-stat-value">₹<span id="totalAmount">0.00</span></div>
+                </div>
+                <div class="purchase-stat-card items">
+                    <div class="purchase-stat-label">Total Items</div>
+                    <div class="purchase-stat-value"><span id="totalItems">0</span></div>
+                </div>
+                <div class="purchase-stat-card tax">
+                    <div class="purchase-stat-label">Total GST</div>
+                    <div class="purchase-stat-value">₹<span id="totalGst">0.00</span></div>
+                </div>
+            </div>
+
+            <!-- Alert Container -->
+            <div id="alertContainer"></div>
+
+            <!-- Add Product Form -->
+            <div class="content-card">
+                <div class="section-title">
+                    <i class="fas fa-plus-circle"></i>
+                    <span>Add Product to Purchase</span>
+                </div>
+
+                <form id="addProductForm">
+                    <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+                    <input type="hidden" name="dealerId" value="${dealer.id}">
+                    <input type="hidden" name="purchaseNo" value="${purchaseNo}">
+                    <input type="hidden" name="productId" id="productId">
+                    <input type="hidden" name="productName" id="productName">
+
+                    <!-- Row 1: Basic Product Details -->
+                    <div class="row g-3">
+                        <div class="col-md-1">
+                            <label class="form-label">Item#</label>
+                            <input type="text" class="form-control text-center" name="itemNo" id="itemNo" readonly value="${itemNo}">
+                        </div>
+
+                        <div class="col-md-5">
+                            <label class="form-label"><i class="fas fa-box"></i> Product</label>
+                            <select id="productDropdown" class="form-control" style="width:100%"></select>
+                        </div>
+
+                        <div class="col-md-2">
+                            <label class="form-label"><i class="fas fa-barcode"></i> Batch No</label>
+                            <input type="text" class="form-control" name="batchNo" id="batchNo" required>
+                        </div>
+
+                        <div class="col-md-2">
+                            <label class="form-label"><i class="fas fa-calendar-alt"></i> Expiry Date</label>
+                            <input type="date" class="form-control" name="expDate" id="expDate" required>
+                        </div>
+
+                        <div class="col-md-2">
+                            <label class="form-label"><i class="fas fa-tag"></i> MRP</label>
+                            <input type="number" step="0.01" min="0" class="form-control text-end" name="mrp" id="mrp" required>
+                        </div>
+                    </div>
+
+                    <!-- Row 2: Quantity, Rates, GST, and Total -->
+                    <div class="row g-3 mt-2">
+                        <div class="col-md-2">
+                            <label class="form-label"><i class="fas fa-cubes"></i> Quantity</label>
+                            <div class="purchase-qty-wrapper">
+                                <button class="purchase-qty-btn" type="button" onclick="changeQty(-1)">
+                                    <i class="fas fa-minus"></i>
+                                </button>
+                                <input type="number" class="form-control purchase-qty-input" name="quantity" id="quantity" value="1" min="1" onchange="calculateAmount()">
+                                <button class="purchase-qty-btn" type="button" onclick="changeQty(1)">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="col-md-2">
+                            <label class="form-label"><i class="fas fa-rupee-sign"></i> Purchase Rate</label>
+                            <input type="number" step="0.01" min="0" class="form-control text-end" name="rate" id="rate" required onchange="calculateAmount()">
+                        </div>
+
+                        <div class="col-md-2">
+                            <label class="form-label"><i class="fas fa-rupee-sign"></i> Selling Rate</label>
+                            <input type="number" step="0.01" min="0" class="form-control text-end" name="sellingRate" id="sellingRate" required>
+                        </div>
+
+                        <div class="col-md-1">
+                            <label class="form-label"><i class="fas fa-percent"></i> GST %</label>
+                            <input type="number" step="0.01" min="0" max="100" class="form-control text-end" name="gstPercent" id="gstPercent" value="0" onchange="calculateAmount()">
+                        </div>
+
+                        <div class="col-md-2">
+                            <label class="form-label"><i class="fas fa-calculator"></i> Total Amount</label>
+                            <input type="text" class="form-control text-end fw-bold" name="amount" id="amount" readonly style="color: var(--primary-color);">
+                        </div>
+
+                        <div class="col-md-3 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="fas fa-plus"></i> Add Product
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Items Table -->
+            <div class="content-card">
+                <div class="section-title">
+                    <i class="fas fa-list"></i>
+                    <span>Purchase Items</span>
+                </div>
+
+                <div class="purchase-table-wrapper">
+                    <table class="purchase-modern-table table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Product</th>
+                                <th>Batch</th>
+                                <th>Exp Date</th>
+                                <th class="text-center">Qty</th>
+                                <th class="text-end">MRP</th>
+                                <th class="text-end">P. Rate</th>
+                                <th class="text-end">S. Rate</th>
+                                <th class="text-end">GST %</th>
+                                <th class="text-end">GST Amt</th>
+                                <th class="text-end">Total</th>
+                                <th class="text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="itemsTableBody">
+                            <c:choose>
+                                <c:when test="${empty purchaseItems}">
+                                    <tr>
+                                        <td colspan="12" class="empty-state">
+                                            <i class="fas fa-inbox"></i>
+                                            <p class="mb-0">No products added yet. Start adding products above.</p>
+                                        </td>
+                                    </tr>
+                                </c:when>
+                                <c:otherwise>
+                                    <c:forEach items="${purchaseItems}" var="item" varStatus="status">
+                                        <tr id="item-${item.id}">
+                                            <td>${item.itemNo}</td>
+                                            <td><strong>${item.productName}</strong></td>
+                                            <td><span class="badge bg-secondary">${item.batchNo}</span></td>
+                                            <td><fmt:formatDate value="${item.expDate}" pattern="dd-MMM-yyyy"/></td>
+                                            <td class="text-center">${item.quantity}</td>
+                                            <td class="text-end">₹<fmt:formatNumber value="${item.mrp}" type="number" minFractionDigits="2" maxFractionDigits="2"/></td>
+                                            <td class="text-end">₹<fmt:formatNumber value="${item.rate}" type="number" minFractionDigits="2" maxFractionDigits="2"/></td>
+                                            <td class="text-end">₹<fmt:formatNumber value="${item.sellingRate}" type="number" minFractionDigits="2" maxFractionDigits="2"/></td>
+                                            <td class="text-end"><fmt:formatNumber value="${item.gstPercent}" type="number" minFractionDigits="2" maxFractionDigits="2"/>%</td>
+                                            <td class="text-end">₹<fmt:formatNumber value="${item.gstAmount}" type="number" minFractionDigits="2" maxFractionDigits="2"/></td>
+                                            <td class="text-end"><strong style="color: var(--primary-color);">₹<fmt:formatNumber value="${item.totalAmount}" type="number" minFractionDigits="2" maxFractionDigits="2"/></strong></td>
+                                            <td class="text-center">
+                                                <button type="button" class="btn btn-danger btn-sm" onclick="deleteItem('${item.id}')">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </c:forEach>
+                                </c:otherwise>
+                            </c:choose>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Final Actions -->
+            <div class="content-card">
+                <div class="section-title">
+                    <i class="fas fa-file-invoice"></i>
+                    <span>Invoice Details</span>
+                </div>
+
+                <form method="post" action="${pageContext.request.contextPath}/dealers/save-purchase">
+                    <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+                    <input type="hidden" name="dealerId" value="${dealer.id}">
+                    <input type="hidden" name="purchaseNo" value="${purchaseNo}">
+                    <input type="hidden" id="totalAmountHidden" name="totalAmount" value="0">
+                    <input type="hidden" id="totalGstHidden" name="totalGst" value="0">
+                    <input type="hidden" id="totalItemsHidden" name="totalItems" value="0">
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-4">
+                            <label class="form-label">
+                                <i class="fas fa-file-invoice"></i> Dealer Invoice Number
+                            </label>
+                            <input type="text" class="form-control" value="${purchaseNo}" name="dealerInvoiceNo" readonly>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">
+                                <i class="fas fa-calendar"></i> Invoice Date
+                            </label>
+                            <input type="date" class="form-control" name="invoiceDate" value="${date}" required>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">
+                                <i class="fas fa-info-circle"></i> Status
+                            </label>
+                            <input type="text" class="form-control" value="${dealer.status}" readonly>
+                        </div>
+
+                        <div class="col-md-12">
+                            <label class="form-label">
+                                <i class="fas fa-sticky-note"></i> Notes (Optional)
+                            </label>
+                            <textarea class="form-control" name="notes" rows="3" placeholder="Add any additional notes about this purchase..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-3">
+                        <button type="button" onclick="location.reload();" class="btn btn-outline-secondary">
+                            <i class="fas fa-sync-alt"></i> Reset
+                        </button>
+                        <button type="submit" class="btn btn-success" id="savePurchaseBtn" ${empty purchaseItems ? 'disabled' : ''}>
+                            <i class="fas fa-save"></i> Save Purchase Entry
+                        </button>
+                    </div>
+                </form>
+            </div>
+
         </div>
-    </div>
-</nav>
+    </main>
 
-<div id="layoutSidenav">
-    <!-- Sidebar -->
-    <div id="layoutSidenav_nav">
-        <nav class="sb-sidenav accordion" id="sidenavAccordion">
-            <div class="sb-sidenav-menu">
-                <div class="nav">
-                    <div class="sb-sidenav-menu-heading">Core</div>
-                    <a class="nav-link" href="${pageContext.request.contextPath}/login/home">
-                        <div class="sb-nav-link-icon"><i class="fas fa-home"></i></div> Home
-                    </a>
-
-                    <div class="sb-sidenav-menu-heading">Interface</div>
-                    <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseLayouts">
-                        <div class="sb-nav-link-icon"><i class="fas fa-columns"></i></div> Menu
-                        <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
-                    </a>
-                    <div class="collapse show" id="collapseLayouts" data-bs-parent="#sidenavAccordion">
-                        <nav class="sb-sidenav-menu-nested nav">
-                            <a class="nav-link" href="${pageContext.request.contextPath}/company/get-all-customers">
-                                <i class="fas fa-user-friends me-2"></i>All Customers
-                            </a>
-                            <a class="nav-link" href="${pageContext.request.contextPath}/company/get-all-invoices">
-                                <i class="fas fa-file-invoice me-2"></i>Invoices
-                            </a>
-                            <a class="nav-link" href="${pageContext.request.contextPath}/company/reports">
-                                <i class="fas fa-chart-line me-2"></i>Daily/Monthly Reports
-                            </a>
-                            <a class="nav-link" href="${pageContext.request.contextPath}/company/get-all-products">
-                                <i class="fas fa-leaf me-2"></i>Products
-                            </a>
-                        </nav>
-                    </div>
-
-                    <div class="sb-sidenav-menu-heading">Settings</div>
-                    <a class="nav-link" href="${pageContext.request.contextPath}/company/get-my-profile">
-                        <div class="sb-nav-link-icon"><i class="fas fa-cog"></i></div> Account Settings
-                    </a>
-                    <a class="nav-link" href="${pageContext.request.contextPath}/company/export-to-pdf">
-                        <div class="sb-nav-link-icon"><i class="fas fa-file-export"></i></div> Export Customers
-                    </a>
-                    <a class="nav-link active" href="${pageContext.request.contextPath}/expenses">
-                        <div class="sb-nav-link-icon"><i class="fas fa-wallet"></i></div> Daily Expenses
-                    </a>
-                </div>
-            </div>
-            <div class="sb-sidenav-footer">
-                <div class="small">Logged in as:</div>
-                ${pageContext.request.userPrincipal.name}
-            </div>
-        </nav>
-    </div>
-
-    <!-- Main Content -->
-    <div id="layoutSidenav_content">
-        <main>
-            <div class="container-fluid px-4 py-4">
-
-                <!-- Success Alert -->
-                <c:if test="${not empty msg}">
-                    <div class="alert alert-success alert-dismissible fade show" role="alert" id="success-alert">
-                        <i class="bi bi-check-circle-fill me-2"></i><strong>Success!</strong> ${msg}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
-                </c:if>
-
-                <!-- Page Header -->
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <div>
-                        <h2 class="mb-1">Daily Expenses</h2>
-                        <p class="text-muted mb-0">Track and manage your business expenses</p>
-                    </div>
-                </div>
-
-                <!-- KPI Cards -->
-                <div class="row g-3 mb-4">
-                    <!-- Today's Expenses -->
-                    <div class="col-md-6 col-lg-4">
-                        <div class="kpi d-flex justify-content-between align-items-center p-3 shadow-sm rounded-3 bg-white">
-                            <div>
-                                <div class="text-muted small mb-1">Today's Expenses</div>
-                                <div class="fw-bold fs-4">
-                                    ₹<fmt:formatNumber value="${daily_expenses}" type="number" minFractionDigits="2"/>
-                                </div>
-                            </div>
-                            <div class="icon bg-primary-subtle text-primary rounded-circle p-3">
-                                <i class="fas fa-calendar-day fa-lg"></i>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Monthly Expenses -->
-                    <div class="col-md-6 col-lg-4">
-                        <div class="kpi d-flex justify-content-between align-items-center p-3 shadow-sm rounded-3 bg-white">
-                            <div>
-                                <div class="text-muted small mb-1">Monthly Expenses</div>
-                                <div class="fw-bold fs-4">
-                                    ₹<fmt:formatNumber value="${monthly_expenses}" type="number" minFractionDigits="2"/>
-                                </div>
-                            </div>
-                            <div class="icon bg-success-subtle text-success rounded-circle p-3">
-                                <i class="fas fa-calendar-alt fa-lg"></i>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Yearly Expenses -->
-                    <div class="col-md-6 col-lg-4">
-                        <div class="kpi d-flex justify-content-between align-items-center p-3 shadow-sm rounded-3 bg-white">
-                            <div>
-                                <div class="text-muted small mb-1">Yearly Expenses</div>
-                                <div class="fw-bold fs-4">
-                                    ₹<fmt:formatNumber value="${yearly_expenses}" type="number" minFractionDigits="2"/>
-                                </div>
-                            </div>
-                            <div class="icon bg-warning-subtle text-warning rounded-circle p-3">
-                                <i class="fas fa-calendar fa-lg"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-
-                <!-- Add Expense & Filter -->
-                <div class="row g-3 mb-4">
-                    <div class="col-lg-6">
-                        <div class="card card-modern">
-                            <div class="card-header">
-                                <i class="fas fa-plus me-2"></i>Add New Expense
-                            </div>
-                            <div class="card-body">
-                                <form method="post" action="${pageContext.request.contextPath}/expenses/add">
-                                    <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
-                                    <div class="row g-3">
-                                        <div class="col-md-4">
-                                            <label class="form-label">Date</label>
-                                            <input type="date" name="date" class="form-control"
-                                                   value="<fmt:formatDate value='${today}' pattern='yyyy-MM-dd'/>" required/>
-                                        </div>
-                                        <div class="col-md-5">
-                                            <label class="form-label">Expense Name</label>
-                                            <input type="text" name="expenseName" class="form-control"
-                                                   maxlength="100" placeholder="Enter expense name" required/>
-                                        </div>
-                                        <div class="col-md-3">
-                                            <label class="form-label">Amount (₹)</label>
-                                            <input type="number" name="amount" class="form-control"
-                                                   step="0.01" min="0" placeholder="0.00" required/>
-                                        </div>
-                                        <div class="col-12">
-                                            <button type="submit" class="btn btn-primary">
-                                                <i class="fas fa-save me-2"></i>Save Expense
-                                            </button>
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-lg-6">
-                        <div class="card card-modern">
-                            <div class="card-header">
-                                <i class="fas fa-filter me-2"></i>Filter Expenses
-                            </div>
-                            <div class="card-body">
-                                <form method="get" action="${pageContext.request.contextPath}/expenses">
-                                    <div class="row g-3">
-                                        <div class="col-md-8">
-                                            <label class="form-label">Filter by Date</label>
-                                            <input type="date" name="date" class="form-control"
-                                                   value="<fmt:formatDate value='${selectedDate}' pattern='yyyy-MM-dd'/>"/>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label class="form-label d-block">&nbsp;</label>
-                                            <button class="btn btn-primary w-100" type="submit">
-                                                <i class="fas fa-search me-2"></i>Apply
-                                            </button>
-                                        </div>
-                                        <div class="col-12">
-                                            <a class="btn btn-outline-secondary w-100" href="${pageContext.request.contextPath}/expenses">
-                                                <i class="fas fa-redo me-2"></i>Reset Filter
-                                            </a>
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Expense List & Chart -->
-                <div class="row g-3">
-                    <div class="col-lg-6">
-                        <div class="card card-modern">
-                            <div class="card-header">
-                                <i class="fas fa-table me-2"></i>Expense List
-                            </div>
-                            <div class="card-body p-0">
-                                <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
-                                    <table class="table table-hover mb-0">
-                                        <thead>
-                                            <tr>
-                                                <th style="width: 50px;">#</th>
-                                                <th>Date</th>
-                                                <th>Expense</th>
-                                                <th class="text-end">Amount (₹)</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <c:set var="total" value="0"/>
-                                            <c:forEach items="${expenses}" var="e" varStatus="vs">
-                                                <tr>
-                                                    <td>${vs.index + 1}</td>
-                                                    <td><fmt:formatDate value="${e.date}" pattern="dd MMM yyyy"/></td>
-                                                    <td>${e.expenseName}</td>
-                                                    <td class="text-end">
-                                                        <fmt:formatNumber value="${e.amount}" type="number" minFractionDigits="2"/>
-                                                    </td>
-                                                </tr>
-                                                <c:set var="total" value="${total + e.amount}"/>
-                                            </c:forEach>
-                                            <c:if test="${empty expenses}">
-                                                <tr>
-                                                    <td colspan="4" class="text-center text-muted py-4">
-                                                        <i class="fas fa-inbox fa-2x mb-2 d-block"></i>
-                                                        No expenses found
-                                                    </td>
-                                                </tr>
-                                            </c:if>
-                                        </tbody>
-                                        <tfoot>
-                                            <tr>
-                                                <th colspan="3" class="text-end">Total</th>
-                                                <th class="text-end">
-                                                    <fmt:formatNumber value="${total}" type="number" minFractionDigits="2"/>
-                                                </th>
-                                            </tr>
-                                        </tfoot>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-lg-6">
-                        <div class="card card-modern">
-                            <div class="card-header">
-                                <i class="fas fa-chart-bar me-2"></i>Monthly Expense Overview
-                            </div>
-                            <div class="card-body">
-                                <canvas id="monthlyExpenseChart"></canvas>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </main>
-
-        <!-- Footer -->
-        <footer class="py-4 bg-light mt-auto">
-            <div class="container-fluid px-4">
-                <div class="d-flex align-items-center justify-content-between small">
-                    <div class="text-muted">Copyright &copy; BillMatePro 2025</div>
-                    <div>
-                        <a href="#" class="text-muted">Privacy Policy</a>
-                        &middot;
-                        <a href="#" class="text-muted">Terms &amp; Conditions</a>
-                    </div>
-                </div>
-            </div>
-        </footer>
-    </div>
+    <jsp:include page="../view/footer.jsp"></jsp:include>
 </div>
 
-<!-- Logout Form -->
-<form id="logoutForm" method="POST" action="${pageContext.request.contextPath}/logout" style="display: none;">
-    <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
-</form>
-
-<!-- JavaScript -->
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<script src="${pageContext.request.contextPath}/resources/js/scripts.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 
 <script>
-document.addEventListener("DOMContentLoaded", function() {
-    // Hide page loader
-    setTimeout(() => {
-        const loader = document.getElementById('pageLoader');
-        if (loader) loader.classList.add('hidden');
-    }, 800);
+    let currentItemNo = parseInt('<c:out value="${itemNo}" default="0"/>') || 0;
 
-    // Auto-hide success alert
-    const successAlert = document.getElementById('success-alert');
-    if (successAlert) {
-        setTimeout(() => {
-            const bsAlert = bootstrap.Alert.getOrCreateInstance(successAlert);
-            bsAlert.close();
-        }, 3500);
+    // Calculate total amount including GST
+    function calculateAmount() {
+        const qty = parseFloat($('#quantity').val()) || 0;
+        const rate = parseFloat($('#rate').val()) || 0;
+        const gstPercent = parseFloat($('#gstPercent').val()) || 0;
+
+        const baseAmount = qty * rate;
+        const gstAmount = (baseAmount * gstPercent) / 100;
+        const totalAmount = baseAmount + gstAmount;
+
+        $('#amount').val(totalAmount.toFixed(2));
     }
 
-    // Sidebar toggle
-    const sidebarToggle = document.getElementById("sidebarToggle");
-    if (sidebarToggle) {
-        sidebarToggle.addEventListener("click", function(e) {
-            e.preventDefault();
-            document.body.classList.toggle("sb-sidenav-toggled");
-            localStorage.setItem('sb|sidebar-toggle', document.body.classList.contains('sb-sidenav-toggled'));
-        });
+    // Change quantity with + and - buttons
+    function changeQty(val) {
+        let qtyInput = $('#quantity');
+        let current = parseInt(qtyInput.val()) || 0;
+        current += val;
+        if (current < 1) current = 1;
+        qtyInput.val(current);
+        calculateAmount();
     }
 
-    // Restore sidebar state
-    if (localStorage.getItem('sb|sidebar-toggle') === 'true') {
-        document.body.classList.add('sb-sidenav-toggled');
-    }
-
-    // Theme toggle
-    const savedTheme = localStorage.getItem('theme') || 'light';
-    document.body.setAttribute('data-theme', savedTheme);
-    updateThemeIcon(savedTheme);
-
-    // Monthly Expense Chart
-    const ctx = document.getElementById('monthlyExpenseChart');
-    if (ctx) {
-        const chartData = {
-            labels: [
-                <c:forEach var="m" items="${monthlyExpenses}" varStatus="vs">
-                    '<c:out value="${m.month}"/>'<c:if test="${!vs.last}">,</c:if>
-                </c:forEach>
-            ],
-            datasets: [{
-                label: 'Total Expenses',
-                data: [
-                    <c:forEach var="m" items="${monthlyExpenses}" varStatus="vs">
-                        <c:out value="${m.totalAmount}"/><c:if test="${!vs.last}">,</c:if>
-                    </c:forEach>
-                ],
-                backgroundColor: 'rgba(34, 71, 165, 0.7)',
-                borderColor: 'rgba(34, 71, 165, 1)',
-                borderWidth: 2,
-                borderRadius: 8,
-                barThickness: 40
-            }]
+    // Show alert messages
+    function showAlert(message, type) {
+        const iconMap = {
+            'success': 'check-circle',
+            'danger': 'exclamation-circle',
+            'warning': 'exclamation-triangle',
+            'info': 'info-circle'
         };
 
-        new Chart(ctx.getContext('2d'), {
-            type: 'bar',
-            data: chartData,
-            options: {
-                responsive: true,
-                maintainAspectRatio: true,
-                plugins: {
-                    legend: {
-                        display: false
-                    },
-                    tooltip: {
-                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                        padding: 12,
-                        borderRadius: 8,
-                        callbacks: {
-                            label: function(context) {
-                                return '₹' + context.parsed.y.toLocaleString('en-IN', {
-                                    minimumFractionDigits: 2,
-                                    maximumFractionDigits: 2
-                                });
-                            }
+        const icon = iconMap[type] || 'info-circle';
+
+        const alertHtml = `
+            <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                <i class="fas fa-${icon}"></i>
+                <div>
+                    <strong>${message}</strong>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        `;
+
+        $('#alertContainer').html(alertHtml);
+
+        // Auto-dismiss after 5 seconds
+        setTimeout(() => {
+            $('.alert').fadeOut('slow', function() {
+                $(this).remove();
+            });
+        }, 5000);
+    }
+
+    // Update summary totals
+    function updateTotals() {
+        let totalAmount = 0;
+        let totalGst = 0;
+        let totalItems = 0;
+
+        $('#itemsTableBody tr').each(function() {
+            if (!$(this).find('.empty-state').length) {
+                // Extract amount text and parse
+                const amountText = $(this).find('td:eq(10)').text().replace('₹', '').replace(',', '').trim();
+                const gstText = $(this).find('td:eq(9)').text().replace('₹', '').replace(',', '').trim();
+
+                const amount = parseFloat(amountText) || 0;
+                const gst = parseFloat(gstText) || 0;
+
+                totalAmount += amount;
+                totalGst += gst;
+                totalItems++;
+            }
+        });
+
+        $('#totalAmount').text(totalAmount.toFixed(2));
+        $('#totalGst').text(totalGst.toFixed(2));
+        $('#totalItems').text(totalItems);
+
+        $('#totalAmountHidden').val(totalAmount.toFixed(2));
+        $('#totalGstHidden').val(totalGst.toFixed(2));
+        $('#totalItemsHidden').val(totalItems);
+
+        // Enable/disable save button based on items
+        $('#savePurchaseBtn').prop('disabled', totalItems === 0);
+    }
+
+    // Delete item from purchase
+    function deleteItem(itemId) {
+        if (!confirm('Are you sure you want to delete this item?')) {
+            return;
+        }
+
+        $.ajax({
+            url: '${pageContext.request.contextPath}/dealers/delete-purchase-item',
+            type: 'DELETE',
+            contentType: 'application/json',
+            data: JSON.stringify({ itemId: itemId }),
+            headers: {
+                '${_csrf.headerName}': '${_csrf.token}'
+            },
+            success: function(response) {
+                if (response.status === 'success') {
+                    $('#item-' + itemId).fadeOut(300, function() {
+                        $(this).remove();
+
+                        // Check if table is empty
+                        if ($('#itemsTableBody tr:visible').length === 0) {
+                            $('#itemsTableBody').html(`
+                                <tr>
+                                    <td colspan="12" class="empty-state">
+                                        <i class="fas fa-inbox"></i>
+                                        <p class="mb-0">No products added yet. Start adding products above.</p>
+                                    </td>
+                                </tr>
+                            `);
                         }
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        grid: {
-                            color: 'rgba(0, 0, 0, 0.05)'
-                        },
-                        ticks: {
-                            callback: function(value) {
-                                return '₹' + value.toLocaleString('en-IN');
-                            }
-                        }
-                    },
-                    x: {
-                        grid: {
-                            display: false
-                        },
-                        ticks: {
-                            callback: function(value, index) {
-                                const label = this.getLabelForValue(index);
-                                const [year, month] = label.split('-');
-                                const date = new Date(year, month - 1);
-                                return date.toLocaleDateString('en-US', {
-                                    month: 'short',
-                                    year: 'numeric'
-                                });
-                            }
-                        }
-                    }
+
+                        updateTotals();
+                    });
+
+                    showAlert('Item deleted successfully!', 'success');
+                } else {
+                    showAlert(response.message || 'Failed to delete item.', 'danger');
                 }
+            },
+            error: function(xhr, status, error) {
+                console.error('Error deleting item:', error);
+                showAlert('Error occurred while deleting item. Please try again.', 'danger');
             }
         });
     }
-});
 
-// Theme toggle function
-function toggleTheme() {
-    const currentTheme = document.body.getAttribute('data-theme');
-    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-
-    document.body.setAttribute('data-theme', newTheme);
-    localStorage.setItem('theme', newTheme);
-    updateThemeIcon(newTheme);
-}
-
-function updateThemeIcon(theme) {
-    const icon = document.getElementById('theme-icon');
-    if (icon) {
-        icon.className = theme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
+    // Format number for display
+    function formatNumber(num) {
+        return parseFloat(num).toFixed(2);
     }
-}
+
+    // Document ready
+    $(document).ready(function() {
+        // Initialize Select2 for product search
+        $('#productDropdown').select2({
+            placeholder: 'Search and select a product...',
+            allowClear: true,
+            minimumInputLength: 2,
+            ajax: {
+                url: '${pageContext.request.contextPath}/company/search-product',
+                dataType: 'json',
+                delay: 300,
+                data: function(params) {
+                    return {
+                        query: params.term,
+                        page: params.page || 1
+                    };
+                },
+                processResults: function(data, params) {
+                    params.page = params.page || 1;
+
+                    return {
+                        results: $.map(data, function(item) {
+                            return {
+                                id: item.productId,
+                                productId: item.productId,
+                                productName: item.productName,
+                                gstPercent: item.taxPercentage || 0,
+                                price: item.price || 0,
+                                mrp: item.mrp || 0,
+                                batchNo: item.batchNo || '',
+                                expDate: item.expDate || '',
+                                stock: item.stock || 0,
+                                text: `
+                                    <div style='padding: 8px 0;'>
+                                        <div style='margin-bottom: 6px;'>
+                                            <strong style='color: #1f2937; font-size: 1rem;'>
+                                                <i class='fas fa-box-open' style='color: #6366f1; margin-right: 6px;'></i>
+                                                ${item.productName}
+                                            </strong>
+                                            <span style='color: #10b981; font-weight: 600; margin-left: 12px; font-size: 0.9rem;'>
+                                                ₹${formatNumber(item.price)}
+                                            </span>
+                                            <span style='color: #6366f1; font-weight: 500; margin-left: 10px; font-size: 0.85rem;'>
+                                                <i class='fas fa-layer-group' style='margin-right: 4px;'></i>Stock: ${item.stock}
+                                            </span>
+                                        </div>
+                                        <div style='font-size: 0.8rem; color: #6b7280;'>
+                                            <span>
+                                                <i class='fas fa-barcode' style='margin-right: 4px;'></i>Batch: ${item.batchNo || 'N/A'}
+                                            </span>
+                                            <span style='margin-left: 12px;'>
+                                                <i class='fas fa-calendar-alt' style='margin-right: 4px;'></i>Exp: ${item.expDate || 'N/A'}
+                                            </span>
+                                            <span style='margin-left: 12px; color: #f59e0b;'>
+                                                <i class='fas fa-tag' style='margin-right: 4px;'></i>MRP: ₹${formatNumber(item.mrp || 0)}
+                                            </span>
+                                        </div>
+                                    </div>
+                                `
+                            };
+                        })
+                    };
+                },
+                cache: true
+            },
+            escapeMarkup: function(markup) {
+                return markup;
+            },
+            templateResult: function(data) {
+                if (data.loading) return data.text;
+                return $(data.text);
+            },
+            templateSelection: function(data) {
+                return data.productName || data.text;
+            }
+        });
+
+        // Handle product selection
+        $('#productDropdown').on('select2:select', function(e) {
+            const data = e.params.data;
+
+            $('#productId').val(data.productId);
+            $('#productName').val(data.productName);
+            $('#rate').val(formatNumber(data.price));
+            $('#mrp').val(formatNumber(data.mrp));
+            $('#sellingRate').val(formatNumber(data.price));
+            $('#batchNo').val(data.batchNo);
+            $('#expDate').val(data.expDate);
+            $('#gstPercent').val(formatNumber(data.gstPercent));
+
+            calculateAmount();
+
+            // Focus on batch number if empty
+            if (!data.batchNo) {
+                $('#batchNo').focus();
+            }
+        });
+
+        // Clear form on product clear
+        $('#productDropdown').on('select2:clear', function() {
+            $('#productId').val('');
+            $('#productName').val('');
+            $('#rate').val('');
+            $('#mrp').val('');
+            $('#sellingRate').val('');
+            $('#batchNo').val('');
+            $('#expDate').val('');
+            $('#gstPercent').val('0');
+            $('#amount').val('');
+        });
+
+        // Add product form submission
+        $('#addProductForm').on('submit', function(e) {
+            e.preventDefault();
+
+            const productId = $('#productId').val();
+            const productName = $('#productName').val();
+
+            if (!productId || !productName) {
+                showAlert('Please select a product from the dropdown.', 'warning');
+                return;
+            }
+
+            const batchNo = $('#batchNo').val().trim();
+            const expDate = $('#expDate').val();
+            const quantity = parseInt($('#quantity').val());
+            const rate = parseFloat($('#rate').val());
+            const mrp = parseFloat($('#mrp').val());
+            const sellingRate = parseFloat($('#sellingRate').val());
+
+            // Validation
+            if (!batchNo) {
+                showAlert('Please enter batch number.', 'warning');
+                $('#batchNo').focus();
+                return;
+            }
+
+            if (!expDate) {
+                showAlert('Please enter expiry date.', 'warning');
+                $('#expDate').focus();
+                return;
+            }
+
+            if (!quantity || quantity < 1) {
+                showAlert('Please enter valid quantity (minimum 1).', 'warning');
+                $('#quantity').focus();
+                return;
+            }
+
+            if (!rate || rate < 0) {
+                showAlert('Please enter valid purchase rate.', 'warning');
+                $('#rate').focus();
+                return;
+            }
+
+            if (!mrp || mrp < 0) {
+                showAlert('Please enter valid MRP.', 'warning');
+                $('#mrp').focus();
+                return;
+            }
+
+            if (!sellingRate || sellingRate < 0) {
+                showAlert('Please enter valid selling rate.', 'warning');
+                $('#sellingRate').focus();
+                return;
+            }
+
+            const formData = {
+                dealerId: $('input[name="dealerId"]').val(),
+                purchaseNo: $('input[name="purchaseNo"]').val(),
+                itemNo: $('#itemNo').val(),
+                productId: productId,
+                productName: productName,
+                batchNo: batchNo,
+                expDate: expDate,
+                quantity: quantity,
+                mrp: mrp,
+                rate: rate,
+                sellingRate: sellingRate,
+                gstPercent: parseFloat($('#gstPercent').val()) || 0,
+                amount: parseFloat($('#amount').val()) || 0
+            };
+
+            // Disable submit button to prevent double submission
+            const submitBtn = $(this).find('button[type="submit"]');
+            submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Adding...');
+
+            $.ajax({
+                url: '${pageContext.request.contextPath}/dealers/add-purchase-item',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(formData),
+                headers: {
+                    '${_csrf.headerName}': '${_csrf.token}'
+                },
+                success: function(response) {
+                    if (response.status === 'success') {
+                        showAlert('Product added successfully!', 'success');
+
+                        // Remove empty state if exists
+                        $('#itemsTableBody .empty-state').closest('tr').remove();
+
+                        // Add new row
+                        const item = response.item;
+                        const newRow = `
+                            <tr id="item-${item.id}">
+                                <td>${item.itemNo}</td>
+                                <td><strong>${item.productName}</strong></td>
+                                <td><span class="badge bg-secondary">${item.batchNo}</span></td>
+                                <td>${item.expDate}</td>
+                                <td class="text-center">${item.quantity}</td>
+                                <td class="text-end">₹${formatNumber(item.mrp)}</td>
+                                <td class="text-end">₹${formatNumber(item.rate)}</td>
+                                <td class="text-end">₹${formatNumber(item.sellingRate)}</td>
+                                <td class="text-end">${formatNumber(item.gstPercent)}%</td>
+                                <td class="text-end">₹${formatNumber(item.gstAmount)}</td>
+                                <td class="text-end"><strong style="color: var(--primary-color);">₹${formatNumber(item.totalAmount)}</strong></td>
+                                <td class="text-center">
+                                    <button type="button" class="btn btn-danger btn-sm" onclick="deleteItem('${item.id}')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        `;
+
+                        $('#itemsTableBody').append(newRow);
+
+                        // Reset form
+                        $('#addProductForm')[0].reset();
+                        $('#productDropdown').val(null).trigger('change');
+                        $('#amount').val('');
+                        $('#gstPercent').val('0');
+                        $('#quantity').val('1');
+
+                        // Increment item number
+                        currentItemNo++;
+                        $('#itemNo').val(currentItemNo);
+
+                        // Update totals
+                        updateTotals();
+
+                        // Focus back on product dropdown
+                        $('#productDropdown').select2('open');
+                    } else {
+                        showAlert(response.message || 'Failed to add product. Please try again.', 'danger');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error adding product:', error);
+                    let errorMessage = 'Error occurred while adding product.';
+
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMessage = xhr.responseJSON.message;
+                    }
+
+                    showAlert(errorMessage, 'danger');
+                },
+                complete: function() {
+                    // Re-enable submit button
+                    submitBtn.prop('disabled', false).html('<i class="fas fa-plus"></i> Add Product');
+                }
+            });
+        });
+
+        // Initial totals calculation
+        updateTotals();
+
+        // Auto-dismiss success alert after 4 seconds
+        setTimeout(function() {
+            $('#success-alert').fadeOut('slow', function() {
+                $(this).remove();
+            });
+        }, 4000);
+
+        // Set min date for expiry date (today)
+        const today = new Date().toISOString().split('T')[0];
+        $('#expDate').attr('min', today);
+
+        // Prevent negative values in number inputs
+        $('input[type="number"]').on('input', function() {
+            const min = parseFloat($(this).attr('min'));
+            const max = parseFloat($(this).attr('max'));
+            let value = parseFloat($(this).val());
+
+            if (!isNaN(min) && value < min) {
+                $(this).val(min);
+            }
+            if (!isNaN(max) && value > max) {
+                $(this).val(max);
+            }
+        });
+    });
 </script>
+
 </body>
 </html>
