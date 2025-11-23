@@ -730,7 +730,6 @@ body.modal-open {
                         <div class="info-details">
                             <div class="info-label">Invoice</div>
                             <div class="info-value">${invoiceNo}</div>
-                            <small style="font-size: 0.65rem; color: var(--text-secondary);">${date}</small>
                         </div>
                     </div>
                 </div>
@@ -906,29 +905,29 @@ body.modal-open {
                         <input type="hidden" id="advanAmtsend" name="advanAmt" value="0.0">
                         <input type="hidden" name="oldInvoicesFlag" value="F" />
 
-                        <div class="summary-grid">
-                            <div class="summary-item">
-                                <div class="summary-label">Total Qty</div>
-                                <div class="summary-value" id="totalQty">${totalQty}</div>
-                            </div>
-                            <div class="summary-item">
-                                <div class="summary-label">Amt (A)</div>
-                                <div class="summary-value">₹${preTaxAmt}</div>
-                            </div>
-                            <div class="summary-item">
-                                <div class="summary-label">GST (B)</div>
-                                <div class="summary-value">₹${totGst}</div>
-                            </div>
-                            <div class="summary-item">
-                                <div class="summary-label">Total (A+B)</div>
-                                <div class="summary-value" style="color: var(--primary-color);">
-                                    ₹<span id="totalAmout">${totalAmout}</span>
-                                </div>
-                            </div>
+                        <div class="summary-grid mt-3">
+                                                                   <div class="summary-item">
+                                                                       <div class="summary-label">Total Qty</div>
+                                                                       <div class="summary-value" id="totalQty">${totalQty}</div>
+                                                                   </div>
+                                                                   <div class="summary-item">
+                                                                       <div class="summary-label">Amt (A)</div>
+                                                                       <div class="summary-value" id="preTaxAmt">₹${preTaxAmt}</div>
+                                                                   </div>
+                                                                   <div class="summary-item">
+                                                                       <div class="summary-label">GST (B)</div>
+                                                                       <div class="summary-value" id="totGst">₹${totGst}</div>
+                                                                   </div>
+                                                                   <div class="summary-item">
+                                                                       <div class="summary-label">Total</div>
+                                                                       <div class="summary-value" style="color: var(--success-color);" id="totalAmt">
+                                                                           ₹${totalAmout}
+                                                                       </div>
+                                                                   </div>
                              <div class="summary-item">
                                                             <div class="summary-label">Invoice Date</div>
                                                             <div class="summary-value" style="color: var(--primary-color);">
-<input type="date" name="date"   id="datePicker" class="form-control form-control-sm" style="font-size: 0.70rem; color: var(--text-secondary);" >                                                            </div>
+<input type="date" name="date"   id="datePicker" class="form-control form-control-sm" >                                                            </div>
                                                         </div>
 
 
@@ -952,9 +951,10 @@ body.modal-open {
                         </div>
 
                         <div class="d-flex justify-content-end gap-2 mt-3">
-                            <button type="button" onclick="location.reload();" class="btn btn-outline-secondary btn-compact">
-                                <i class="fas fa-sync-alt"></i> Refresh
+                            <button type="button" onclick="location.reload();" class="btn btn-primary btn-compact">
+                                <i class="fas fa-sync-alt"></i> Save
                             </button>
+
                             <button type="button" class="btn btn-success btn-compact" data-bs-toggle="modal"
                                     data-bs-target="#confirmModal1" ${empty items ? 'disabled' : ''}>
                                 <i class="fas fa-file-invoice"></i> Generate Invoice
@@ -1065,19 +1065,21 @@ body.modal-open {
                                         <div class="summary-grid mt-3">
                                             <div class="summary-item">
                                                 <div class="summary-label">Total Qty</div>
-                                                <div class="summary-value">${totalQty}</div>
+                                                <div class="summary-value" id="totalQty">${totalQty}</div>
                                             </div>
                                             <div class="summary-item">
                                                 <div class="summary-label">Amt (A)</div>
-                                                <div class="summary-value">₹${preTaxAmt}</div>
+                                                <div class="summary-value" id="preTaxAmt">₹${preTaxAmt}</div>
                                             </div>
                                             <div class="summary-item">
                                                 <div class="summary-label">GST (B)</div>
-                                                <div class="summary-value">₹${totGst}</div>
+                                                <div class="summary-value" id="totGst">₹${totGst}</div>
                                             </div>
                                             <div class="summary-item">
                                                 <div class="summary-label">Total</div>
-                                                <div class="summary-value" style="color: var(--success-color);">₹${totalAmout}</div>
+                                                <div class="summary-value" style="color: var(--success-color);" id="totalAmt">
+                                                    ₹${totalAmout}
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -1587,6 +1589,12 @@ $(document).ready(function () {
                     if (generateBtn.prop('disabled')) {
                         generateBtn.prop('disabled', false);
                     }
+                     $("#totalQty").text(response.totalQty);
+                            $("#preTaxAmt").text("₹" + response.preTaxAmt);
+                            $("#totGst").text("₹" + response.totGst);
+                            $("#totalAmt").text("₹" + response.totalAmount);
+
+
 
                 } else {
                               document.getElementById("pageLoader").style.display = "none";
@@ -1669,6 +1677,5 @@ $(document).ready(function () {
     });
 });
 </script>
-
 </body>
 </html>

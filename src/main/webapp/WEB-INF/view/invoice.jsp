@@ -6,7 +6,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Thermal Invoice #${invoiceNo} – ${profile.custName}</title>
+    <title>Invoice #${invoiceNo} – ${profile.custName}</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -14,388 +16,391 @@
             box-sizing: border-box;
         }
 
+        :root {
+            --text-dark: #000000;
+            --text-medium: #333333;
+            --border-color: #000000;
+            --bg-white: #ffffff;
+        }
+
         body {
-            font-family: 'Courier New', Courier, monospace;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', monospace, sans-serif;
             background: #f5f5f5;
             margin: 0;
-            padding: 10px;
-            color: #000;
-            font-size: 11px;
-            line-height: 1.2;
+            padding: 20px;
+            color: var(--text-dark);
+            font-size: 14px;
+            line-height: 1.4;
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
         }
 
-        /* 4×6 Thermal Paper Container */
+        /* 4x6 Thermal Receipt Container - 101.6mm x 152.4mm */
         .thermal-container {
             width: 101.6mm;
-            max-width: 101.6mm;
-            min-height: 152.4mm;
-            margin: 0 auto;
+            height: 152.4mm;
+            margin: 0 auto 20px;
             background: white;
             border: 2px solid #000;
             overflow: hidden;
             position: relative;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
 
-        .thermal-invoice {
+        /* Receipt Content */
+        .thermal-receipt {
             width: 100%;
+            height: 100%;
             padding: 3mm;
             background: white;
             box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
         }
 
-        /* Header Section - Optimized for B&W */
+        /* Header Section */
         .thermal-header {
             text-align: center;
-            border-bottom: 3px double #000;
+            border-bottom: 2px dashed #000;
             padding-bottom: 2mm;
             margin-bottom: 2mm;
         }
 
-        .shop-name {
-            font-size: 14px;
-            font-weight: bold;
-            margin-bottom: 1mm;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            border: 2px solid #000;
-            padding: 1mm 2mm;
-            background: #000;
-            color: #fff;
+        .thermal-logo {
+            max-height: 12mm;
+            max-width: 30mm;
+            margin: 0 auto 1mm;
+            display: block;
         }
 
-        .shop-details {
+        .thermal-header h1 {
+            font-size: 14px;
+            font-weight: 900;
+            margin-bottom: 1mm;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .thermal-header .shop-details {
             font-size: 8px;
             line-height: 1.3;
-            margin: 2mm 0;
-            border-top: 1px solid #000;
-            border-bottom: 1px solid #000;
-            padding: 1mm 0;
+            font-weight: 600;
         }
 
-        .shop-details div {
-            margin-bottom: 0.5mm;
+        .thermal-header .shop-details p {
+            margin: 0.5mm 0;
         }
 
-        .invoice-title {
-            font-size: 12px;
-            font-weight: bold;
-            margin: 2mm 0;
-            padding: 1mm 3mm;
-            background: #000;
-            color: #fff;
-            border: 2px solid #000;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .invoice-meta {
-            font-size: 8px;
-            display: flex;
-            justify-content: space-between;
-            margin: 1mm 0;
-            font-weight: bold;
-            border: 1px solid #000;
-            padding: 1mm;
-            background: #f0f0f0;
-        }
-
-        /* QR Code - B&W Optimized */
-        .qr-code {
-            position: absolute;
-            top: 3mm;
-            right: 3mm;
-            width: 15mm;
-            height: 15mm;
-            border: 2px solid #000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: white;
-        }
-
-        .qr-code img {
-            max-width: 13mm;
-            max-height: 13mm;
-        }
-
-        /* Customer Section - B&W */
-        .customer-section {
-            border: 2px solid #000;
-            padding: 2mm;
-            margin-bottom: 2mm;
-            font-size: 8px;
-            background: white;
-        }
-
-        .customer-title {
-            font-size: 9px;
-            font-weight: bold;
+        /* Invoice Meta */
+        .thermal-meta {
             text-align: center;
-            margin-bottom: 1mm;
-            text-transform: uppercase;
-            border-bottom: 1px solid #000;
-            padding-bottom: 1mm;
-            background: #000;
-            color: #fff;
-            padding: 1mm;
-        }
-
-        .customer-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 0.8mm;
-            border-bottom: 1px dotted #000;
-            padding-bottom: 0.5mm;
-        }
-
-        .customer-row:last-child {
-            border-bottom: none;
-        }
-
-        .customer-label {
-            font-weight: bold;
-            min-width: 20mm;
-        }
-
-        .customer-value {
-            text-align: right;
-            flex: 1;
-            word-break: break-word;
-        }
-
-        /* Items Section - B&W Thermal */
-        .items-section {
-            margin-bottom: 2mm;
-            border: 2px solid #000;
-        }
-
-        .items-header {
-            background: #000;
-            color: #fff;
-            padding: 1mm;
-            font-size: 7px;
-            font-weight: bold;
-            display: grid;
-            grid-template-columns: 8mm 1fr 12mm 16mm;
-            gap: 1mm;
-            text-align: center;
-            text-transform: uppercase;
+            padding: 2mm 0;
             border-bottom: 2px solid #000;
-        }
-
-        .items-header .desc-col {
-            text-align: left;
-        }
-
-        .items-header .amt-col {
-            text-align: right;
-        }
-
-        .item-row {
-            padding: 1mm;
-            font-size: 7px;
-            display: grid;
-            grid-template-columns: 8mm 1fr 12mm 16mm;
-            gap: 1mm;
-            border-bottom: 1px dashed #000;
-            align-items: start;
-            background: white;
-        }
-
-        .item-row:nth-child(even) {
+            margin-bottom: 2mm;
             background: #f5f5f5;
         }
 
-        .item-row:last-child {
-            border-bottom: none;
-        }
-
-        .item-sr {
-            text-align: center;
-            font-weight: bold;
-            border: 1px solid #000;
-            padding: 0.5mm 0;
-        }
-
-        .item-desc {
-            text-align: left;
-            word-break: break-word;
-            line-height: 1.2;
-            font-weight: bold;
-        }
-
-        .item-desc-details {
-            font-size: 6px;
-            margin-top: 0.5mm;
-            line-height: 1.1;
-            font-weight: normal;
-            border-left: 2px solid #000;
-            padding-left: 1mm;
-            margin-left: 1mm;
-        }
-
-        .item-qty {
-            text-align: center;
-            font-weight: bold;
-            border: 1px solid #000;
-            padding: 0.5mm 0;
-        }
-
-        .item-amt {
-            text-align: right;
-            font-weight: bold;
-            border: 1px solid #000;
-            padding: 0.5mm 1mm;
-        }
-
-        /* Summary Section - B&W */
-        .summary-section {
-            border: 3px double #000;
-            padding: 2mm;
-            margin-bottom: 2mm;
-            background: white;
-        }
-
-        .summary-title {
-            text-align: center;
-            font-size: 9px;
-            font-weight: bold;
+        .thermal-meta h2 {
+            font-size: 12px;
+            font-weight: 900;
             margin-bottom: 1mm;
             text-transform: uppercase;
-            border-bottom: 2px solid #000;
-            padding-bottom: 1mm;
+            letter-spacing: 0.5px;
         }
 
-        .summary-row {
+        .thermal-meta .meta-row {
             display: flex;
             justify-content: space-between;
             font-size: 8px;
-            margin-bottom: 0.8mm;
-            padding: 0.8mm 1mm;
-            font-weight: bold;
-            border-bottom: 1px dotted #000;
+            font-weight: 700;
+            margin: 0.5mm 0;
+            padding: 0 1mm;
         }
 
-        .summary-row.highlight {
-            background: #000;
-            color: #fff;
-            border: 2px solid #000;
-            padding: 1.5mm 2mm;
-            margin: 1mm 0;
-        }
-
-        .summary-row.total {
-            font-size: 10px;
-            font-weight: bold;
-            background: #000;
-            color: #fff;
-            border: 3px double #000;
-            padding: 2mm;
-            margin: 2mm 0 0 0;
-            text-transform: uppercase;
-        }
-
-        .summary-label {
-            font-weight: bold;
-        }
-
-        .summary-value {
-            font-weight: bold;
-            text-align: right;
-        }
-
-        /* Footer Section - B&W */
-        .footer-section {
-            border-top: 3px double #000;
-            padding-top: 2mm;
+        /* QR Code */
+        .thermal-qr {
             text-align: center;
+            margin: 2mm 0;
+            padding: 2mm 0;
+            border: 1px solid #000;
             background: white;
         }
 
-        .terms-compact {
-            font-size: 6px;
-            line-height: 1.2;
-            margin-bottom: 2mm;
-            text-align: justify;
-            border: 1px solid #000;
-            padding: 1mm;
+        .thermal-qr img {
+            max-width: 20mm;
+            max-height: 20mm;
         }
 
-        .signature-line {
+        .thermal-qr i {
+            font-size: 20px;
+        }
+
+        /* Customer Section */
+        .thermal-customer {
+            border: 1px solid #000;
+            padding: 2mm;
+            margin-bottom: 2mm;
+            background: #f5f5f5;
+        }
+
+        .thermal-customer h3 {
+            font-size: 9px;
+            font-weight: 900;
+            margin-bottom: 1mm;
+            text-transform: uppercase;
+            text-align: center;
+            border-bottom: 1px solid #000;
+            padding-bottom: 1mm;
+        }
+
+        .thermal-customer .customer-row {
+            font-size: 7.5px;
+            font-weight: 700;
+            margin: 0.5mm 0;
+            display: flex;
+            gap: 2mm;
+        }
+
+        .thermal-customer .customer-row strong {
+            min-width: 15mm;
+            font-weight: 900;
+        }
+
+        /* Items Table */
+        .thermal-items {
+            flex: 1;
+            margin-bottom: 2mm;
+        }
+
+        .thermal-items table {
+            width: 100%;
+            border-collapse: collapse;
+            border: 2px solid #000;
+        }
+
+        .thermal-items thead {
+            background: #000;
+            color: white;
+        }
+
+        .thermal-items thead th {
+            padding: 1mm 0.5mm;
+            font-size: 7.5px;
+            font-weight: 900;
+            text-align: center;
+            text-transform: uppercase;
+            border-right: 1px solid white;
+        }
+
+        .thermal-items thead th:last-child {
+            border-right: none;
+        }
+
+        .thermal-items thead th.left {
+            text-align: left;
+            padding-left: 1mm;
+        }
+
+        .thermal-items thead th.right {
+            text-align: right;
+            padding-right: 1mm;
+        }
+
+        .thermal-items tbody tr {
+            border-bottom: 1px solid #000;
+        }
+
+        .thermal-items tbody tr:nth-child(even) {
+            background: #f5f5f5;
+        }
+
+        .thermal-items tbody td {
+            padding: 0.8mm 0.5mm;
+            font-size: 7px;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .thermal-items tbody td.left {
+            text-align: left;
+            padding-left: 1mm;
+            font-weight: 800;
+        }
+
+        .thermal-items tbody td.right {
+            text-align: right;
+            padding-right: 1mm;
+            font-weight: 800;
+        }
+
+        .thermal-items tbody td.amount {
+            font-weight: 900;
+        }
+
+        /* Summary Section */
+        .thermal-summary {
+            border: 2px solid #000;
+            padding: 2mm;
+            margin-bottom: 2mm;
+            background: white;
+        }
+
+        .thermal-summary .summary-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 8px;
+            font-weight: 700;
+            padding: 0.8mm 0;
+            border-bottom: 1px dashed #000;
+        }
+
+        .thermal-summary .summary-row:last-child {
+            border-bottom: none;
+        }
+
+        .thermal-summary .summary-row.total {
+            font-size: 10px;
+            font-weight: 900;
+            border-top: 2px solid #000;
             border-bottom: 2px solid #000;
-            margin: 3mm 0 2mm 0;
+            padding: 1mm 0;
+            margin-top: 1mm;
+        }
+
+        .thermal-summary .amount {
+            font-weight: 900;
+        }
+
+        /* Terms & Signature */
+        .thermal-terms {
+            border-top: 2px dashed #000;
+            padding-top: 2mm;
+            margin-top: auto;
+        }
+
+        .thermal-terms h4 {
+            font-size: 8px;
+            font-weight: 900;
+            margin-bottom: 1mm;
+            text-transform: uppercase;
+            text-align: center;
+        }
+
+        .thermal-terms .terms-text {
+            font-size: 6.5px;
+            line-height: 1.3;
+            text-align: center;
+            margin-bottom: 2mm;
+            font-weight: 600;
+        }
+
+        .thermal-signature {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2mm;
+            margin-top: 2mm;
+        }
+
+        .signature-box {
+            border: 1px dashed #000;
+            padding: 1.5mm;
+            text-align: center;
+            font-size: 7px;
+            font-weight: 700;
             height: 8mm;
             display: flex;
-            align-items: end;
+            align-items: center;
             justify-content: center;
-            font-size: 7px;
-            font-weight: bold;
         }
 
-        .thank-you {
-            font-size: 10px;
-            font-weight: bold;
-            margin: 2mm 0;
-            text-transform: uppercase;
-            border: 2px solid #000;
-            padding: 1mm;
-            background: #000;
-            color: #fff;
-        }
-
-        .contact-info {
-            font-size: 6px;
-            font-weight: bold;
+        /* Footer */
+        .thermal-footer {
+            text-align: center;
+            font-size: 6.5px;
+            font-weight: 700;
+            padding: 1.5mm 0;
             border-top: 1px solid #000;
-            padding-top: 1mm;
+            margin-top: 1mm;
+        }
+
+        .thermal-footer strong {
+            font-weight: 900;
         }
 
         /* Action Buttons */
         .action-buttons {
             display: flex;
-            gap: 10px;
+            gap: 12px;
             justify-content: center;
-            padding: 15px;
+            padding: 20px;
             background: white;
-            margin: 15px auto;
+            margin: 0 auto 20px;
             max-width: 600px;
-            border: 2px solid #000;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border: 1px solid #ddd;
         }
 
         .btn {
-            padding: 10px 16px;
-            border: 2px solid #000;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border-radius: 6px;
             text-decoration: none;
-            font-weight: bold;
+            font-weight: 700;
+            transition: all 0.3s ease;
             cursor: pointer;
-            font-size: 12px;
+            border: 2px solid;
+            font-size: 13px;
             text-transform: uppercase;
-            background: white;
-            color: #000;
-            transition: all 0.2s;
-        }
-
-        .btn:hover {
-            background: #000;
-            color: #fff;
+            letter-spacing: 0.3px;
         }
 
         .btn-primary {
             background: #000;
-            color: #fff;
+            color: white;
+            border-color: #000;
         }
 
         .btn-primary:hover {
             background: #333;
+            transform: translateY(-2px);
         }
 
-        /* Print Styles - Thermal B&W Optimized */
+        .btn-success {
+            background: #10B981;
+            color: white;
+            border-color: #10B981;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+            transform: translateY(-2px);
+        }
+
+        .btn-outline {
+            background: white;
+            color: #000;
+            border-color: #000;
+        }
+
+        .btn-outline:hover {
+            background: #000;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* Print Styles - Thermal Optimized */
         @media print {
             @page {
                 size: 4in 6in;
                 margin: 0;
+            }
+
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
             }
 
             body {
@@ -405,14 +410,16 @@
             }
 
             .thermal-container {
-                width: 4in !important;
-                height: 6in !important;
-                max-width: none !important;
+                width: 101.6mm !important;
+                height: 152.4mm !important;
                 margin: 0 !important;
+                box-shadow: none !important;
                 border: none !important;
+                page-break-after: avoid !important;
+                page-break-inside: avoid !important;
             }
 
-            .thermal-invoice {
+            .thermal-receipt {
                 padding: 2mm !important;
             }
 
@@ -420,37 +427,49 @@
                 display: none !important;
             }
 
-            /* Ensure solid blacks print correctly */
-            .shop-name,
-            .invoice-title,
-            .customer-title,
-            .items-header,
-            .summary-row.highlight,
-            .summary-row.total,
-            .thank-you {
-                background: #000 !important;
-                color: #fff !important;
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
+            /* Enhance text for thermal printing */
+            .thermal-header h1,
+            .thermal-meta h2,
+            .thermal-customer h3,
+            .thermal-items thead th,
+            .thermal-summary .summary-row.total {
+                font-weight: 900 !important;
             }
 
-            /* Ensure borders print */
-            * {
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
+            .thermal-items tbody td,
+            .thermal-summary .amount {
+                font-weight: 800 !important;
             }
         }
 
         /* Mobile Responsive */
+        @media screen and (max-width: 768px) {
+            body { padding: 10px; }
+            .thermal-container {
+                transform: scale(0.9);
+                transform-origin: top center;
+            }
+            .action-buttons {
+                flex-wrap: wrap;
+                padding: 15px;
+            }
+            .btn {
+                flex: 1 1 calc(50% - 6px);
+                min-width: 120px;
+                font-size: 11px;
+                padding: 8px 16px;
+            }
+        }
+
         @media screen and (max-width: 480px) {
             .thermal-container {
-                width: 100%;
-                max-width: 320px;
+                transform: scale(0.75);
             }
-
             .action-buttons {
                 flex-direction: column;
-                gap: 8px;
+            }
+            .btn {
+                width: 100%;
             }
         }
     </style>
@@ -458,163 +477,246 @@
 <body>
 <c:if test="${pageContext.request.userPrincipal.name != null}">
 
-<div class="thermal-container" id="thermal-invoice-container">
-    <div class="thermal-invoice">
-
-        <!-- QR Code -->
-        <div class="qr-code">
-            <c:choose>
-                <c:when test="${not empty QRCODE}">
-                    <img src="data:image/png;base64,${QRCODE}" alt="QR" />
-                </c:when>
-                <c:otherwise>
-                    [QR]
-                </c:otherwise>
-            </c:choose>
-        </div>
-
+<div class="thermal-container" id="thermal-container">
+    <div class="thermal-receipt">
         <!-- Header -->
         <div class="thermal-header">
-            <div class="shop-name">${ownerInfo.shopName}</div>
+            <img class="thermal-logo" src="${pageContext.request.contextPath}/resources/images/logo.png" alt="Logo" onerror="this.style.display='none'">
+            <h1>${ownerInfo.shopName}</h1>
             <div class="shop-details">
-                <div>${ownerInfo.address}</div>
-                <div>Ph: ${ownerInfo.mobNumber}</div>
-                <div>GST: ${ownerInfo.gstNumber}</div>
-            </div>
-            <div class="invoice-title">TAX INVOICE</div>
-            <div class="invoice-meta">
-                <span>Bill #: ${invoiceNo}</span>
-                <span>Date: ${date}</span>
+                <p>${ownerInfo.address}</p>
+                <p>☎ ${ownerInfo.mobNumber}</p>
+                <p>GST: ${ownerInfo.gstNumber}</p>
             </div>
         </div>
 
-        <!-- Customer Section -->
-        <div class="customer-section">
-            <div class="customer-title">CUSTOMER DETAILS</div>
-            <div class="customer-row">
-                <span class="customer-label">Name:</span>
-                <span class="customer-value">${profile.custName}</span>
+        <!-- Invoice Meta -->
+        <div class="thermal-meta">
+            <h2>TAX INVOICE</h2>
+            <div class="meta-row">
+                <span>Invoice #:</span>
+                <strong>${invoiceNo}</strong>
             </div>
-            <div class="customer-row">
-                <span class="customer-label">Phone:</span>
-                <span class="customer-value">${profile.phoneNo}</span>
-            </div>
-            <div class="customer-row">
-                <span class="customer-label">Address:</span>
-                <span class="customer-value">${profile.address}</span>
+            <div class="meta-row">
+                <span>Date:</span>
+                <strong>${date}</strong>
             </div>
         </div>
 
-        <!-- Items Section -->
-        <div class="items-section">
-            <div class="items-header">
-                <div>SR</div>
-                <div class="desc-col">ITEM</div>
-                <div>QTY</div>
-                <div class="amt-col">AMT</div>
+        <!-- QR Code -->
+        <c:if test="${not empty QRCODE}">
+            <div class="thermal-qr">
+                <img src="data:image/png;base64,${QRCODE}" alt="QR Code" />
             </div>
+        </c:if>
 
-            <c:forEach items="${items}" var="item">
-                <div class="item-row">
-                    <div class="item-sr">${item.itemNo}</div>
-                    <div class="item-desc">
-                        <div>${item.description}</div>
-                        <div class="item-desc-details">
-                            <c:if test="${invoiceColms.contains('BRAND') && not empty item.brand}">
-                                Brand: ${item.brand}<br/>
-                            </c:if>
-                            <c:if test="${invoiceColms.contains('BATCHNO') && not empty item.batchNo}">
-                                Batch: ${item.batchNo}<br/>
-                            </c:if>
+        <!-- Customer Details -->
+        <div class="thermal-customer">
+            <h3>CUSTOMER DETAILS</h3>
+            <div class="customer-row">
+                <strong>Name:</strong>
+                <span>${profile.custName}</span>
+            </div>
+            <div class="customer-row">
+                <strong>Contact:</strong>
+                <span>${profile.phoneNo}</span>
+            </div>
+            <div class="customer-row">
+                <strong>Address:</strong>
+                <span>${profile.address}</span>
+            </div>
+        </div>
+
+        <!-- Items Table -->
+        <div class="thermal-items">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width:8%">SR</th>
+                        <th style="width:38%" class="left">Item</th>
+                        <c:if test="${invoiceColms.contains('MRP')}">
+                            <th style="width:14%" class="right">MRP</th>
+                        </c:if>
+                        <th style="width:10%">Qty</th>
+                        <th style="width:15%" class="right">Rate</th>
+                        <th style="width:15%" class="right">Amt</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <c:forEach items="${items}" var="item">
+                        <tr>
+                            <td>${item.itemNo}</td>
+                            <td class="left">${item.description}</td>
                             <c:if test="${invoiceColms.contains('MRP')}">
-                                MRP: Rs.${item.mrp}<br/>
+                                <td class="right">₹${item.mrp}</td>
                             </c:if>
-                            Rate: Rs.${item.rate}
-                        </div>
-                    </div>
-                    <div class="item-qty">${item.qty}</div>
-                    <div class="item-amt">Rs.${item.amount}</div>
-                </div>
-            </c:forEach>
+                            <td>${item.qty}</td>
+                            <td class="right">₹${item.rate}</td>
+                            <td class="right amount">₹${item.amount}</td>
+                        </tr>
+                    </c:forEach>
+                </tbody>
+            </table>
         </div>
 
-        <!-- Summary Section -->
-        <div class="summary-section">
-            <div class="summary-title">BILL SUMMARY</div>
+        <!-- Summary -->
+        <div class="thermal-summary">
             <div class="summary-row">
-                <span class="summary-label">Sub Total:</span>
-                <span class="summary-value">Rs.${totalAmout}</span>
+                <span>Sub Total:</span>
+                <span class="amount">₹${totalAmout}</span>
             </div>
             <div class="summary-row">
-                <span class="summary-label">GST:</span>
-                <span class="summary-value">Rs.${currentinvoiceitems.tax}</span>
+                <span>GST:</span>
+                <span class="amount">₹${currentinvoiceitems.tax}</span>
             </div>
             <div class="summary-row">
-                <span class="summary-label">Paid:</span>
-                <span class="summary-value">Rs.${advamount}</span>
-            </div>
-            <div class="summary-row highlight">
-                <span class="summary-label">Net Amount:</span>
-                <span class="summary-value">Rs.${totalAmout - advamount}</span>
+                <span>Paid Amount:</span>
+                <span class="amount">₹${advamount}</span>
             </div>
             <div class="summary-row">
-                <span class="summary-label">Prev Balance:</span>
-                <span class="summary-value">Rs.${currentinvoiceitems.preBalanceAmt}</span>
+                <span>Net Total:</span>
+                <span class="amount">₹${totalAmout - advamount}</span>
+            </div>
+            <div class="summary-row">
+                <span>Previous Balance:</span>
+                <span class="amount">₹${currentinvoiceitems.preBalanceAmt}</span>
             </div>
             <div class="summary-row total">
-                <span class="summary-label">CURRENT BALANCE:</span>
-                <span class="summary-value">Rs.${profile.currentOusting}</span>
+                <span>CURRENT BALANCE:</span>
+                <span class="amount">₹${profile.currentOusting}</span>
+            </div>
+        </div>
+
+        <!-- Terms & Signature -->
+        <div class="thermal-terms">
+            <h4>TERMS & CONDITIONS</h4>
+            <div class="terms-text">
+                ${ownerInfo.terms}
+            </div>
+            <div class="thermal-signature">
+                <div class="signature-box">
+                    Customer Sign
+                </div>
+                <div class="signature-box">
+                    Auth. Sign
+                </div>
             </div>
         </div>
 
         <!-- Footer -->
-        <div class="footer-section">
-            <div class="terms-compact">
-                ${fn:substring(ownerInfo.terms, 0, 120)}...
-            </div>
-            <div class="signature-line">
-                Authorized Signature
-            </div>
-            <div class="thank-you">
-                THANK YOU!
-            </div>
-            <div class="contact-info">
-                BillMatePro | 8180080378
-            </div>
+        <div class="thermal-footer">
+            Generated by <strong>BillMatePro Solution</strong><br>
+            ☎ 8180080378
         </div>
-
     </div>
 </div>
 
 <!-- Action Buttons -->
 <div class="action-buttons">
-    <button class="btn" onclick="window.location.href='${pageContext.request.contextPath}/login/home'">
-        HOME
+    <button class="btn btn-outline" onclick="window.location.href='${pageContext.request.contextPath}/login/home'">
+        <i class="fas fa-home"></i> Home
     </button>
-    <button class="btn btn-primary" onclick="printThermalInvoice()">
-        PRINT
+    <button class="btn btn-outline" onclick="printThermal()">
+        <i class="fas fa-print"></i> Print 4x6
     </button>
-    <a href="https://wa.me/${profile.phoneNo}/?text=Bill%20%23${invoiceNo}%20Rs.${profile.currentOusting}" target="_blank" class="btn">
-        WHATSAPP
+    <button class="btn btn-primary" onclick="downloadThermalPDF()">
+        <i class="fas fa-download"></i> Download PDF
+    </button>
+    <a href="https://wa.me/${profile.phoneNo}/?text=Namaste!!!%20*${profile.custName}*,%20आपका%20बिल%20तैयार%20है।%20Invoice%20%23${invoiceNo}%20-%20₹${profile.currentOusting}%0A%0AThank%20you%20for%20your%20business!%0A%0A-%20${ownerInfo.shopName}" target="_blank" class="btn btn-success">
+        <i class="fab fa-whatsapp"></i> WhatsApp
     </a>
 </div>
 
 </c:if>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script>
-    function printThermalInvoice() {
+    // Thermal Print Function
+    function printThermal() {
         window.print();
     }
 
-    // Auto-adjust for mobile
-    if (window.innerWidth < 480) {
-        window.addEventListener('load', function() {
-            document.getElementById('thermal-invoice-container').scrollIntoView({
-                behavior: 'smooth',
-                block: 'center'
+    // Thermal PDF Download Function
+    function downloadThermalPDF() {
+        const element = document.getElementById('thermal-container');
+        const customerName = '${profile.custName}'.replace(/[^a-zA-Z0-9]/g, '_') || 'Customer';
+        const invoiceNo = '${invoiceNo}' || 'INV001';
+        const currentDate = new Date().toISOString().slice(0, 10);
+
+        const btn = event.target;
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
+        btn.disabled = true;
+
+        const opt = {
+            margin: [0, 0, 0, 0],
+            filename: `Invoice_4x6_${invoiceNo}_${customerName}_${currentDate}.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: {
+                scale: 3,
+                useCORS: true,
+                letterRendering: true,
+                allowTaint: false,
+                backgroundColor: '#ffffff',
+                logging: false,
+                scrollY: -window.scrollY,
+                scrollX: -window.scrollX
+            },
+            jsPDF: {
+                unit: 'in',
+                format: [4, 6],
+                orientation: 'portrait',
+                compress: true
+            },
+            pagebreak: { mode: 'avoid-all' }
+        };
+
+        html2pdf()
+            .set(opt)
+            .from(element)
+            .toPdf()
+            .get('pdf')
+            .then(function(pdf) {
+                const totalPages = pdf.internal.getNumberOfPages();
+                if (totalPages > 1) {
+                    for (let i = totalPages; i > 1; i--) {
+                        pdf.deletePage(i);
+                    }
+                }
+                return pdf;
+            })
+            .save()
+            .then(() => {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            })
+            .catch((error) => {
+                console.error('PDF generation failed:', error);
+                alert('PDF generation failed. Please try the print option.');
+                btn.innerHTML = originalText;
+                btn.disabled = false;
             });
-        });
     }
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function(event) {
+        if (event.ctrlKey || event.metaKey) {
+            switch(event.key) {
+                case 'p':
+                    event.preventDefault();
+                    printThermal();
+                    break;
+                case 's':
+                    event.preventDefault();
+                    downloadThermalPDF();
+                    break;
+                case 'h':
+                    event.preventDefault();
+                    window.location.href = '${pageContext.request.contextPath}/login/home';
+                    break;
+            }
+        }
+    });
 </script>
 
 </body>
