@@ -8,248 +8,236 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Invoice #${invoiceNo} – ${profile.custName}</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        /* ========================================================
+           GLOBAL STYLES - A5 LANDSCAPE OPTIMIZED
+        ======================================================== */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
-        :root {
-            --text-dark: #000000;
-            --text-medium: #333333;
-            --border-color: #000000;
-            --bg-white: #ffffff;
-            --bg-light: #f5f5f5;
-        }
-
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', monospace, sans-serif;
-            background: #f5f5f5;
-            margin: 0;
+            font-family: "Poppins", Arial, sans-serif;
+            background: linear-gradient(135deg, #f0f4ff 0%, #e0e7ff 50%, #f8fafc 100%);
+            color: #000000;
             padding: 15px;
-            color: var(--text-dark);
-            font-size: 14px;
-            line-height: 1.4;
-            -webkit-print-color-adjust: exact;
-            print-color-adjust: exact;
-            min-height: 100vh;
         }
 
-        /* A5 Landscape Page Container - 210mm x 148mm */
+        /* Color Variables */
+        :root {
+            --blue-primary: #1e40af;
+            --blue-light: #e0e7ff;
+            --blue-lighter: #f0f4ff;
+            --text-dark: #0f172a;
+            --text-gray: #475569;
+            --border-light: #c7d2fe;
+            --success-green: #25D366;
+            --bg-white: #ffffff;
+        }
+
+        /* ========================================================
+           UTILITY CLASSES
+        ======================================================== */
+        .text-left { text-align: left; }
+        .text-right { text-align: right; }
+        .text-center { text-align: center; }
+
+        /* ========================================================
+           PAGE CONTAINER - A5 LANDSCAPE (210mm x 148mm)
+        ======================================================== */
         .page-container {
             width: 210mm;
             height: 148mm;
-            margin: 0 auto 20px;
-            background: white;
-            border: 3px solid #000;
+            max-width: 100%;
+            margin: 0 auto;
+            background: var(--bg-white);
+            padding: 6mm;
+            border-radius: 6px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            border: 1px solid var(--border-light);
             overflow: hidden;
-            position: relative;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-
-        /* Invoice Content */
-        .invoice {
-            width: 100%;
-            height: 100%;
-            padding: 5mm;
-            background: white;
-            box-sizing: border-box;
             display: flex;
             flex-direction: column;
-            position: relative;
         }
 
-        /* Header Section */
-        .invoice-header {
-            border-bottom: 3px dashed var(--border-color);
-            padding-bottom: 3mm;
-            margin-bottom: 3mm;
-            position: relative;
-            background: white;
-        }
-
-        .header-top {
+        /* ========================================================
+           HEADER SECTION - CENTERED & COMPACT
+        ======================================================== */
+        .header-section {
             display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            gap: 3mm;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding-bottom: 3mm;
+            border-bottom: 1.5px solid var(--blue-primary);
+            margin-bottom: 2mm;
+            gap: 2mm;
         }
 
         .company-info {
             display: flex;
+            flex-direction: column;
             align-items: center;
-            gap: 3mm;
-            flex: 1;
+            gap: 2mm;
         }
 
         .company-logo {
-            height: 12mm;
-            width: auto;
-            max-width: 35mm;
-            object-fit: contain;
-            flex-shrink: 0;
-            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+            max-width: 30px;
+            max-height: 30px;
+        }
+
+        .company-text {
+            text-align: center;
         }
 
         .company-text h1 {
-            font-size: 18px;
-            font-weight: 900;
-            margin-bottom: 1mm;
-            color: var(--text-dark);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            line-height: 1.2;
+            margin: 0;
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--blue-primary);
+            line-height: 1.1;
         }
 
         .company-details {
+            display: flex;
+            flex-direction: column;
+            gap: 1mm;
             font-size: 8px;
-            line-height: 1.4;
-            color: var(--text-medium);
-            font-weight: 600;
+            color: var(--text-gray);
+            line-height: 1.2;
         }
 
         .company-details p {
-            margin-bottom: 0.5mm;
+            margin: 0;
             display: flex;
+            justify-content: center;
             align-items: center;
-            gap: 2mm;
+            gap: 2px;
         }
 
         .company-details i {
-            width: 10px;
-            font-size: 7.5px;
-            color: var(--text-dark);
+            font-size: 8px;
+            color: var(--blue-primary);
         }
 
-        .invoice-meta {
-            text-align: right;
-            border: 3px solid var(--border-color);
-            padding: 3mm;
-            background: var(--bg-light);
-            min-width: 40mm;
-            position: relative;
-        }
-
-        .invoice-meta h2 {
-            font-size: 14px;
-            margin-bottom: 2mm;
-            font-weight: 900;
-            color: var(--text-dark);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+        .header-meta-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8mm;
+            width: 100%;
         }
 
         .header-qr {
-            position: absolute;
-            top: 2mm;
-            left: -24mm;
-            width: 22mm;
-            height: 22mm;
-            border: 3px solid var(--border-color);
-            background: white;
+            width: 35px;
+            height: 35px;
+            border: 1px solid var(--border-light);
+            border-radius: 3px;
             display: flex;
             align-items: center;
             justify-content: center;
+            overflow: hidden;
+            background: var(--blue-lighter);
+            flex-shrink: 0;
         }
 
         .header-qr img {
-            max-width: 19mm;
-            max-height: 19mm;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
         }
 
         .header-qr i {
-            font-size: 16px;
-            color: var(--text-dark);
+            font-size: 18px;
+            color: var(--blue-primary);
         }
 
-        .invoice-meta .meta-item {
-            margin-bottom: 1mm;
-            font-size: 9px;
-            font-weight: 700;
-            color: var(--text-medium);
+        .meta-info {
+            text-align: center;
+            font-size: 8px;
         }
 
-        .invoice-meta .meta-item strong {
-            color: var(--text-dark);
-            font-weight: 900;
+        .meta-info h2 {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--blue-primary);
+            margin: 0;
         }
 
-        /* Customer Section */
+        .meta-item {
+            font-size: 8px;
+            color: var(--text-gray);
+            margin: 1px 0;
+            line-height: 1.2;
+        }
+
+        /* ========================================================
+           CUSTOMER SECTION - COMPACT
+        ======================================================== */
         .customer-section {
-            background: var(--bg-light);
-            border: 2px solid var(--border-color);
-            padding: 2.5mm;
-            margin-bottom: 2.5mm;
+            margin: 1mm 0;
+            padding: 2mm;
+            border: 0.5px solid var(--border-light);
+            border-radius: 2px;
+            background: #fafbff;
+            font-size: 8px;
         }
 
         .customer-title {
-            font-weight: 900;
-            font-size: 11px;
-            margin-bottom: 2mm;
-            color: var(--text-dark);
-            text-transform: uppercase;
+            font-size: 9px;
+            font-weight: 500;
+            color: var(--blue-primary);
+            margin-bottom: 1mm;
             display: flex;
             align-items: center;
-            gap: 2mm;
-            letter-spacing: 0.4px;
-            border-bottom: 2px solid var(--border-color);
-            padding-bottom: 1.5mm;
-        }
-
-        .customer-title i {
-            color: var(--text-dark);
-            font-size: 12px;
+            gap: 2px;
         }
 
         .customer-details {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 2mm;
+            gap: 1mm;
         }
 
         .customer-item {
-            font-size: 9px;
-            font-weight: 700;
-            color: var(--text-medium);
-            line-height: 1.4;
-        }
-
-        .customer-item strong {
+            font-size: 8px;
             color: var(--text-dark);
-            font-weight: 800;
+            line-height: 1.2;
         }
 
-        /* Items Table */
+        .customer-item span {
+            color: var(--blue-primary);
+            font-weight: 500;
+        }
+
+        /* ========================================================
+           ITEMS TABLE - COMPACT
+        ======================================================== */
         .items-table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 2.5mm;
-            border: 3px solid var(--border-color);
-            flex: 1;
-            overflow: hidden;
+            margin: 1mm 0;
+            font-size: 8px;
+            flex-grow: 1;
         }
 
         .items-table thead th {
-            background: #000;
-            color: white;
-            padding: 2mm 1mm;
-            font-weight: 900;
+            background: var(--blue-primary);
+            color: #fff;
+            padding: 1.5mm 0.8mm;
+            font-weight: 500;
+            border: 0.5px solid var(--blue-primary);
             text-align: center;
-            font-size: 8.5px;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-            border-right: 1px solid white;
-        }
-
-        .items-table thead th:last-child {
-            border-right: none;
+            line-height: 1.2;
+            font-size: 8px;
         }
 
         .items-table thead th.text-left {
             text-align: left;
-            padding-left: 2mm;
         }
 
         .items-table thead th.text-right {
@@ -257,414 +245,443 @@
             padding-right: 2mm;
         }
 
-        .items-table tbody tr {
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .items-table tbody tr:nth-child(even) {
-            background: var(--bg-light);
-        }
-
         .items-table tbody td {
-            padding: 1.5mm 1mm;
-            font-size: 8.5px;
-            color: var(--text-dark);
-            font-weight: 700;
+            padding: 1mm 0.8mm;
+            border: 0.5px solid var(--border-light);
             text-align: center;
-            border-right: 1px solid var(--border-color);
+            line-height: 1.2;
+            font-size: 8px;
         }
 
-        .items-table tbody td:last-child {
-            border-right: none;
-        }
-
-        .items-table .description {
-            text-align: left !important;
-            font-weight: 800;
+        .items-table tbody td.description {
+            text-align: left;
             padding-left: 2mm;
         }
 
-        .items-table .text-right {
-            text-align: right !important;
-            font-weight: 700;
+        .items-table tbody td.text-right {
+            text-align: right;
             padding-right: 2mm;
         }
 
-        .items-table .amount {
-            font-weight: 900;
-            color: var(--text-dark);
-            font-size: 9px;
+        .items-table tbody td.amount {
+            font-weight: 500;
+            color: var(--blue-primary);
         }
 
-        /* Bottom Section */
+        .items-table tbody tr:nth-child(even) {
+            background: #f8f9ff;
+        }
+
+        /* ========================================================
+           BOTTOM SECTION - SINGLE ROW LAYOUT
+        ======================================================== */
         .bottom-section {
             display: grid;
-            grid-template-columns: 1.3fr 50mm;
-            gap: 3mm;
-            margin-top: auto;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 2mm;
+            margin-top: 1mm;
+        }
+
+        /* QR Section */
+        .qr-section {
+            padding: 2mm;
+            border: 0.5px solid var(--border-light);
+            border-radius: 2px;
+            background: var(--blue-lighter);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2mm;
+        }
+
+        .qr-label {
+            font-size: 8px;
+            font-weight: 500;
+            color: var(--blue-primary);
+        }
+
+        .qr-display {
+            width: 78px;
+            height: 78px;
+            border: 0.5px solid var(--border-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background: white;
+        }
+
+        .qr-display img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .qr-display i {
+            font-size: 14px;
+            color: var(--blue-primary);
         }
 
         /* Terms Section */
         .terms-section {
-            border: 2px solid var(--border-color);
-            padding: 2.5mm;
-            background: white;
-        }
-
-        .terms-title {
-            font-weight: 900;
-            margin-bottom: 1.5mm;
-            font-size: 9px;
-            color: var(--text-dark);
-            text-transform: uppercase;
-            display: flex;
-            align-items: center;
-            gap: 2mm;
-        }
-
-        .terms-title i {
-            color: var(--text-dark);
-            font-size: 10px;
-        }
-
-        .terms-text {
-            font-size: 7px;
-            line-height: 1.3;
-            color: var(--text-medium);
-            margin-bottom: 2.5mm;
-            height: 8mm;
-            overflow: hidden;
-            font-weight: 600;
-        }
-
-        .signature-section {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 2mm;
-        }
-
-        .signature-box {
-            border: 1.5px dashed var(--border-color);
             padding: 2mm;
-            text-align: center;
-            font-size: 7.5px;
-            font-weight: 700;
-            color: var(--text-medium);
-            height: 8mm;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 3px;
-            background: white;
-        }
-
-        .signature-box i {
-            margin-right: 1.5mm;
-            font-size: 8px;
-        }
-
-        /* Invoice Summary */
-        .invoice-summary {
-            background: white;
-            border: 2.5px solid var(--primary-color);
-            padding: 2.5mm;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 2mm;
-            border-radius: 6px;
-            box-shadow: 0 4px 12px rgba(34, 71, 165, 0.15);
-        }
-
-        .summary-left, .summary-right {
+            border: 0.5px solid var(--border-light);
+            border-radius: 2px;
+            background: #fafbff;
             display: flex;
             flex-direction: column;
         }
 
-        .summary-left {
-            border-right: 1.5px solid var(--border-color);
-            padding-right: 2mm;
+        .terms-title {
+            font-size: 9px;
+            font-weight: 500;
+            color: var(--blue-primary);
+            margin-bottom: 1mm;
+            display: flex;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .terms-text {
+            font-size: 7px;
+            line-height: 1.2;
+            color: var(--text-gray);
+            flex-grow: 1;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+        }
+
+        .signature-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 2mm;
+            margin-top: 2mm;
+        }
+
+        .signature-box {
+            flex: 1;
+            text-align: center;
+            padding-top: 2mm;
+            border-top: 0.5px dashed var(--blue-primary);
+            font-size: 6px;
+            color: var(--text-gray);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1px;
+        }
+
+        .signature-box i {
+            font-size: 8px;
+            color: var(--blue-primary);
+        }
+
+        /* Invoice Summary */
+        .invoice-summary {
+            padding: 2mm;
+            border: 0.5px solid var(--border-light);
+            border-radius: 2px;
+            background: var(--bg-white);
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
         }
 
         .summary-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 1.2mm 0;
-            font-size: 7.5px;
-            border-bottom: 1px solid var(--border-color);
-            font-weight: 700;
+            font-size: 8px;
+            padding: 1mm 0;
+            border-bottom: 0.5px solid #f1f5f9;
+            line-height: 1.2;
         }
 
         .summary-row:last-child {
-            border-bottom: none;
+            border-bottom: 1px solid var(--blue-primary);
+            border-top: 1px solid var(--blue-primary);
+            font-weight: 500;
+            font-size: 9px;
+            padding: 1.5mm 0;
+            margin-top: 1mm;
+        }
+
+        .summary-row span:first-child {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            color: var(--text-gray);
         }
 
         .summary-row i {
-            font-size: 7px;
-            margin-right: 1.5mm;
+            font-size: 8px;
+            color: var(--blue-primary);
         }
 
         .summary-row .amount {
-            font-weight: 800;
-            font-size: 8px;
+            font-weight: 500;
+            color: var(--blue-primary);
         }
 
-        /* Footer */
+        /* ========================================================
+           FOOTER - COMPACT
+        ======================================================== */
         .invoice-footer {
+            margin-top: 1mm;
+            padding-top: 1mm;
+            border-top: 0.5px solid var(--border-light);
             text-align: center;
-            padding: 1.5mm 0;
-            margin-top: 2mm;
-            border-top: 1.5px solid var(--border-color);
             font-size: 7px;
-            color: var(--text-light);
-            background: linear-gradient(135deg, #ffffff 0%, var(--bg-light) 100%);
-            border-radius: 3px;
-            font-weight: 600;
-        }
-
-        .invoice-footer strong {
-            color: var(--primary-color);
-            font-weight: 800;
+            color: var(--text-gray);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+            flex-wrap: wrap;
         }
 
         .invoice-footer i {
-            font-size: 6.5px;
-            margin: 0 1mm;
+            color: var(--blue-primary);
         }
 
-        /* Action Buttons */
+        /* ========================================================
+           ACTION BUTTONS
+        ======================================================== */
         .action-buttons {
+            text-align: center;
+            margin: 15px auto;
             display: flex;
             gap: 12px;
             justify-content: center;
-            padding: 20px;
-            background: white;
-            margin: 0 auto 20px;
-            max-width: 800px;
-            border-radius: 10px;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
-            border: 1px solid var(--border-color);
+            flex-wrap: wrap;
+            max-width: 210mm;
         }
 
         .btn {
+            padding: 12px 24px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            padding: 12px 24px;
-            border-radius: 6px;
-            text-decoration: none;
-            font-weight: 700;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            border: 2px solid;
-            font-size: 13px;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
+            font-family: "Poppins", Arial, sans-serif;
         }
 
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
-            color: white;
-            border-color: var(--primary-color);
-            box-shadow: 0 4px 12px rgba(34, 71, 165, 0.2);
-        }
-
-        .btn-primary:hover {
+        .btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(34, 71, 165, 0.3);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
 
-        .btn-success {
-            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
-            color: white;
-            border-color: #10B981;
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+        .btn:active {
+            transform: translateY(0);
         }
 
-        .btn-success:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(16, 185, 129, 0.3);
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
         }
 
         .btn-outline {
             background: white;
-            color: var(--text-dark);
-            border-color: var(--border-color);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            color: var(--blue-primary);
+            border: 2px solid var(--blue-primary);
         }
 
         .btn-outline:hover {
-            background: var(--text-dark);
+            background: var(--blue-primary);
             color: white;
-            transform: translateY(-2px);
         }
 
-        /* Print Styles - HD Black & White Compatible */
+        .btn-primary {
+            background: var(--blue-primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1e3a8a;
+        }
+
+        .btn-success {
+            background: var(--success-green);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #20BA5A;
+        }
+
+        .btn i.fa-spinner {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* ========================================================
+           PRINT STYLES - A5 LANDSCAPE WITH LARGER FONTS
+        ======================================================== */
         @media print {
             @page {
                 size: A5 landscape;
                 margin: 0;
             }
 
-            * {
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
-                color-adjust: exact !important;
-            }
-
             body {
                 background: white !important;
-                padding: 0 !important;
-                margin: 0 !important;
+                padding: 0;
+                margin: 0;
             }
 
             .page-container {
-                width: 210mm !important;
-                height: 148mm !important;
-                max-width: none !important;
-                margin: 0 !important;
                 box-shadow: none !important;
-                border-radius: 0 !important;
-                background: white !important;
                 border: none !important;
-                page-break-after: avoid !important;
-                page-break-inside: avoid !important;
-            }
-
-            .invoice {
-                padding: 4mm !important;
-                height: 140mm !important;
+                border-radius: 0 !important;
+                width: 210mm;
+                height: 148mm;
+                margin: 0;
+                padding: 6mm;
+                page-break-after: avoid;
             }
 
             .action-buttons {
                 display: none !important;
             }
 
-            /* HD Black & White Print Optimization */
-            .invoice-header {
-                border-bottom: 3px solid #000 !important;
-            }
-
-            .invoice-meta {
-                border: 3px solid #000 !important;
-                background: white !important;
-                box-shadow: none !important;
-            }
-
-            .customer-section {
-                border-left: 4px solid #000 !important;
-                background: #f5f5f5 !important;
-                border: 1.5px solid #000 !important;
-            }
-
-            .items-table {
-                border: 3px solid #000 !important;
-                box-shadow: none !important;
+            * {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
             }
 
             .items-table thead th {
-                background: #000 !important;
-                color: white !important;
-                border-right: 1px solid white !important;
-                font-weight: 900 !important;
+                background: var(--blue-primary) !important;
+                color: #fff !important;
             }
 
             .items-table tbody tr:nth-child(even) {
-                background: #f0f0f0 !important;
+                background: #f8f9ff !important;
+            }
+
+            /* Increased font sizes for print */
+            .company-text h1 {
+                font-size: 18px !important;
+            }
+
+            .company-details {
+                font-size: 9px !important;
+            }
+
+            .meta-info {
+                font-size: 9px !important;
+            }
+
+            .meta-info h2 {
+                font-size: 13px !important;
+            }
+
+            .meta-item {
+                font-size: 9px !important;
+            }
+
+            .customer-section {
+                font-size: 9px !important;
+            }
+
+            .customer-title {
+                font-size: 10px !important;
+            }
+
+            .customer-item {
+                font-size: 9px !important;
+            }
+
+            .items-table {
+                font-size: 9px !important;
+            }
+
+            .items-table thead th {
+                font-size: 9px !important;
             }
 
             .items-table tbody td {
-                font-weight: 800 !important;
+                font-size: 9px !important;
             }
 
-            .items-table .amount {
-                font-weight: 900 !important;
-                color: #000 !important;
+            .terms-title {
+                font-size: 10px !important;
             }
 
-            .invoice-summary {
-                border: 3px solid #000 !important;
-                background: white !important;
-                box-shadow: none !important;
+            .terms-text {
+                font-size: 8px !important;
             }
 
-            .summary-row .amount {
-                font-weight: 900 !important;
+            .signature-box {
+                font-size: 7px !important;
             }
 
-            .company-text h1,
-            .invoice-meta h2,
-            .customer-title,
-            .terms-title,
-            .invoice-footer strong {
-                color: #000 !important;
-                font-weight: 900 !important;
+            .summary-row {
+                font-size: 9px !important;
             }
 
-            .header-qr {
-                border: 3px solid #000 !important;
-                box-shadow: none !important;
+            .summary-row:last-child {
+                font-size: 10px !important;
             }
 
-            /* Remove all gradients and shadows for B&W */
-            .invoice::before,
-            .customer-section,
-            .terms-section,
             .invoice-footer {
-                background: white !important;
-            }
-
-            .items-table tbody tr:nth-child(even) {
-                background: #f5f5f5 !important;
+                font-size: 8px !important;
             }
         }
 
-        /* Mobile Responsive */
+        /* ========================================================
+           RESPONSIVE STYLES
+        ======================================================== */
         @media screen and (max-width: 900px) {
-            body { padding: 10px; }
+            body {
+                padding: 10px;
+            }
+
             .page-container {
-                transform: scale(0.85);
+                transform: scale(0.75);
                 transform-origin: top center;
-                margin-bottom: 30px;
             }
         }
 
         @media screen and (max-width: 768px) {
             .page-container {
-                transform: scale(0.7);
-                margin-bottom: 50px;
+                transform: scale(0.6);
             }
-            .action-buttons {
-                flex-wrap: wrap;
-                padding: 15px;
-                gap: 10px;
-            }
-            .btn {
-                flex: 1 1 calc(50% - 5px);
-                min-width: 140px;
-                font-size: 12px;
-                padding: 8px 16px;
-            }
-        }
 
-        @media screen and (max-width: 600px) {
-            .page-container {
-                transform: scale(0.55);
-                margin-bottom: 80px;
+            .action-buttons {
+                flex-direction: column;
+                padding: 0 20px;
             }
-            .customer-details {
-                grid-template-columns: 1fr !important;
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .bottom-section {
+                grid-template-columns: 1fr;
             }
         }
 
         @media screen and (max-width: 480px) {
             .page-container {
                 transform: scale(0.45);
-                margin-bottom: 100px;
             }
-            .action-buttons { flex-direction: column; }
-            .btn { width: 100%; }
         }
+
     </style>
 </head>
 <body>
@@ -672,96 +689,89 @@
 
 <div class="page-container" id="invoice-container">
     <div class="invoice">
-        <!-- Header -->
-        <div class="invoice-header">
-            <div class="header-top">
-                <div class="company-info">
-                    <img class="company-logo" src="${pageContext.request.contextPath}/resources/images/logo.png" alt="Company Logo" onerror="this.style.display='none'">
-                    <div class="company-text">
-                        <h1>${ownerInfo.shopName}</h1>
-                        <div class="company-details">
-                            <p><i class="fas fa-map-marker-alt"></i> ${ownerInfo.address}</p>
-                            <p><i class="fas fa-user"></i> ${ownerInfo.ownerName}</p>
-                            <p><i class="fas fa-phone"></i> ${ownerInfo.mobNumber}</p>
-                            <p><i class="fas fa-id-card"></i> <strong>LC:</strong> ${ownerInfo.lcNo} | <strong>GST:</strong> ${ownerInfo.gstNumber}</p>
-                        </div>
+
+        <!-- ========== HEADER SECTION - CENTERED ========== -->
+        <div class="header-section">
+            <div class="company-info">
+                <img class="company-logo"
+                     src="${pageContext.request.contextPath}/resources/images/logo.png"
+                     alt="Logo"
+                     onerror="this.style.display='none'">
+                <div class="company-text">
+                    <h1><c:out value="${ownerInfo.shopName}"/></h1>
+                    <div class="company-details">
+                        <p><c:out value="${ownerInfo.address}"/></p>
                     </div>
                 </div>
+            </div>
+            <div class="header-meta-row">
 
-                <div class="invoice-meta">
-                    <div class="header-qr">
-                        <c:choose>
-                            <c:when test="${not empty QRCODE}">
-                                <img src="data:image/png;base64,${QRCODE}" alt="QR Code" />
-                            </c:when>
-                            <c:otherwise>
-                                <i class="fas fa-qrcode"></i>
-                            </c:otherwise>
-                        </c:choose>
-                    </div>
-
+                <div class="meta-info">
                     <h2>TAX INVOICE</h2>
-                    <div class="meta-item"><strong>Invoice #:</strong> ${invoiceNo}</div>
-                    <div class="meta-item"><strong>Date:</strong> ${date}</div>
+                    <div class="meta-item">Invoice #: ${invoiceNo}</div>
+                    <div class="meta-item">Date: ${date}</div>
+                      <div class="meta-item">Owner: ${ownerInfo.ownerName} Mob.:${ownerInfo.mobNumber}</div>
+                                            <div class="meta-item">LC No: ${ownerInfo.lcNo} GST:${ownerInfo.gstNumber}</div>
+
                 </div>
             </div>
         </div>
 
-        <!-- Customer Section -->
+        <!-- ========== OWNER INFO - TWO ROW LAYOUT ========== -->
         <div class="customer-section">
+
             <div class="customer-title">
-                <i class="fas fa-user-circle"></i>
-                Customer Details
+                <i class="fas fa-user-circle"></i>Customer Details
             </div>
             <div class="customer-details">
                 <div class="customer-item">
-                    <strong>Name:</strong> ${profile.custName}
+                    <span>Name:</span> <c:out value="${profile.custName}"/>
                 </div>
                 <div class="customer-item">
-                    <strong>Contact:</strong> ${profile.phoneNo}
+                    <span>Contact:</span> <c:out value="${profile.phoneNo}"/>
                 </div>
                 <div class="customer-item">
-                    <strong>Address:</strong> ${profile.address}
+                    <span>Address:</span> <c:out value="${profile.address}"/>
                 </div>
             </div>
         </div>
 
-        <!-- Items Table -->
+        <!-- ========== ITEMS TABLE ========== -->
         <table class="items-table">
             <thead>
                 <tr>
-                    <th style="width:5%">SR</th>
-                    <th style="width:30%" class="text-left">Description</th>
+                    <th style="width:4%">SR</th>
+                    <th style="width:26%" class="text-left">Description</th>
                     <c:if test="${invoiceColms.contains('BRAND')}">
-                        <th style="width:10%">Brand</th>
+                        <th style="width:8%">Brand</th>
                     </c:if>
                     <c:if test="${invoiceColms.contains('BATCHNO')}">
-                        <th style="width:8%">Batch</th>
+                        <th style="width:7%">Batch</th>
                     </c:if>
                     <c:if test="${invoiceColms.contains('EXPD')}">
-                        <th style="width:7%">Exp.</th>
+                        <th style="width:6%">Exp.</th>
                     </c:if>
                     <c:if test="${invoiceColms.contains('MRP')}">
-                        <th style="width:9%" class="text-right">MRP</th>
+                        <th style="width:8%" class="text-right">MRP</th>
                     </c:if>
-                    <th style="width:6%">Qty</th>
-                    <th style="width:11%" class="text-right">Rate</th>
+                    <th style="width:5%">Qty</th>
+                    <th style="width:9%" class="text-right">Rate</th>
                     <th style="width:11%" class="text-right">Amount</th>
                 </tr>
             </thead>
             <tbody>
-                <c:forEach items="${items}" var="item">
+                <c:forEach items="${items}" var="item" varStatus="status">
                     <tr>
-                        <td>${item.itemNo}</td>
-                        <td class="description">${item.description}</td>
+                        <td>${status.index + 1}</td>
+                        <td class="description"><c:out value="${item.description}"/></td>
                         <c:if test="${invoiceColms.contains('BRAND')}">
-                            <td>${empty item.brand ? 'N/A' : item.brand}</td>
+                            <td><c:out value="${empty item.brand ? 'N/A' : item.brand}"/></td>
                         </c:if>
                         <c:if test="${invoiceColms.contains('BATCHNO')}">
-                            <td>${item.batchNo}</td>
+                            <td><c:out value="${item.batchNo}"/></td>
                         </c:if>
                         <c:if test="${invoiceColms.contains('EXPD')}">
-                            <td>${empty item.expDate ? 'N/A' : item.expDate}</td>
+                            <td><c:out value="${empty item.expDate ? 'N/A' : item.expDate}"/></td>
                         </c:if>
                         <c:if test="${invoiceColms.contains('MRP')}">
                             <td class="text-right">₹${item.mrp}</td>
@@ -774,211 +784,204 @@
             </tbody>
         </table>
 
-        <!-- Bottom Section -->
+        <!-- ========== BOTTOM SECTION - THREE COLUMN LAYOUT ========== -->
         <div class="bottom-section">
+
+            <!-- QR Code Section -->
+            <div class="qr-section">
+                <div class="qr-display">
+                    <c:choose>
+                        <c:when test="${not empty QRCODE}">
+                            <img src="data:image/png;base64,${QRCODE}" alt="QR" />
+                        </c:when>
+                        <c:otherwise>
+                            <i class="fas fa-qrcode"></i>
+                        </c:otherwise>
+                    </c:choose>
+                </div>
+            </div>
+
             <!-- Terms & Conditions -->
             <div class="terms-section">
                 <div class="terms-title">
-                    <i class="fas fa-file-contract"></i>
-                    Terms & Conditions
+                    <i class="fas fa-file-contract"></i>Terms & Conditions
                 </div>
                 <div class="terms-text">
-                    ${ownerInfo.terms}
+                    <c:out value="${ownerInfo.terms}"/>
                 </div>
-                <div class="signature-section">
+                <div class="signature-row">
                     <div class="signature-box">
                         <i class="fas fa-signature"></i>
-                        Customer Signature
+                        <span>Customer Signature</span>
                     </div>
                     <div class="signature-box">
                         <i class="fas fa-store"></i>
-                        For ${ownerInfo.shopName}
+                        <span>For <c:out value="${ownerInfo.shopName}"/></span>
                     </div>
                 </div>
             </div>
 
             <!-- Invoice Summary -->
             <div class="invoice-summary">
-                <div class="summary-left">
-                    <div class="summary-row">
-                        <span><i class="fas fa-calculator"></i>Sub Total</span>
-                        <span class="amount">₹${totalAmout}</span>
-                    </div>
-                    <div class="summary-row">
-                        <span><i class="fas fa-credit-card"></i>Paid</span>
-                        <span class="amount">₹${advamount}</span>
-                    </div>
-                    <div class="summary-row">
-                        <span><i class="fas fa-receipt"></i>Net Total</span>
-                        <span class="amount">₹${totalAmout - advamount}</span>
-                    </div>
+                <div class="summary-row">
+                    <span><i class="fas fa-calculator"></i>Sub Total</span>
+                    <span class="amount">₹${totalAmout}</span>
                 </div>
-
-                <div class="summary-right">
-                    <div class="summary-row">
-                        <span><i class="fas fa-percentage"></i>GST</span>
-                        <span class="amount">₹${currentinvoiceitems.tax}</span>
-                    </div>
-                    <div class="summary-row">
-                        <span><i class="fas fa-history"></i>Prev Bal</span>
-                        <span class="amount">₹${currentinvoiceitems.preBalanceAmt}</span>
-                    </div>
-                    <div class="summary-row">
-                        <span><i class="fas fa-wallet"></i>Cur Bal</span>
-                        <span class="amount">₹${profile.currentOusting}</span>
-                    </div>
+                <div class="summary-row">
+                    <span><i class="fas fa-percentage"></i>GST</span>
+                    <span class="amount">₹${currentinvoiceitems.tax}</span>
+                </div>
+                <div class="summary-row">
+                    <span><i class="fas fa-credit-card"></i>Paid</span>
+                    <span class="amount">₹${advamount}</span>
+                </div>
+                <div class="summary-row">
+                    <span><i class="fas fa-history"></i>Prev Balance</span>
+                    <span class="amount">₹${currentinvoiceitems.preBalanceAmt}</span>
+                </div>
+                <div class="summary-row">
+                    <span><i class="fas fa-wallet"></i>Current Balance</span>
+                    <span class="amount">₹${profile.currentOusting}</span>
                 </div>
             </div>
         </div>
 
-        <!-- Footer -->
+        <!-- ========== FOOTER ========== -->
         <div class="invoice-footer">
             <i class="fas fa-code"></i>
-            Generated by <strong>BillMatePro Solution</strong> •
+            <span>Generated by BillMatePro Solution</span>
+            <span>•</span>
             <i class="fas fa-phone"></i>
-            Contact: 8180080378
+            <span>8180080378</span>
         </div>
     </div>
 </div>
 
-<!-- Action Buttons -->
+<!-- ========== ACTION BUTTONS ========== -->
 <div class="action-buttons">
     <button class="btn btn-outline" onclick="window.location.href='${pageContext.request.contextPath}/login/home'">
         <i class="fas fa-home"></i> Home
     </button>
-    <button class="btn btn-outline" onclick="printInvoice()">
+    <button class="btn btn-primary" onclick="printInvoice()">
         <i class="fas fa-print"></i> Print A5
     </button>
-    <button class="btn btn-primary" onclick="downloadPDF()">
-        <i class="fas fa-download"></i> Download HD PDF
+    <button class="btn btn-primary" id="pdfDownloadBtn" onclick="downloadPDF(this)">
+        <i class="fas fa-download"></i> Download PDF
     </button>
-    <a href="https://wa.me/${profile.phoneNo}/?text=Namaste!!!%20*${profile.custName}*,%20आपका%20बिल%20तैयार%20है।%20Invoice%20%23${invoiceNo}%20-%20₹${profile.currentOusting}%0A%0AThank%20you%20for%20your%20business!%0A%0A-%20${ownerInfo.shopName}" target="_blank" class="btn btn-success">
-        <i class="fab fa-whatsapp"></i> WhatsApp
+    <a href="https://wa.me/${profile.phoneNo}/?text=Namaste!!!%20*${profile.custName}*,%20आपका%20बिल%20तैयार%20है।%20Invoice%20%23${invoiceNo}%20-%20₹${profile.currentOusting}%0A%0AThank%20you%20for%20your%20business!%0A%0A-%20${ownerInfo.shopName}"
+       target="_blank"
+       class="btn btn-success">
+        <i class="fab fa-whatsapp"></i> Share on WhatsApp
     </a>
 </div>
 
 </c:if>
 
+<!-- ========== SCRIPTS ========== -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script>
-    // HD Print Function
+    // ========== AUTO-DOWNLOAD ON PAGE LOAD ==========
+    window.addEventListener('DOMContentLoaded', function() {
+        // Get download flag from JSP
+        const downloadFlag = '${downloadflag}' === 'true';
+
+        if (downloadFlag) {
+            // Wait for images and content to load
+            setTimeout(function() {
+                const pdfBtn = document.getElementById('pdfDownloadBtn');
+                if (pdfBtn && !pdfBtn.disabled) {
+                    console.log('Auto-downloading PDF...');
+                    downloadPDF(pdfBtn);
+                }
+            }, 1000);
+        }
+    });
+
+    // ========== PRINT FUNCTION - A5 LANDSCAPE ==========
     function printInvoice() {
         window.print();
     }
 
-    // HD PDF Download Function
-    function downloadPDF() {
+    // ========== PDF DOWNLOAD - FULL PAGE FIX ==========
+    let pdfGenerating = false;
+
+    function downloadPDF(btn) {
+        if (pdfGenerating) {
+            alert('PDF generation already in progress. Please wait...');
+            return;
+        }
+
         const element = document.getElementById('invoice-container');
         const customerName = '${profile.custName}'.replace(/[^a-zA-Z0-9]/g, '_') || 'Customer';
         const invoiceNo = '${invoiceNo}' || 'INV001';
         const currentDate = new Date().toISOString().slice(0, 10);
 
-        const btn = event.target;
         const originalText = btn.innerHTML;
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating HD PDF...';
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating PDF...';
         btn.disabled = true;
-
-        const originalTransform = element.style.transform;
-        element.style.transform = 'scale(1)';
+        pdfGenerating = true;
 
         const opt = {
             margin: [0, 0, 0, 0],
             filename: `Invoice_${invoiceNo}_${customerName}_${currentDate}.pdf`,
-            image: { type: 'jpeg', quality: 0.98 },
+            image: {
+                type: 'png',
+                quality: 0.98
+            },
             html2canvas: {
                 scale: 3,
                 useCORS: true,
                 letterRendering: true,
                 allowTaint: false,
                 backgroundColor: '#ffffff',
-                logging: false,
-                scrollY: -window.scrollY,
-                scrollX: -window.scrollX,
+                scrollY: 0,
+                scrollX: 0,
                 width: 794,
-                height: 559,
-                windowWidth: 794,
-                windowHeight: 559
+                height: 559
             },
             jsPDF: {
                 unit: 'mm',
-                format: 'a5',
+                format: [148, 210],
                 orientation: 'landscape',
                 compress: true
-            },
-            pagebreak: { mode: 'avoid-all' }
+            }
         };
 
         html2pdf()
             .set(opt)
             .from(element)
-            .toPdf()
-            .get('pdf')
-            .then(function(pdf) {
-                const totalPages = pdf.internal.getNumberOfPages();
-                if (totalPages > 1) {
-                    for (let i = totalPages; i > 1; i--) {
-                        pdf.deletePage(i);
-                    }
-                }
-                return pdf;
-            })
             .save()
             .then(() => {
-                element.style.transform = originalTransform;
-                btn.innerHTML = originalText;
-                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-check"></i> PDF Downloaded!';
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                    pdfGenerating = false;
+                }, 2000);
             })
             .catch((error) => {
                 console.error('PDF generation failed:', error);
-                alert('PDF generation failed. Please try the print option.');
-                element.style.transform = originalTransform;
+                alert('PDF generation failed. Please try the print option or contact support.');
                 btn.innerHTML = originalText;
                 btn.disabled = false;
+                pdfGenerating = false;
             });
     }
 
-    // Print event handlers
-    window.addEventListener('beforeprint', function() {
-        document.body.style.background = 'white';
-    });
-
-    window.addEventListener('afterprint', function() {
-        document.body.style.background = 'linear-gradient(135deg, #f0f4ff 0%, #e0e7ff 50%, #f8fafc 100%)';
-    });
-
-    // Responsive scaling
-    function adjustInvoiceScale() {
-        const container = document.getElementById('invoice-container');
-        const viewport = window.innerWidth;
-
-        if (viewport < 480) {
-            container.style.transform = 'scale(0.45)';
-        } else if (viewport < 600) {
-            container.style.transform = 'scale(0.55)';
-        } else if (viewport < 768) {
-            container.style.transform = 'scale(0.7)';
-        } else if (viewport < 900) {
-            container.style.transform = 'scale(0.85)';
-        } else {
-            container.style.transform = 'scale(1)';
-        }
-    }
-
-    // Initialize
-    window.addEventListener('load', adjustInvoiceScale);
-    window.addEventListener('resize', adjustInvoiceScale);
-
-    // Keyboard shortcuts
+    // ========== KEYBOARD SHORTCUTS ==========
     document.addEventListener('keydown', function(event) {
         if (event.ctrlKey || event.metaKey) {
-            switch(event.key) {
+            switch(event.key.toLowerCase()) {
                 case 'p':
                     event.preventDefault();
                     printInvoice();
                     break;
                 case 's':
                     event.preventDefault();
-                    downloadPDF();
+                    const pdfBtn = document.getElementById('pdfDownloadBtn');
+                    if (!pdfBtn.disabled) {
+                        downloadPDF(pdfBtn);
+                    }
                     break;
                 case 'h':
                     event.preventDefault();
@@ -987,6 +990,22 @@
             }
         }
     });
+
+    // ========== PRINT EVENT HANDLERS ==========
+    window.addEventListener('beforeprint', function() {
+        document.body.style.background = 'white';
+    });
+
+    window.addEventListener('afterprint', function() {
+        document.body.style.background = 'linear-gradient(135deg, #f0f4ff 0%, #e0e7ff 50%, #f8fafc 100%)';
+    });
+
+    // ========== CONSOLE MESSAGE ==========
+    console.log('%c Invoice Template - A5 Landscape Optimized! ', 'background: #1e40af; color: white; padding: 10px; font-size: 14px; font-weight: bold;');
+    console.log('%c ✓ Increased font sizes for better print readability', 'color: green; font-weight: bold;');
+    console.log('%c ✓ Auto-download enabled when downloadflag=true', 'color: green; font-weight: bold;');
+    console.log('%c ✓ Minimum 8 products fit on single page', 'color: green; font-weight: bold;');
+    console.log('%c Keyboard Shortcuts: Ctrl+P (Print) | Ctrl+S (PDF) | Ctrl+H (Home)', 'font-style: italic;');
 </script>
 
 </body>

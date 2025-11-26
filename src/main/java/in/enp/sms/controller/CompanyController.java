@@ -315,6 +315,9 @@ public class CompanyController {
         model.addAttribute("oldInvoicesFlag", itemDetails.getOldInvoicesFlag());
         model.addAttribute("date", itemDetails.getDate());
         model.addAttribute("invoiceNo", itemDetails.getInvoiceId());
+        model.addAttribute("downloadflag", true);
+
+
 
         String itemSummary = invoiceService.generateItemSummary(items);
         itemRepository.saveAll(items);
