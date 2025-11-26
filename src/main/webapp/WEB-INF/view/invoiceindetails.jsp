@@ -96,7 +96,7 @@
 
         .company-text h1 {
             margin: 0;
-            font-size: 16px;
+            font-size: 17.6px;
             font-weight: 500;
             color: var(--blue-primary);
             line-height: 1.1;
@@ -106,7 +106,7 @@
             display: flex;
             flex-direction: column;
             gap: 1mm;
-            font-size: 8px;
+            font-size: 8.8px;
             color: var(--text-gray);
             line-height: 1.2;
         }
@@ -120,7 +120,7 @@
         }
 
         .company-details i {
-            font-size: 8px;
+            font-size: 8.8px;
             color: var(--blue-primary);
         }
 
@@ -158,18 +158,18 @@
 
         .meta-info {
             text-align: center;
-            font-size: 8px;
+            font-size: 8.8px;
         }
 
         .meta-info h2 {
-            font-size: 12px;
+            font-size: 13.2px;
             font-weight: 500;
             color: var(--blue-primary);
             margin: 0;
         }
 
         .meta-item {
-            font-size: 8px;
+            font-size: 8.8px;
             color: var(--text-gray);
             margin: 1px 0;
             line-height: 1.2;
@@ -184,11 +184,11 @@
             border: 0.5px solid var(--border-light);
             border-radius: 2px;
             background: #fafbff;
-            font-size: 8px;
+            font-size: 8.8px;
         }
 
         .customer-title {
-            font-size: 9px;
+            font-size: 9.9px;
             font-weight: 500;
             color: var(--blue-primary);
             margin-bottom: 1mm;
@@ -204,7 +204,7 @@
         }
 
         .customer-item {
-            font-size: 8px;
+            font-size: 8.8px;
             color: var(--text-dark);
             line-height: 1.2;
         }
@@ -221,7 +221,7 @@
             width: 100%;
             border-collapse: collapse;
             margin: 1mm 0;
-            font-size: 8px;
+            font-size: 8.8px;
             flex-grow: 1;
         }
 
@@ -233,7 +233,7 @@
             border: 0.5px solid var(--blue-primary);
             text-align: center;
             line-height: 1.2;
-            font-size: 8px;
+            font-size: 8.8px;
         }
 
         .items-table thead th.text-left {
@@ -250,7 +250,7 @@
             border: 0.5px solid var(--border-light);
             text-align: center;
             line-height: 1.2;
-            font-size: 8px;
+            font-size: 8.8px;
         }
 
         .items-table tbody td.description {
@@ -296,7 +296,7 @@
         }
 
         .qr-label {
-            font-size: 8px;
+            font-size: 8.8px;
             font-weight: 500;
             color: var(--blue-primary);
         }
@@ -334,7 +334,7 @@
         }
 
         .terms-title {
-            font-size: 9px;
+            font-size: 9.9px;
             font-weight: 500;
             color: var(--blue-primary);
             margin-bottom: 1mm;
@@ -344,7 +344,7 @@
         }
 
         .terms-text {
-            font-size: 7px;
+            font-size: 7.7px;
             line-height: 1.2;
             color: var(--text-gray);
             flex-grow: 1;
@@ -366,7 +366,7 @@
             text-align: center;
             padding-top: 2mm;
             border-top: 0.5px dashed var(--blue-primary);
-            font-size: 6px;
+            font-size: 6.6px;
             color: var(--text-gray);
             display: flex;
             flex-direction: column;
@@ -375,7 +375,7 @@
         }
 
         .signature-box i {
-            font-size: 8px;
+            font-size: 8.8px;
             color: var(--blue-primary);
         }
 
@@ -394,7 +394,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 8px;
+            font-size: 8.8px;
             padding: 1mm 0;
             border-bottom: 0.5px solid #f1f5f9;
             line-height: 1.2;
@@ -404,7 +404,7 @@
             border-bottom: 1px solid var(--blue-primary);
             border-top: 1px solid var(--blue-primary);
             font-weight: 500;
-            font-size: 9px;
+            font-size: 9.9px;
             padding: 1.5mm 0;
             margin-top: 1mm;
         }
@@ -417,7 +417,7 @@
         }
 
         .summary-row i {
-            font-size: 8px;
+            font-size: 8.8px;
             color: var(--blue-primary);
         }
 
@@ -434,7 +434,7 @@
             padding-top: 1mm;
             border-top: 0.5px solid var(--border-light);
             text-align: center;
-            font-size: 7px;
+            font-size: 7.7px;
             color: var(--text-gray);
             display: flex;
             align-items: center;
@@ -561,84 +561,176 @@
             * {
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
+                color: #000000 !important;
             }
 
             .items-table thead th {
                 background: var(--blue-primary) !important;
-                color: #fff !important;
+                color: #000000 !important;
             }
 
             .items-table tbody tr:nth-child(even) {
                 background: #f8f9ff !important;
             }
 
-            /* Increased font sizes for print */
+            /* Increased font sizes for print - 10% more than base */
             .company-text h1 {
-                font-size: 18px !important;
+                font-size: 19.36px !important;
+                color: #000000 !important;
+                font-weight: 600 !important;
             }
 
             .company-details {
-                font-size: 9px !important;
+                font-size: 9.68px !important;
+                color: #000000 !important;
+            }
+
+            .company-details p {
+                color: #000000 !important;
+            }
+
+            .company-details i {
+                color: #000000 !important;
             }
 
             .meta-info {
-                font-size: 9px !important;
+                font-size: 9.68px !important;
             }
 
             .meta-info h2 {
-                font-size: 13px !important;
+                font-size: 14.52px !important;
+                color: #000000 !important;
+                font-weight: 600 !important;
             }
 
             .meta-item {
-                font-size: 9px !important;
+                font-size: 9.68px !important;
+                color: #000000 !important;
             }
 
             .customer-section {
-                font-size: 9px !important;
+                font-size: 9.68px !important;
+                border: 1px solid #000000 !important;
             }
 
             .customer-title {
-                font-size: 10px !important;
+                font-size: 10.89px !important;
+                color: #000000 !important;
+                font-weight: 600 !important;
+            }
+
+            .customer-title i {
+                color: #000000 !important;
             }
 
             .customer-item {
-                font-size: 9px !important;
+                font-size: 9.68px !important;
+                color: #000000 !important;
+            }
+
+            .customer-item span {
+                color: #000000 !important;
+                font-weight: 600 !important;
             }
 
             .items-table {
-                font-size: 9px !important;
+                font-size: 9.68px !important;
+                border: 1px solid #000000 !important;
             }
 
             .items-table thead th {
-                font-size: 9px !important;
+                font-size: 9.68px !important;
+                background: #000000 !important;
+                color: #ffffff !important;
+                border: 1px solid #000000 !important;
+                font-weight: 600 !important;
             }
 
             .items-table tbody td {
-                font-size: 9px !important;
+                font-size: 9.68px !important;
+                color: #000000 !important;
+                border: 0.5px solid #000000 !important;
+            }
+
+            .items-table tbody td.amount {
+                font-weight: 600 !important;
+                color: #000000 !important;
+            }
+
+            .qr-section {
+                border: 1px solid #000000 !important;
+            }
+
+            .terms-section {
+                border: 1px solid #000000 !important;
             }
 
             .terms-title {
-                font-size: 10px !important;
+                font-size: 10.89px !important;
+                color: #000000 !important;
+                font-weight: 600 !important;
+            }
+
+            .terms-title i {
+                color: #000000 !important;
             }
 
             .terms-text {
-                font-size: 8px !important;
+                font-size: 8.47px !important;
+                color: #000000 !important;
             }
 
             .signature-box {
-                font-size: 7px !important;
+                font-size: 7.26px !important;
+                color: #000000 !important;
+                border-top: 0.5px dashed #000000 !important;
+            }
+
+            .signature-box i {
+                color: #000000 !important;
+            }
+
+            .invoice-summary {
+                border: 1px solid #000000 !important;
             }
 
             .summary-row {
-                font-size: 9px !important;
+                font-size: 9.68px !important;
+                border-bottom: 0.5px solid #000000 !important;
             }
 
             .summary-row:last-child {
-                font-size: 10px !important;
+                font-size: 10.89px !important;
+                border-bottom: 1.5px solid #000000 !important;
+                border-top: 1.5px solid #000000 !important;
+                font-weight: 600 !important;
+            }
+
+            .summary-row span:first-child {
+                color: #000000 !important;
+            }
+
+            .summary-row i {
+                color: #000000 !important;
+            }
+
+            .summary-row .amount {
+                color: #000000 !important;
+                font-weight: 600 !important;
             }
 
             .invoice-footer {
-                font-size: 8px !important;
+                font-size: 8.47px !important;
+                color: #000000 !important;
+                border-top: 0.5px solid #000000 !important;
+            }
+
+            .invoice-footer i {
+                color: #000000 !important;
+            }
+
+            .qr-display {
+                border: 1px solid #000000 !important;
             }
         }
 
