@@ -1,4 +1,4 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
@@ -671,19 +671,18 @@ body.modal-open {
 }
 </style>
 
-<!-- Main Content -->
+<body>
+
 <div id="layoutSidenav_content">
     <main>
         <div class="container-fluid px-3 py-3">
- <div id="pageLoader"
-                   style="display:none; position:fixed; z-index:9999; top:0; left:0; width:100%; height:100%;
-                   background:rgba(0,0,0,0.4); backdrop-filter: blur(2px);">
+            <!-- Page Loader -->
+            <div id="pageLoader" style="display:none; position:fixed; z-index:9999; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.4); backdrop-filter: blur(2px);">
+                <div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); padding:20px; background:white; border-radius:8px; font-weight:bold;">
+                    Loading...
+                </div>
+            </div>
 
-                  <div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%);
-                       padding:20px; background:white; border-radius:8px; font-weight:bold;">
-                       Loading...
-                  </div>
-              </div>
             <!-- Customer Info Cards -->
             <div class="info-card-grid">
                 <div class="info-card">
@@ -753,88 +752,64 @@ body.modal-open {
 
             <!-- Add Item Section -->
             <div class="add-item-section">
-               <div class="section-header d-flex flex-column align-items-center mb-3">
+                <div class="section-header d-flex flex-column align-items-center mb-3">
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="fas fa-plus-circle me-2"></i>
+                        <span>Add Item to Invoice</span>
+                    </div>
+                    <div class="form-group dropdown-center">
+                        <select id="productDropdown" class="form-control-modern centered-dropdown"></select>
+                    </div>
+                </div>
 
-                   <!-- Title Row -->
-                   <div class="d-flex align-items-center mb-2">
-                       <i class="fas fa-plus-circle me-2"></i>
-                       <span>Add Item to Invoice</span>
-                   </div>
+                <div class="section-body">
+                    <form id="addItemForm" class="d-flex flex-wrap align-items-end gap-3">
+                        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+                        <input type="hidden" name="custId" value="${profile.id}">
+                        <input type="hidden" name="productId" id="productId" required>
+                        <input type="hidden" name="invoiceNo" value="${invoiceNo}">
 
-                   <!-- Product Dropdown Centered -->
-                   <div class="form-group dropdown-center">
-                       <select id="productDropdown" class="form-control-modern centered-dropdown"></select>
-                   </div>
+                        <div class="form-group">
+                            <label class="form-label-modern">Item#</label>
+                            <input type="text" class="form-control-modern text-center" name="itemNo" id="itemNo" readonly value="${itemsNo}">
+                        </div>
 
-               </div>
+                        <div class="form-group flex-grow-1">
+                            <label class="form-label-modern"><i class="fas fa-align-left"></i> Description</label>
+                            <input type="text" class="form-control-modern" name="description" id="description" required>
+                        </div>
 
+                        <div class="form-group">
+                            <label class="form-label-modern"><i class="fas fa-rupee-sign"></i> Rate</label>
+                            <input type="text" class="form-control-modern text-end" name="rate" id="rate" required placeholder="0.00">
+                        </div>
 
+                        <div class="form-group">
+                            <label class="form-label-modern"><i class="fas fa-sort-numeric-up"></i> Qty</label>
+                            <div class="qty-control d-flex">
+                                <button class="btn btn-outline-secondary" type="button" id="qtyMinus">
+                                    <i class="fas fa-minus"></i>
+                                </button>
+                                <input type="text" class="form-control-modern text-center" name="qty" id="qty" value="1" required style="width:60px;">
+                                <button class="btn btn-outline-secondary" type="button" id="qtyPlus">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                        </div>
 
+                        <div class="form-group">
+                            <label class="form-label-modern"><i class="fas fa-calculator"></i> Amount</label>
+                            <input type="text" class="form-control-modern text-end fw-bold" name="amount" id="amount" readonly placeholder="0.00" style="color: var(--primary-color);">
+                        </div>
 
-
-               <div class="section-body">
-                   <form id="addItemForm" class="d-flex flex-wrap align-items-end gap-3">
-
-                       <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
-                       <input type="hidden" name="custId" value="${profile.id}">
-                       <input type="hidden" name="productId" id="productId" required>
-                       <input type="hidden" name="invoiceNo" value="${invoiceNo}">
-
-                       <!-- Product First -->
-
-
-                 <!-- Item No -->
-                       <div class="form-group">
-                           <label class="form-label-modern">Item#</label>
-                           <input type="text" class="form-control-modern text-center" name="itemNo" id="itemNo" readonly value="${itemsNo}">
-                       </div>
-                       <!-- Description moved to product place -->
-                       <div class="form-group flex-grow-1">
-                           <label class="form-label-modern"><i class="fas fa-align-left"></i> Description</label>
-                           <input type="text" class="form-control-modern" name="description" id="description" required>
-                       </div>
-
-
-
-                       <!-- Rate -->
-                       <div class="form-group">
-                           <label class="form-label-modern"><i class="fas fa-rupee-sign"></i> Rate</label>
-                           <input type="text" class="form-control-modern text-end" name="rate" id="rate" required
-                                  onkeyup="calAmt()" placeholder="0.00"
-                                  oninput="this.value=this.value.replace(/[^0-9.]/g,'').replace(/(\..*)\./g,'$1');">
-                       </div>
-
-                       <!-- Qty -->
-                       <div class="form-group">
-                           <label class="form-label-modern"><i class="fas fa-sort-numeric-up"></i> Qty</label>
-                           <div class="qty-control d-flex">
-                               <button class="btn btn-outline-secondary" type="button" onclick="changeQty(-1)">
-                                   <i class="fas fa-minus"></i>
-                               </button>
-                               <input type="text" class="form-control-modern text-center" name="qty" id="qty" value="1" onkeyup="calAmt()" required style="width:60px;">
-                               <button class="btn btn-outline-secondary" type="button" onclick="changeQty(1)">
-                                   <i class="fas fa-plus"></i>
-                               </button>
-                           </div>
-                       </div>
-
-                       <!-- Amount -->
-                       <div class="form-group">
-                           <label class="form-label-modern"><i class="fas fa-calculator"></i> Amount</label>
-                           <input type="text" class="form-control-modern text-end fw-bold" name="amount" id="amount" readonly placeholder="0.00" style="color: var(--primary-color);">
-                       </div>
-
-                       <!-- Add Button -->
-                       <div>
-                           <button type="submit" class="btn btn-primary btn-compact" id="addItemBtn">
-                               <i class="fa fa-plus"></i> Add
-                           </button>
-                       </div>
-
-                   </form>
-               </div>
-
-
+                        <div>
+                            <button type="submit" class="btn btn-primary btn-compact" id="addItemBtn">
+                                <i class="fa fa-plus"></i> Add
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
 
             <!-- Alerts Container -->
             <div id="alertContainer"></div>
@@ -906,31 +881,28 @@ body.modal-open {
                         <input type="hidden" name="oldInvoicesFlag" value="F" />
 
                         <div class="summary-grid mt-3">
-                                                                   <div class="summary-item">
-                                                                       <div class="summary-label">Total Qty</div>
-                                                                       <div class="summary-value" id="totalQty">${totalQty}</div>
-                                                                   </div>
-                                                                   <div class="summary-item">
-                                                                       <div class="summary-label">Amt (A)</div>
-                                                                       <div class="summary-value" id="preTaxAmt">₹${preTaxAmt}</div>
-                                                                   </div>
-                                                                   <div class="summary-item">
-                                                                       <div class="summary-label">GST (B)</div>
-                                                                       <div class="summary-value" id="totGst">₹${totGst}</div>
-                                                                   </div>
-                                                                   <div class="summary-item">
-                                                                       <div class="summary-label">Total</div>
-                                                                       <div class="summary-value" style="color: var(--success-color);" id="totalAmt">
-                                                                           ₹${totalAmout}
-                                                                       </div>
-                                                                   </div>
-                             <div class="summary-item">
-                                                            <div class="summary-label">Invoice Date</div>
-                                                            <div class="summary-value" style="color: var(--primary-color);">
-<input type="date" name="date"   id="datePicker" class="form-control form-control-sm" >                                                            </div>
-                                                        </div>
-
-
+                            <div class="summary-item">
+                                <div class="summary-label">Total Qty</div>
+                                <div class="summary-value" id="totalQty">${totalQty}</div>
+                            </div>
+                            <div class="summary-item">
+                                <div class="summary-label">Amt (A)</div>
+                                <div class="summary-value" id="preTaxAmt">₹${preTaxAmt}</div>
+                            </div>
+                            <div class="summary-item">
+                                <div class="summary-label">GST (B)</div>
+                                <div class="summary-value" id="totGst">₹${totGst}</div>
+                            </div>
+                            <div class="summary-item">
+                                <div class="summary-label">Total</div>
+                                <div class="summary-value" style="color: var(--success-color);" id="totalAmt">₹${totalAmout}</div>
+                            </div>
+                            <div class="summary-item">
+                                <div class="summary-label">Invoice Date</div>
+                                <div class="summary-value" style="color: var(--primary-color);">
+                                    <input type="date" name="date" id="datePicker" class="form-control form-control-sm">
+                                </div>
+                            </div>
                         </div>
 
                         <div class="form-group mt-3">
@@ -939,8 +911,7 @@ body.modal-open {
                             </label>
                             <div class="advance-group">
                                 <span class="input-group-text">₹</span>
-                                <input type="text" id="advanceValue" class="form-control-modern text-end"
-                                       oninput="copyValue()" value="0.0" placeholder="0.00">
+                                <input type="text" id="advanceValue" class="form-control-modern text-end" value="0.0" placeholder="0.00">
                                 <div class="checkbox-wrapper">
                                     <input class="form-check-input" type="checkbox" id="cashCheckbox">
                                     <label class="form-check-label" for="cashCheckbox" style="font-size: 0.8rem; font-weight: 500;">
@@ -952,12 +923,10 @@ body.modal-open {
 
                         <div class="d-flex justify-content-end gap-2 mt-3">
                             <button type="button" onclick="location.reload();" class="btn btn-primary btn-compact">
-                                <i class="fas fa-sync-alt"></i> Save
+                                <i class="fas fa-sync-alt"></i> 1.Save
                             </button>
-
-                            <button type="button" class="btn btn-success btn-compact" data-bs-toggle="modal"
-                                    data-bs-target="#confirmModal1" ${empty items ? 'disabled' : ''}>
-                                <i class="fas fa-file-invoice"></i> Generate Invoice
+                            <button type="button" class="btn btn-success btn-compact" data-bs-toggle="modal" data-bs-target="#confirmModal1" ${empty items ? 'disabled' : ''}>
+                                <i class="fas fa-file-invoice"></i> 2.Generate Invoice
                             </button>
                         </div>
 
@@ -975,10 +944,8 @@ body.modal-open {
                                         <div class="alert alert-modern alert-info">
                                             <i class="fas fa-info-circle me-2"></i>
                                             Please review the invoice details below before generating.
-
                                         </div>
 
-                                        <!-- Customer Summary -->
                                         <div class="info-card-grid">
                                             <div class="info-card">
                                                 <div class="info-card-content">
@@ -991,7 +958,6 @@ body.modal-open {
                                                     </div>
                                                 </div>
                                             </div>
-
                                             <div class="info-card">
                                                 <div class="info-card-content">
                                                     <div class="info-icon location">
@@ -1003,7 +969,6 @@ body.modal-open {
                                                     </div>
                                                 </div>
                                             </div>
-
                                             <div class="info-card">
                                                 <div class="info-card-content">
                                                     <div class="info-icon phone">
@@ -1015,7 +980,6 @@ body.modal-open {
                                                     </div>
                                                 </div>
                                             </div>
-
                                             <div class="info-card">
                                                 <div class="info-card-content">
                                                     <div class="info-icon invoice">
@@ -1024,14 +988,11 @@ body.modal-open {
                                                     <div class="info-details">
                                                         <div class="info-label">Invoice</div>
                                                         <div class="info-value">${invoiceNo}</div>
-
-
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
 
-                                        <!-- Items Table -->
                                         <div class="table-responsive mt-3">
                                             <table class="table table-modern">
                                                 <thead>
@@ -1061,25 +1022,22 @@ body.modal-open {
                                             </table>
                                         </div>
 
-                                        <!-- Totals -->
                                         <div class="summary-grid mt-3">
                                             <div class="summary-item">
                                                 <div class="summary-label">Total Qty</div>
-                                                <div class="summary-value" id="totalQty">${totalQty}</div>
+                                                <div class="summary-value">${totalQty}</div>
                                             </div>
                                             <div class="summary-item">
                                                 <div class="summary-label">Amt (A)</div>
-                                                <div class="summary-value" id="preTaxAmt">₹${preTaxAmt}</div>
+                                                <div class="summary-value">₹${preTaxAmt}</div>
                                             </div>
                                             <div class="summary-item">
                                                 <div class="summary-label">GST (B)</div>
-                                                <div class="summary-value" id="totGst">₹${totGst}</div>
+                                                <div class="summary-value">₹${totGst}</div>
                                             </div>
                                             <div class="summary-item">
                                                 <div class="summary-label">Total</div>
-                                                <div class="summary-value" style="color: var(--success-color);" id="totalAmt">
-                                                    ₹${totalAmout}
-                                                </div>
+                                                <div class="summary-value" style="color: var(--success-color);">₹${totalAmout}</div>
                                             </div>
                                         </div>
                                     </div>
@@ -1101,21 +1059,18 @@ body.modal-open {
             <!-- History Tabs -->
             <ul class="nav nav-tabs nav-tabs-modern" id="historyTabs" role="tablist">
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link active" id="payment-tab" data-bs-toggle="tab"
-                            data-bs-target="#payment" type="button" role="tab">
+                    <button class="nav-link active" id="payment-tab" data-bs-toggle="tab" data-bs-target="#payment" type="button" role="tab">
                         <i class="fas fa-money-bill-wave me-1"></i>Payment History
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="invoice-tab" data-bs-toggle="tab"
-                            data-bs-target="#invoice" type="button" role="tab">
+                    <button class="nav-link" id="invoice-tab" data-bs-toggle="tab" data-bs-target="#invoice" type="button" role="tab">
                         <i class="fas fa-file-invoice me-1"></i>Invoice History
                     </button>
                 </li>
             </ul>
 
             <div class="tab-content">
-                <!-- Payment History Tab -->
                 <div class="tab-pane fade show active" id="payment" role="tabpanel">
                     <div class="card-modern">
                         <c:choose>
@@ -1143,8 +1098,7 @@ body.modal-open {
                                             <c:forEach items="${balanceDeposits}" var="balanceDeposit">
                                                 <tr>
                                                     <td>
-                                                        <a href="${pageContext.request.contextPath}/company/get-bal-credit-receipt/${balanceDeposit.id}"
-                                                           target="_blank" class="text-decoration-none">
+                                                        <a href="${pageContext.request.contextPath}/company/get-bal-credit-receipt/${balanceDeposit.id}" target="_blank" class="text-decoration-none">
                                                             <span class="badge bg-primary">
                                                                 <i class="fa fa-receipt me-1"></i>${balanceDeposit.id}
                                                             </span>
@@ -1166,7 +1120,6 @@ body.modal-open {
                     </div>
                 </div>
 
-                <!-- Invoice History Tab -->
                 <div class="tab-pane fade" id="invoice" role="tabpanel">
                     <div class="card-modern">
                         <c:choose>
@@ -1192,8 +1145,7 @@ body.modal-open {
                                             <c:forEach items="${oldinvoices}" var="invoice">
                                                 <tr>
                                                     <td>
-                                                        <a href="${pageContext.request.contextPath}/company/get-invoice/${invoice.custId}/${invoice.invoiceId}"
-                                                           target="_blank" class="text-decoration-none">
+                                                        <a href="${pageContext.request.contextPath}/company/get-invoice/${invoice.custId}/${invoice.invoiceId}" target="_blank" class="text-decoration-none">
                                                             <span class="badge bg-primary">
                                                                 <i class="fas fa-external-link-alt me-1"></i>${invoice.invoiceId}
                                                             </span>
@@ -1213,239 +1165,196 @@ body.modal-open {
                     </div>
                 </div>
             </div>
-
         </div>
     </main>
 
     <jsp:include page="../view/footer.jsp"></jsp:include>
 </div>
 
-<!-- jQuery & Select2 (Must load before other scripts) -->
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
 <script>
-// ===================================
-// GLOBAL VARIABLES
-// ===================================
-let currentItemNo = ${itemsNo};
-window.onload = function () {
-    const dp = document.getElementById("datePicker");
-    dp.value = new Date().toISOString().split("T")[0];
-};
-// ===================================
-// THEME TOGGLE
-// ===================================
-function toggleTheme() {
-    const body = document.body;
-    const icon = document.getElementById('theme-icon');
-    const isDark = body.getAttribute('data-theme') === 'dark';
-    body.setAttribute('data-theme', isDark ? 'light' : 'dark');
-    icon.classList.toggle('fa-sun', isDark);
-    icon.classList.toggle('fa-moon', !isDark);
-    localStorage.setItem('theme', isDark ? 'light' : 'dark');
+let currentItemNo = parseInt('${itemsNo}') || 1;
+
+function showAlert(msg, type) {
+    type = type || 'warning';
+    const container = document.getElementById('alertContainer');
+    const id = 'alert-' + Date.now();
+    const icons = {'success': 'check-circle', 'danger': 'exclamation-circle', 'warning': 'exclamation-triangle', 'info': 'info-circle'};
+    const titles = {'success': 'Success!', 'danger': 'Error!', 'warning': 'Warning!', 'info': 'Info'};
+
+  container.insertAdjacentHTML(
+      'beforeend',
+      '<div class="alert alert-modern alert-' + type +
+          ' alert-dismissible fade show" role="alert" id="' + id + '">' +
+          '<i class="fas fa-' + icons[type] + ' me-2"></i>' +
+          '<strong>' + titles[type] + '</strong> ' + msg +
+          '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>' +
+      '</div>'
+  );
+
+
+    setTimeout(() => {
+        const el = document.getElementById(id);
+        if (el) bootstrap.Alert.getOrCreateInstance(el).close();
+    }, 4000);
 }
 
-// ===================================
-// INITIALIZE ON LOAD
-// ===================================
-document.addEventListener('DOMContentLoaded', function() {
-    // Apply saved theme
-    const savedTheme = localStorage.getItem('theme') || 'light';
-    document.body.setAttribute('data-theme', savedTheme);
-    const icon = document.getElementById('theme-icon');
-    if (icon) {
-        icon.classList.toggle('fa-sun', savedTheme === 'dark');
-        icon.classList.toggle('fa-moon', savedTheme === 'light');
+function setButtonLoading(btn, loading) {
+    if (loading) {
+        btn.classList.add('btn-loading');
+        btn.disabled = true;
+        btn.setAttribute('data-original-html', btn.innerHTML);
+        btn.innerHTML = '';
+    } else {
+        btn.classList.remove('btn-loading');
+        btn.disabled = false;
+        const orig = btn.getAttribute('data-original-html');
+        if (orig) btn.innerHTML = orig;
     }
+}
 
-    // Fix modal flickering
-    const confirmModal = document.getElementById('confirmModal1');
-    if (confirmModal) {
-        confirmModal.addEventListener('show.bs.modal', function () {
-            document.body.style.paddingRight = '0px';
-        });
+function showLoader() { document.getElementById('pageLoader').style.display = 'block'; }
+function hideLoader() { document.getElementById('pageLoader').style.display = 'none'; }
 
-        confirmModal.addEventListener('shown.bs.modal', function () {
-            document.body.style.overflow = 'hidden';
-        });
+function calAmt() {
+    const qty = parseFloat(document.getElementById("qty").value) || 0;
+    const rate = parseFloat(document.getElementById("rate").value) || 0;
+    document.getElementById('amount').value = (qty * rate).toFixed(2);
+}
 
-        confirmModal.addEventListener('hide.bs.modal', function () {
-            document.body.style.overflow = '';
-        });
+function changeQty(delta) {
+    const inp = document.getElementById("qty");
+    let val = parseInt(inp.value) || 1;
+    val += delta;
+    if (val < 1) val = 1;
+    inp.value = val;
+    calAmt();
+}
 
-        confirmModal.addEventListener('hidden.bs.modal', function () {
+function copyValue() {
+    const amt = document.getElementById("advanceValue").value || "0.0";
+    document.getElementById("advanAmtsend").value = amt;
+}
+
+function resetAddItemForm() {
+    $('#productDropdown').val(null).trigger('change');
+    document.getElementById('description').value = '';
+    document.getElementById('productId').value = '';
+    document.getElementById('rate').value = '';
+    document.getElementById('qty').value = '1';
+    document.getElementById('amount').value = '';
+}
+
+function appendItemCard(item) {
+    const empty = document.querySelector('#itemsContainer .empty-state');
+    if (empty) empty.remove();
+
+    const container = document.getElementById('itemsContainer');
+    const div = document.createElement('div');
+    div.id = 'item-' + item.id;
+   div.innerHTML =
+       '<div class="item-card-compact">' +
+           '<div class="item-card-body">' +
+               '<div class="item-title">#' + item.itemNo + ' ' + item.description + '</div>' +
+               '<div class="item-detail"><i class="fas fa-barcode text-secondary"></i><span>Batch: ' + (item.batchNo || "N/A") + '</span></div>' +
+               '<div class="item-detail"><i class="fas fa-cubes text-info"></i><span>Qty: ' + item.qty + '</span></div>' +
+               '<div class="item-detail"><i class="fas fa-tags text-success"></i><span>MRP: ₹' + (item.mrp || "0.00") + '</span></div>' +
+               '<div class="item-detail"><i class="fas fa-rupee-sign text-primary"></i><span>Rate: ₹' + item.rate + '</span></div>' +
+               '<div class="item-total"><i class="fas fa-wallet"></i>₹' + item.amount + '</div>' +
+           '</div>' +
+           '<div class="item-card-footer">' +
+               '<button type="button" class="btn btn-danger btn-icon-sm delete-item-btn" data-id="' + item.id + '">' +
+                   '<i class="fa fa-trash"></i>' +
+               '</button>' +
+           '</div>' +
+       '</div>';
+
+    container.appendChild(div);
+}
+
+function updateInvoiceTotals(res) {
+    if (res.totalQty !== undefined) {
+        document.querySelectorAll('#totalQty').forEach(el => el.textContent = res.totalQty);
+        const h = document.getElementById('totalQtyHidden');
+        if (h) h.value = res.totalQty;
+    }
+    if (res.preTaxAmt !== undefined) {
+        document.querySelectorAll('#preTaxAmt').forEach(el => el.textContent = '₹' + res.preTaxAmt);
+    }
+    if (res.totGst !== undefined) {
+        document.querySelectorAll('#totGst').forEach(el => el.textContent = '₹' + res.totGst);
+    }
+    if (res.totalAmount !== undefined) {
+        document.querySelectorAll('#totalAmt').forEach(el => el.textContent = '₹' + res.totalAmount);
+        const src = document.getElementById('source');
+        if (src) src.value = res.totalAmount;
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const dp = document.getElementById("datePicker");
+    if (dp) dp.value = new Date().toISOString().split("T")[0];
+
+    const theme = localStorage.getItem('theme') || 'light';
+    document.body.setAttribute('data-theme', theme);
+
+    const modal = document.getElementById('confirmModal1');
+    if (modal) {
+        modal.addEventListener('show.bs.modal', () => document.body.style.paddingRight = '0px');
+        modal.addEventListener('shown.bs.modal', () => document.body.style.overflow = 'hidden');
+        modal.addEventListener('hide.bs.modal', () => document.body.style.overflow = '');
+        modal.addEventListener('hidden.bs.modal', () => {
             const backdrop = document.querySelector('.modal-backdrop');
             if (backdrop) backdrop.remove();
         });
     }
 
-    // Cash checkbox functionality
     const cashCb = document.getElementById('cashCheckbox');
     if (cashCb) {
         cashCb.addEventListener('change', function() {
-            const total = document.getElementById('totalAmout').textContent || "0.0";
-            const advInput = document.getElementById('advanceValue');
+            const total = document.getElementById('source')?.value || "0.0";
+            const advInp = document.getElementById('advanceValue');
+            const advSend = document.getElementById("advanAmtsend");
             if (this.checked) {
-                advInput.value = total;
-                document.getElementById("advanAmtsend").value = total;
+                if (advInp) advInp.value = total;
+                if (advSend) advSend.value = total;
             } else {
-                advInput.value = "0.0";
-                document.getElementById("advanAmtsend").value = "0.0";
+                if (advInp) advInp.value = "0.0";
+                if (advSend) advSend.value = "0.0";
             }
         });
     }
+
+    const qtyMinus = document.getElementById('qtyMinus');
+    const qtyPlus = document.getElementById('qtyPlus');
+    if (qtyMinus) qtyMinus.addEventListener('click', () => changeQty(-1));
+    if (qtyPlus) qtyPlus.addEventListener('click', () => changeQty(1));
+
+    const rateInp = document.getElementById('rate');
+    const qtyInp = document.getElementById('qty');
+
+    if (rateInp) {
+        rateInp.addEventListener('input', function() {
+            this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');
+            calAmt();
+        });
+    }
+
+    if (qtyInp) {
+        qtyInp.addEventListener('input', function() {
+            this.value = this.value.replace(/[^0-9]/g, '');
+            if (!this.value || parseInt(this.value) < 1) this.value = '1';
+            calAmt();
+        });
+    }
+
+    const advInp = document.getElementById('advanceValue');
+    if (advInp) advInp.addEventListener('input', copyValue);
 });
 
-// ===================================
-// ALERT FUNCTIONALITY
-// ===================================
-function showAlert(message, type) {
-    type = type || 'warning';
-    var alertContainer = document.getElementById('alertContainer');
-    var alertId = 'alert-' + Date.now();
-
-    var iconClass = (type === 'success') ? 'check-circle' :
-                    (type === 'danger') ? 'exclamation-circle' : 'exclamation-triangle';
-    var alertTitle = (type === 'success') ? 'Success!' :
-                     (type === 'danger') ? 'Error!' : 'Warning!';
-
-    var alertHtml =
-        '<div class="alert alert-modern alert-' + type + ' alert-dismissible fade show" role="alert" id="' + alertId + '">' +
-            '<i class="fas fa-' + iconClass + ' me-2"></i>' +
-            '<strong>' + alertTitle + '</strong> ' + message +
-            '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>' +
-        '</div>';
-
-    // Append the alert instead of replacing content
-    alertContainer.innerHTML += alertHtml;
-
-    // Auto close after 4 seconds
-    setTimeout(function() {
-        var alertElement = document.getElementById(alertId);
-        if (alertElement) {
-            var bsAlert = bootstrap.Alert.getOrCreateInstance(alertElement);
-            bsAlert.close();
-        }
-    }, 4000);
-}
-
-
-function setButtonLoading(button, isLoading) {
-    if (isLoading) {
-        button.classList.add('btn-loading');
-        button.disabled = true;
-        button.setAttribute('data-original-html', button.innerHTML);
-        button.innerHTML = '';
-    } else {
-        button.classList.remove('btn-loading');
-        button.disabled = false;
-        const originalHtml = button.getAttribute('data-original-html');
-        if (originalHtml) {
-            button.innerHTML = originalHtml;
-        }
-    }
-}
-
-// ===================================
-// CALCULATION FUNCTIONS
-// ===================================
-function copyValue() {
-    var amt = document.getElementById("advanceValue").value || "0.0";
-    document.getElementById("advanAmtsend").value = amt;
-}
-
-function calAmt() {
-    var qty = parseFloat(document.getElementById("qty").value || 0);
-    var rate = parseFloat(document.getElementById("rate").value || 0);
-    var total = (qty * rate) || 0;
-    document.getElementById('amount').value = total.toFixed(2);
-}
-
-function changeQty(val) {
-    let qtyInput = document.getElementById("qty");
-    let current = parseInt(qtyInput.value) || 0;
-    current += val;
-    if (current < 1) current = 1;
-    qtyInput.value = current;
-    calAmt();
-}
-
-// ===================================
-// FORM MANAGEMENT
-// ===================================
-function resetAddItemForm() {
-    $('#productDropdown').val(null).trigger('change');
-    $('#description').val('');
-    $('#productId').val('');
-    $('#rate').val('');
-    $('#qty').val('1');
-    $('#amount').val('');
-}
-
-function appendItemCard(item) {
-    // Remove empty state if it's present
-    var emptyState = document.querySelector('#itemsContainer .empty-state');
-    if (emptyState) {
-        emptyState.remove();
-    }
-
-    var container = document.getElementById('itemsContainer');
-
-    // Create item card
-    var itemDiv = document.createElement('div');
-    itemDiv.id = 'item-' + item.id;
-    itemDiv.innerHTML =
-        '<div class="item-card-compact">' +
-            '<div class="item-card-body">' +
-                '<div class="item-title">#' + item.itemNo + ' ' + item.description + '</div>' +
-                '<div class="item-detail">' +
-                    '<i class="fas fa-barcode text-secondary"></i>' +
-                    '<span>Batch: ' + (item.batchNo || '') + '</span>' +
-                '</div>' +
-                '<div class="item-detail">' +
-                    '<i class="fas fa-cubes text-info"></i>' +
-                    '<span>Qty: ' + item.qty + '</span>' +
-                '</div>' +
-                '<div class="item-detail">' +
-                    '<i class="fas fa-tags text-success"></i>' +
-                    '<span>MRP: ₹' + (item.mrp || '') + '</span>' +
-                '</div>' +
-                '<div class="item-detail">' +
-                    '<i class="fas fa-rupee-sign text-primary"></i>' +
-                    '<span>Rate: ₹' + item.rate + '</span>' +
-                '</div>' +
-                '<div class="item-total">' +
-                    '<i class="fas fa-wallet"></i>₹' + item.amount +
-                '</div>' +
-            '</div>' +
-            '<div class="item-card-footer">' +
-                '<button type="button" class="btn btn-danger btn-icon-sm delete-item-btn" data-id="' + item.id + '">' +
-                    '<i class="fa fa-trash"></i>' +
-                '</button>' +
-            '</div>' +
-        '</div>';
-
-    // Append to container
-    container.appendChild(itemDiv);
-}
-
-
-function updateInvoiceTotals(totals) {
-    if (totals.totalQty !== undefined) {
-        $('#totalQty').text(totals.totalQty);
-        $('#totalQtyHidden').val(totals.totalQty);
-    }
-    if (totals.totalAmount !== undefined) {
-        $('#totalAmout').text(totals.totalAmount);
-        $('input[name="totInvoiceAmt"]').val(totals.totalAmount);
-    }
-}
-
-// ===================================
-// SELECT2 INITIALIZATION
-// ===================================
-$(document).ready(function () {
+$(document).ready(function() {
     $('#productDropdown').select2({
         placeholder: 'Search Product...',
         allowClear: true,
@@ -1454,196 +1363,144 @@ $(document).ready(function () {
             url: '${pageContext.request.contextPath}/company/search-product',
             dataType: 'json',
             delay: 250,
-            data: function (params) {
-                return { query: params.term };
-            },
-            processResults: function (data) {
-                return {
-                    results: $.map(data, function (item) {
-                        return {
-                            id: item.productId,
-                            text:
-                                "<div style='padding:6px 0;'>" +
-                                    "<div style='margin-bottom:4px;'>" +
-                                        "<strong style='color:#333; background-color: chartreuse; font-size:0.95rem;'>" +
-                                            "<i class='fas fa-box-open' style='color:#0d6efd; margin-right:6px;'></i>" +
-                                            item.productName +
-                                        "</strong>" +
-                                        "<span style='color:#198754; font-weight:600; margin-left:10px; font-size:0.9rem;'>₹" + item.price + "</span>" +
-                                        "<span style='color:#0dcaf0; font-weight:500; margin-left:10px; font-size:0.85rem;'>" +
-                                            "<i class='fas fa-layer-group' style='margin-right:4px;'></i>" + item.stock +
-                                        "</span>" +
-                                    "</div>" +
-                                    "<div style='font-size:0.8rem;'>" +
-                                        "<span style='color:#6c757d;'>" +
-                                            "<i class='fas fa-barcode' style='margin-right:4px;'></i>Batch: " + item.batchNo +
-                                        "</span>" +
-                                        "<span style='color:#dc3545; margin-left:12px;'>" +
-                                            "<i class='fas fa-calendar-alt' style='margin-right:4px;'></i>Exp: " + item.expDate +
-                                        "</span>" +
-                                    "</div>" +
-                                "</div>",
-                            productName: item.productName,
-                            price: item.price,
-                            productId: item.productId,
-                            batchNo: item.batchNo,
-                            expDate: item.expDate,
-                            stock: item.stock
-                        };
+            data: params => ({ query: params.term }),
+            processResults: data => ({
+                results: $.map(data, item => ({
+                   id: item.productId,
+                   text:
+                       "<div style='padding:6px 0;'>" +
+                           "<div style='margin-bottom:4px;'>" +
+                               "<strong style='color:#333; font-size:0.95rem;'>" +
+                                   "<i class='fas fa-box-open' style='color:#0d6efd; margin-right:6px;'></i>" +
+                                   item.productName +
+                               "</strong>" +
+                               "<span style='color:#198754; font-weight:600; margin-left:10px; font-size:0.9rem;'>₹" +
+                                   item.price +
+                               "</span>" +
+                               "<span style='color:#0dcaf0; font-weight:500; margin-left:10px; font-size:0.85rem;'>" +
+                                   "<i class='fas fa-layer-group' style='margin-right:4px;'></i>" +
+                                   item.stock +
+                               "</span>" +
+                           "</div>" +
+                           "<div style='font-size:0.8rem;'>" +
+                               "<span style='color:#6c757d;'>" +
+                                   "<i class='fas fa-barcode' style='margin-right:4px;'></i>Batch: " +
+                                   item.batchNo +
+                               "</span>" +
+                               "<span style='color:#dc3545; margin-left:12px;'>" +
+                                   "<i class='fas fa-calendar-alt' style='margin-right:4px;'></i>Exp: " +
+                                   item.expDate +
+                               "</span>" +
+                           "</div>" +
+                       "</div>",
+                   productName: item.productName,
+                   price: item.price,
+                   productId: item.productId,
+                   batchNo: item.batchNo,
+                   expDate: item.expDate,
+                   stock: item.stock
 
-                    })
-                };
-            },
+                }))
+            }),
             cache: true
         },
-        escapeMarkup: function (markup) {
-            return markup;
-        },
-        templateResult: function (data) {
-            return $(data.text);
-        },
-        templateSelection: function (data) {
-            return data.productName || data.text;
-        }
+        escapeMarkup: markup => markup,
+        templateResult: data => $(data.text),
+        templateSelection: data => data.productName || data.text
     });
 
-  $('#productDropdown').on('select2:select', function (e) {
-      const data = e.params.data;
+    $('#productDropdown').on('select2:select', function(e) {
+        const d = e.params.data;
+        if (d.productId) {
+            $('#description').val(d.productName);
+            $('#productId').val(d.productId);
+            $('#rate').val(d.price);
+        } else {
+            $('#description').val(d.text);
+            $('#productId').val("");
+            $('#rate').val("");
+        }
+        calAmt();
+    });
 
-      // CASE 1 — User selected from product list
-      if (data.productId) {
-          $('#description').val(data.productName);
-          $('#productId').val(data.productId);
-          $('#rate').val(data.price);
-      }
-      // CASE 2 — User typed a NEW product
-      else {
-          $('#description').val(data.text);  // typed value
-          $('#productId').val("");           // no productId
-          $('#rate').val("");                // clear rate
-      }
-
-      calAmt();
-  });
-
-
-    // ===================================
-    // ADD ITEM FORM SUBMISSION
-    // ===================================
     $('#addItemForm').on('submit', function(e) {
         e.preventDefault();
-
-        const addBtn = document.getElementById('addItemBtn');
-        setButtonLoading(addBtn, true);
-
-        const productId = $('#productId').val();
-        const description = $('#description').val();
+        const btn = document.getElementById('addItemBtn');
+        const pid = $('#productId').val();
+        const desc = $('#description').val();
         const rate = $('#rate').val();
         const qty = $('#qty').val();
 
-        if (!productId || !description || !rate || !qty) {
-            showAlert('Please fill all required fields and select a product.', 'warning');
-            setButtonLoading(addBtn, false);
+        if (!desc || !rate || !qty) {
+            showAlert('Please fill all required fields.', 'warning');
             return;
         }
 
-        const formData = {
+        setButtonLoading(btn, true);
+        showLoader();
+
+        const data = {
             custId: $('input[name="custId"]').val(),
-            productId: productId,
-            description: description,
+            productId: pid || null,
+            description: desc,
             invoiceNo: $('input[name="invoiceNo"]').val(),
             itemNo: $('#itemNo').val(),
             rate: rate,
             qty: qty,
-            amount: $('#amount').val(),
-            _token: $('input[name="${_csrf.parameterName}"]').val()
+            amount: $('#amount').val()
         };
 
         $.ajax({
             url: '${pageContext.request.contextPath}/company/add-item',
             type: 'POST',
             contentType: 'application/json; charset=utf-8',
-            data: JSON.stringify(formData),
-            headers: {
-                '${_csrf.headerName}': '${_csrf.token}'
-            },
-            success: function(response) {
-                setButtonLoading(addBtn, false);
-                  document.getElementById("pageLoader").style.display = "none";
-
-                if (response.status === 'success') {
+            data: JSON.stringify(data),
+            headers: {'${_csrf.headerName}': '${_csrf.token}'},
+            success: function(res) {
+                if (res.status === 'success') {
                     showAlert('Item added successfully!', 'success');
-
-                    appendItemCard(response.item);
+                    appendItemCard(res.item);
                     resetAddItemForm();
-
-                    currentItemNo = parseInt(response.nextItemNo || response.item.itemNo) + 1;
+                    currentItemNo = parseInt(res.nextItemNo || res.item.itemNo) + 1;
                     $('#itemNo').val(currentItemNo);
-
-                    if (response.totals) {
-                        updateInvoiceTotals(response.totals);
-                    }
-
-                    // Enable generate button
-                    const generateBtn = $('button[data-bs-target="#confirmModal1"]');
-                    if (generateBtn.prop('disabled')) {
-                        generateBtn.prop('disabled', false);
-                    }
-                     $("#totalQty").text(response.totalQty);
-                            $("#preTaxAmt").text("₹" + response.preTaxAmt);
-                            $("#totGst").text("₹" + response.totGst);
-                            $("#totalAmt").text("₹" + response.totalAmount);
-
-
-
+                    updateInvoiceTotals(res);
+                    const genBtn = $('button[data-bs-target="#confirmModal1"]');
+                    if (genBtn.prop('disabled')) genBtn.prop('disabled', false);
                 } else {
-                              document.getElementById("pageLoader").style.display = "none";
-
-                    showAlert(response.message || 'Failed to add item.', 'danger');
-
+                    showAlert(res.message || 'Failed to add item.', 'danger');
                 }
             },
-            error: function(xhr, status, error) {
-                setButtonLoading(addBtn, false);
+            error: function(xhr) {
                 console.error('AJAX Error:', xhr.responseText);
-                              document.getElementById("pageLoader").style.display = "none";
-
                 showAlert('Error occurred while adding item. Please try again.', 'danger');
+            },
+            complete: function() {
+                setButtonLoading(btn, false);
+                hideLoader();
             }
         });
     });
 
-    // ===================================
-    // DELETE ITEM HANDLER
-    // ===================================
     $(document).on('click', '.delete-item-btn', function(e) {
         e.preventDefault();
-
         const itemId = $(this).data('id');
-        const deleteBtn = $(this);
+        const delBtn = $(this);
 
-        if (!confirm('Are you sure you want to delete this item?')) {
-            return;
-        }
+        if (!confirm('Are you sure you want to delete this item?')) return;
 
-        deleteBtn.prop('disabled', true);
-        deleteBtn.html('<i class="fa fa-spinner fa-spin"></i>');
+        delBtn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i>');
 
         $.ajax({
             url: '${pageContext.request.contextPath}/company/delete-item',
             type: 'DELETE',
             contentType: 'application/json; charset=utf-8',
-            data: JSON.stringify({ itemId: itemId }),
+            data: JSON.stringify({itemId: itemId}),
             dataType: 'json',
-            headers: {
-                '${_csrf.headerName}': '${_csrf.token}'
-            },
-            success: function(response) {
-                if (response.status === 'success') {
+            headers: {'${_csrf.headerName}': '${_csrf.token}'},
+            success: function(res) {
+                if (res.status === 'success') {
                     $('#item-' + itemId).fadeOut(300, function() {
                         $(this).remove();
-
-                        // Check if no items left
                         if ($('#itemsContainer .item-card-compact').length === 0) {
                             $('#itemsContainer').html(`
                                 <div class="empty-state">
@@ -1654,24 +1511,19 @@ $(document).ready(function () {
                             $('button[data-bs-target="#confirmModal1"]').prop('disabled', true);
                         }
                     });
-
                     showAlert('Item deleted successfully!', 'success');
-
-                    let current = parseInt($('#itemNo').val()) || 0;
-                    $('#itemNo').val(Math.max(1, current - 1));
-
-                    if (response.totals) {
-                        updateInvoiceTotals(response.totals);
-                    }
+                    if (currentItemNo > 1) currentItemNo--;
+                    $('#itemNo').val(currentItemNo);
+                    updateInvoiceTotals(res);
                 } else {
-                    showAlert(response.message || 'Failed to delete item.', 'danger');
-                    deleteBtn.prop('disabled', false).html('<i class="fa fa-trash"></i>');
+                    showAlert(res.message || 'Failed to delete item.', 'danger');
+                    delBtn.prop('disabled', false).html('<i class="fa fa-trash"></i>');
                 }
             },
             error: function(xhr) {
                 console.error('Delete Error:', xhr.responseText);
                 showAlert('Error occurred while deleting item. Please try again.', 'danger');
-                deleteBtn.prop('disabled', false).html('<i class="fa fa-trash"></i>');
+                delBtn.prop('disabled', false).html('<i class="fa fa-trash"></i>');
             }
         });
     });
