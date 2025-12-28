@@ -659,6 +659,16 @@
                 </div>
             </div>
 
+<!-- Error Alert -->
+<c:if test="${not empty error}">
+    <div class="alert alert-danger alert-dismissible fade show mb-4">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+        <div>
+            <strong>Error!</strong> ${error}
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+</c:if>
             <!-- Form Section -->
             <div class="form-card">
                 <div class="form-header">
@@ -666,13 +676,15 @@
                     <h5>${not empty dealer.id ? 'Update Dealer' : 'Add New Dealer'}</h5>
                 </div>
 
+                <!-- Replace the existing form section in your dealer.jsp -->
+
                 <form:form method="POST" modelAttribute="dealer"
-                           action="${pageContext.request.contextPath}/dealers/save">
-                    <form:errors path="*" cssClass="alert alert-danger" element="div"/>
+                           action="${pageContext.request.contextPath}/dealers/save" id="dealerForm">
 
                     <form:hidden path="id"/>
                     <form:hidden path="ownerId"/>
-                    <form:hidden path="lastModifiedDate"/>
+
+                    <!-- Remove lastModifiedDate from form - it's auto-managed -->
 
                     <div class="row g-3">
 
@@ -680,7 +692,9 @@
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label class="form-label"><i class="fas fa-user"></i> Dealer Name *</label>
-                                <form:input path="dealerName" cssClass="form-control" required="required" placeholder="John Doe"/>
+                                <form:input path="dealerName" cssClass="form-control"
+                                            placeholder="John Doe" required="required"/>
+                                <form:errors path="dealerName" cssClass="text-danger small"/>
                             </div>
                         </div>
 
@@ -688,7 +702,9 @@
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label class="form-label"><i class="fas fa-map-marker-alt"></i> Address *</label>
-                                <form:input path="dealerAddress" cssClass="form-control" required="required" placeholder="City, State"/>
+                                <form:input path="dealerAddress" cssClass="form-control"
+                                            placeholder="City, State" required="required"/>
+                                <form:errors path="dealerAddress" cssClass="text-danger small"/>
                             </div>
                         </div>
 
@@ -696,7 +712,9 @@
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label class="form-label"><i class="fas fa-phone"></i> Mobile No *</label>
-                                <form:input path="mobileNo" cssClass="form-control" required="required" placeholder="9876543210"/>
+                                <form:input path="mobileNo" cssClass="form-control"
+                                            placeholder="9876543210" maxlength="10" required="required"/>
+                                <form:errors path="mobileNo" cssClass="text-danger small"/>
                             </div>
                         </div>
 
@@ -704,31 +722,41 @@
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label class="form-label"><i class="fas fa-file-invoice"></i> GST No</label>
-                                <form:input path="gstNo" cssClass="form-control" placeholder="22ABCDE1234F1Z5"/>
+                                <form:input path="gstNo" cssClass="form-control"
+                                            placeholder="22ABCDE1234F1Z5"/>
                             </div>
                         </div>
 
                         <!-- Total Amount -->
                         <div class="col-md-4">
                             <div class="form-group">
-                                <label class="form-label"><i class="fas fa-coins"></i> Total Amount</label>
-                                <form:input path="totalAmount" type="number" step="0.01" cssClass="form-control" placeholder="0.00"/>
+                                <label class="form-label"><i class="fas fa-coins"></i> Total Amount *</label>
+                                <form:input path="totalAmount" type="number" step="0.01"
+                                            cssClass="form-control" placeholder="0.00"
+                                            id="totalAmount" onchange="calculateBalance()"/>
+                                <form:errors path="totalAmount" cssClass="text-danger small"/>
                             </div>
                         </div>
 
                         <!-- Paid Amount -->
                         <div class="col-md-4">
                             <div class="form-group">
-                                <label class="form-label"><i class="fas fa-hand-holding-usd"></i> Paid Amount</label>
-                                <form:input path="paidAmount" type="number" step="0.01" cssClass="form-control" placeholder="0.00"/>
+                                <label class="form-label"><i class="fas fa-hand-holding-usd"></i> Paid Amount *</label>
+                                <form:input path="paidAmount" type="number" step="0.01"
+                                            cssClass="form-control" placeholder="0.00"
+                                            id="paidAmount" onchange="calculateBalance()"/>
+                                <form:errors path="paidAmount" cssClass="text-danger small"/>
                             </div>
                         </div>
 
-                        <!-- Balance -->
+                        <!-- Balance - Display Only -->
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label class="form-label"><i class="fas fa-wallet"></i> Balance Amount</label>
-                                <form:input path="balanceAmount" type="number" step="0.01" cssClass="form-control" placeholder="0.00" readonly="${not empty dealer.id}"/>
+                                <input type="text" class="form-control" id="balanceDisplay"
+                                       value="${dealer.balanceAmount}" readonly
+                                       style="background: #f0f0f0; cursor: not-allowed;"/>
+                                <small class="text-muted">Auto-calculated: Total - Paid</small>
                             </div>
                         </div>
 
@@ -736,28 +764,36 @@
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label class="form-label"><i class="fas fa-university"></i> Bank Name *</label>
-                                <form:input path="bankName" cssClass="form-control" required="required" placeholder="HDFC Bank"/>
+                                <form:input path="bankName" cssClass="form-control"
+                                            placeholder="HDFC Bank" required="required"/>
+                                <form:errors path="bankName" cssClass="text-danger small"/>
                             </div>
                         </div>
 
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label class="form-label"><i class="fas fa-hashtag"></i> Account Number *</label>
-                                <form:input path="accountNo" cssClass="form-control" required="required" placeholder="1234567890"/>
+                                <form:input path="accountNo" cssClass="form-control"
+                                            placeholder="1234567890" required="required"/>
+                                <form:errors path="accountNo" cssClass="text-danger small"/>
                             </div>
                         </div>
 
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label class="form-label"><i class="fas fa-code"></i> IFSC Code *</label>
-                                <form:input path="ifscCode" cssClass="form-control" required="required" placeholder="HDFC0001234"/>
+                                <form:input path="ifscCode" cssClass="form-control"
+                                            placeholder="HDFC0001234" maxlength="11" required="required"/>
+                                <form:errors path="ifscCode" cssClass="text-danger small"/>
                             </div>
                         </div>
 
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label class="form-label"><i class="fas fa-building"></i> Branch Name *</label>
-                                <form:input path="branchName" cssClass="form-control" required="required" placeholder="Main Branch"/>
+                                <form:input path="branchName" cssClass="form-control"
+                                            placeholder="Main Branch" required="required"/>
+                                <form:errors path="branchName" cssClass="text-danger small"/>
                             </div>
                         </div>
 
@@ -772,16 +808,29 @@
                             </div>
                         </div>
 
-                        <!-- Submit -->
+                        <!-- Submit Button -->
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label class="form-label" style="visibility:hidden;">Save</label>
                                 <button type="submit" class="btn-submit w-100">
                                     <i class="fas fa-${not empty dealer.id ? 'sync' : 'save'}"></i>
-                                    ${not empty dealer.id ? 'Update' : 'Save'}
+                                    ${not empty dealer.id ? 'Update Dealer' : 'Save Dealer'}
                                 </button>
                             </div>
                         </div>
+
+                        <!-- Cancel/Reset Button (only show during edit) -->
+                        <c:if test="${not empty dealer.id}">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="form-label" style="visibility:hidden;">Cancel</label>
+                                    <a href="${pageContext.request.contextPath}/dealers"
+                                       class="btn btn-secondary w-100">
+                                        <i class="fas fa-times"></i> Cancel
+                                    </a>
+                                </div>
+                            </div>
+                        </c:if>
                     </div>
                 </form:form>
             </div>
@@ -1192,6 +1241,42 @@
     };
 
 })();
+
+
+
+// Add to your existing script section
+function calculateBalance() {
+    const total = parseFloat(document.getElementById('totalAmount').value) || 0;
+    const paid = parseFloat(document.getElementById('paidAmount').value) || 0;
+    const balance = total - paid;
+
+    document.getElementById('balanceDisplay').value = balance.toFixed(2);
+
+    // Show warning if balance is negative
+    if (balance < 0) {
+        alert('Warning: Paid amount cannot exceed total amount!');
+        document.getElementById('paidAmount').focus();
+    }
+}
+
+// Initialize balance on page load
+$(document).ready(function() {
+    calculateBalance();
+
+    // Validate form before submission
+    $('#dealerForm').on('submit', function(e) {
+        const total = parseFloat($('#totalAmount').val()) || 0;
+        const paid = parseFloat($('#paidAmount').val()) || 0;
+
+        if (paid > total) {
+            e.preventDefault();
+            alert('Paid amount cannot exceed total amount!');
+            return false;
+        }
+
+        return true;
+    });
+});
 </script>
 
 </body>

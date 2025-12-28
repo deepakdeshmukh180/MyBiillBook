@@ -9,529 +9,553 @@
 
 <jsp:include page="../view/logo.jsp"></jsp:include>
 
-  <!-- Main Content -->
-  <div id="layoutSidenav_content">
-    <main>
-      <div class="container-fluid px-4 mt-4">
+<style>
+    .stats-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
 
+    .stats-card h5 {
+        font-size: 0.9rem;
+        opacity: 0.9;
+        margin-bottom: 10px;
+    }
 
-        <!-- Success Alert -->
-        <c:if test="${not empty msg}">
-          <div class="alert alert-success alert-dismissible fade show" role="alert" id="success-alert">
+    .stats-card h3 {
+        font-size: 1.8rem;
+        font-weight: bold;
+        margin: 0;
+    }
+
+    .search-container {
+        position: relative;
+    }
+
+    .search-icon {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #6c757d;
+    }
+
+    #searchBox {
+        padding-left: 45px;
+        border-radius: 25px;
+        border: 2px solid #e0e0e0;
+        transition: all 0.3s;
+    }
+
+    #searchBox:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    }
+
+    .table-actions {
+        display: flex;
+        gap: 5px;
+        justify-content: center;
+    }
+
+    .balance-positive {
+        color: #28a745;
+        font-weight: 600;
+    }
+
+    .balance-negative {
+        color: #dc3545;
+        font-weight: 600;
+    }
+
+    .customer-row {
+        transition: all 0.2s;
+    }
+
+    .customer-row:hover {
+        background-color: #f8f9fa;
+        transform: scale(1.01);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .btn-action {
+        width: 35px;
+        height: 35px;
+        padding: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 6px;
+        transition: all 0.2s;
+    }
+
+    .btn-action:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+
+    .export-buttons {
+        display: flex;
+        gap: 10px;
+    }
+
+    @media (max-width: 768px) {
+        .table-actions {
+            flex-wrap: wrap;
+        }
+
+        .export-buttons {
+            flex-direction: column;
+        }
+    }
+
+    .fade-in {
+        animation: fadeIn 0.3s;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .filter-badge {
+        display: inline-block;
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        margin: 5px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .filter-badge:hover {
+        transform: scale(1.05);
+    }
+
+    .filter-badge.active {
+        background-color: #667eea;
+        color: white;
+    }
+</style>
+
+<div id="layoutSidenav_content">
+<main>
+<div class="container-fluid px-4 mt-4">
+
+    <!-- Success Alert -->
+    <c:if test="${not empty msg}">
+        <div class="alert alert-success alert-dismissible fade show fade-in" role="alert">
             <i class="bi bi-check-circle-fill me-2"></i><strong>Success!</strong> ${msg}
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-          </div>
-        </c:if>
+        </div>
+    </c:if>
 
-<!-- Page Title -->
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h2 class="h3 mb-0 text-gray-800">All Customers</h2>
-                    <div class="d-none d-sm-inline-block">
-                        <span class="text-muted">Total: ${totalcustomers} Customers</span>
-                    </div>
-                </div>
-        <!-- Search Section -->
-        <div class="row mb-4">
-          <div class="col-md-8 mx-auto">
-            <div class="input-group">
-              <input type="text" id="searchBox" class="form-control" placeholder="Search customers by name or phone...">
-              <button class="btn btn-outline-secondary" type="button" onclick="location.reload();">
-                <i class="fas fa-sync-alt me-1"></i> Refresh
-              </button>
+    <!-- Page Header with Stats -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2 class="h3 mb-3">Customer Management</h2>
+
+            <!-- Quick Filters -->
+            <div class="mb-3">
+                <span class="filter-badge bg-light" data-filter="all" onclick="filterCustomers('all')">
+                    <i class="fas fa-users me-1"></i>All Customers
+                </span>
+                <span class="filter-badge bg-light" data-filter="balance" onclick="filterCustomers('balance')">
+                    <i class="fas fa-money-bill-wave me-1"></i>With Balance
+                </span>
+                <span class="filter-badge bg-light" data-filter="cleared" onclick="filterCustomers('cleared')">
+                    <i class="fas fa-check-circle me-1"></i>Cleared
+                </span>
             </div>
-          </div>
         </div>
 
-        <!-- Loading Indicator -->
-        <div id="loader" class="text-center my-4" style="display: none;">
-          <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden">Loading...</span>
-          </div>
-          <p class="text-muted mt-2">Searching customers...</p>
+        <div class="col-md-4">
+            <div class="stats-card">
+                <h5>Total Customers</h5>
+                <h3>${totalcustomers}</h3>
+                <small><i class="fas fa-chart-line me-1"></i>Active Accounts</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search and Export -->
+    <div class="row mb-4">
+        <div class="col-md-7">
+            <div class="search-container">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" id="searchBox" class="form-control"
+                       placeholder="Search by name, address, or phone number...">
+            </div>
         </div>
 
-        <!-- Customer Cards Container -->
-        <div class="cards-grid" id="customerCardContainer">
-          <c:forEach items="${custmers}" var="custmer" varStatus="status">
-            <div class="customer-card" style="animation-delay: ${status.index * 0.1}s;">
-             <div class="card-header d-flex align-items-center gap-2">
-                 <div class="customer-avatar">
-                     <c:set var="nameWords" value="${fn:split(custmer.custName, ' ')}" />
-                     <c:choose>
-                         <c:when test="${fn:length(nameWords) > 1}">
-                             ${fn:substring(nameWords[0], 0, 1)}${fn:substring(nameWords[1], 0, 1)}
-                         </c:when>
-                         <c:otherwise>
-                             ${fn:substring(custmer.custName, 0, 1)}${fn:substring(custmer.custName, 1, 2)}
-                         </c:otherwise>
-                     </c:choose>
-                 </div>
-
-                 <h3 class="customer-name text-truncate mb-0">${custmer.custName}</h3>
-             </div>
+        <div class="col-md-5">
+            <div class="export-buttons">
+                <button class="btn btn-outline-primary flex-fill" onclick="exportToExcel()">
+                    <i class="fas fa-file-excel me-1"></i>Export Excel
+                </button>
+                <button class="btn btn-outline-secondary flex-fill" onclick="printTable()">
+                    <i class="fas fa-print me-1"></i>Print
+                </button>
+                <button class="btn btn-outline-success flex-fill" onclick="location.reload()">
+                    <i class="fas fa-sync-alt me-1"></i>Refresh
+                </button>
+            </div>
+        </div>
+    </div>
 
 
-              <div class="card-content">
-                <div class="info-item">
-                  <div class="info-icon address-icon">
-                    <i class="fas fa-map-marker-alt"></i>
-                  </div>
-                  <span class="info-text">${not empty custmer.address ? custmer.address : 'No address provided'}</span>
-                </div>
+    <!-- Results Summary -->
+    <div id="resultsSummary" class="alert alert-info" style="display:none;">
+        <i class="fas fa-info-circle me-2"></i>
+        <span id="resultsText"></span>
+    </div>
 
-                <div class="info-item">
-                  <div class="info-icon phone-icon">
-                    <i class="fab fa-whatsapp"></i>
-                  </div>
-                <c:choose>
-                    <c:when test="${not empty custmer.phoneNo}">
-                        <a href="https://wa.me/${custmer.phoneNo}" target="_blank" class="whatsapp-link">
-                            <span class="info-text">${custmer.phoneNo}</span>
+    <!-- Table -->
+    <div class="table-responsive">
+        <table class="table table-hover table-bordered align-middle" id="customerTable">
+            <thead class="table-dark">
+                <tr>
+                    <th>#</th>
+                    <th>
+                        <i class="fas fa-user me-1"></i>Name
+                        <i class="fas fa-sort ms-1" style="cursor:pointer;" onclick="sortTable(1)"></i>
+                    </th>
+                    <th>
+                        <i class="fas fa-map-marker-alt me-1"></i>Address
+                    </th>
+                    <th>
+                        <i class="fas fa-phone me-1"></i>Phone
+                    </th>
+                    <th>
+                        <i class="fas fa-rupee-sign me-1"></i>Total
+                        <i class="fas fa-sort ms-1" style="cursor:pointer;" onclick="sortTable(4)"></i>
+                    </th>
+                    <th>
+                        <i class="fas fa-check-circle me-1"></i>Paid
+                        <i class="fas fa-sort ms-1" style="cursor:pointer;" onclick="sortTable(5)"></i>
+                    </th>
+                    <th>
+                        <i class="fas fa-balance-scale me-1"></i>Balance
+                        <i class="fas fa-sort ms-1" style="cursor:pointer;" onclick="sortTable(6)"></i>
+                    </th>
+                    <th width="180">
+                        <i class="fas fa-cog me-1"></i>Actions
+                    </th>
+                </tr>
+            </thead>
+
+            <tbody id="customerTableBody">
+                <c:forEach items="${custmers}" var="cust" varStatus="i">
+                    <tr class="customer-row" data-balance="${cust.currentOusting}">
+                        <td>${i.index + 1}</td>
+                        <td><strong>${cust.custName}</strong></td>
+                        <td>${cust.address}</td>
+                        <td>
+                            <c:choose>
+                                <c:when test="${not empty cust.phoneNo}">
+                                    <a href="https://wa.me/${cust.phoneNo}" target="_blank"
+                                       class="text-decoration-none" title="Contact on WhatsApp">
+                                        <i class="fab fa-whatsapp text-success"></i>
+                                        ${cust.phoneNo}
+                                    </a>
+                                </c:when>
+                                <c:otherwise>
+                                    <span class="text-muted">—</span>
+                                </c:otherwise>
+                            </c:choose>
+                        </td>
+
+                        <td>₹<fmt:formatNumber value="${cust.totalAmount}" pattern="#,##0.00"/></td>
+                        <td>₹<fmt:formatNumber value="${cust.paidAmout}" pattern="#,##0.00"/></td>
+                        <td class="${cust.currentOusting > 0 ? 'balance-negative' : 'balance-positive'}">
+                            ₹<fmt:formatNumber value="${cust.currentOusting}" pattern="#,##0.00"/>
+                        </td>
+
+                        <td>
+                            <div class="table-actions">
+                                <a href="${pageContext.request.contextPath}/company/get-cust-by-id?custid=${cust.id}"
+                                   class="btn btn-primary btn-action" title="View Invoice">
+                                    <i class="fas fa-file-invoice"></i>
+                                </a>
+
+                                <a href="${pageContext.request.contextPath}/company/get-bal-credit-page/${cust.id}"
+                                   class="btn btn-success btn-action" title="Add Payment">
+                                    <i class="fas fa-donate"></i>
+                                </a>
+
+                                <a href="${pageContext.request.contextPath}/company/cust-history?custid=${cust.id}"
+                                   class="btn btn-warning btn-action" target="_blank" title="View History">
+                                    <i class="fas fa-list-ol"></i>
+                                </a>
+
+                                <a href="${pageContext.request.contextPath}/company/update-customer/${cust.id}"
+                                   class="btn btn-dark btn-action" title="Edit Customer">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                </c:forEach>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    <c:if test="${totalPages > 1}">
+        <nav class="d-flex justify-content-center mt-4" id="paginationNav">
+            <ul class="pagination pagination-lg">
+                <c:if test="${page > 0}">
+                    <li class="page-item">
+                        <a class="page-link" href="${pageContext.request.contextPath}/company/get-all-customers?page=${page - 1}">
+                            <i class="fas fa-chevron-left"></i> Previous
                         </a>
-                    </c:when>
-                    <c:otherwise>
-                        <span class="info-text">No phone number</span>
-                    </c:otherwise>
-                </c:choose>
+                    </li>
+                </c:if>
 
+                <c:forEach begin="${page - 2 < 0 ? 0 : page - 2}"
+                           end="${page + 2 >= totalPages ? totalPages - 1 : page + 2}" var="i">
+                    <li class="page-item ${page == i ? 'active' : ''}">
+                        <a class="page-link" href="${pageContext.request.contextPath}/company/get-all-customers?page=${i}">
+                            ${i + 1}
+                        </a>
+                    </li>
+                </c:forEach>
 
-                </div>
-              </div>
-
-              <div class="amount-section">
-                <div class="amount-card total-card">
-                  <div class="amount-label">Total</div>
-                  <div class="amount-value">₹<fmt:formatNumber value="${custmer.totalAmount}" pattern="#,##0.00"/></div>
-                </div>
-                <div class="amount-card paid-card">
-                  <div class="amount-label">Paid</div>
-                  <div class="amount-value">₹<fmt:formatNumber value="${custmer.paidAmout}" pattern="#,##0.00"/></div>
-                </div>
-                <div class="amount-card balance-card">
-                  <div class="amount-label">Balance</div>
-                  <div class="amount-value">₹<fmt:formatNumber value="${custmer.currentOusting}" pattern="#,##0.00"/></div>
-                </div>
-              </div>
-
-              <div class="action-buttons">
-                <a href="${pageContext.request.contextPath}/company/get-cust-by-id?custid=${custmer.id}" class="action-btn btn-invoice">
-                  <i class="fas fa-file-invoice"></i> Invoice
-                </a>
-                <a href="${pageContext.request.contextPath}/company/get-bal-credit-page/${custmer.id}" class="action-btn btn-deposit">
-                  <i class="fas fa-donate"></i> Deposit
-                </a>
-                <a href="${pageContext.request.contextPath}/company/cust-history?custid=${custmer.id}" target="_blank" class="action-btn btn-history">
-                  <i class="fas fa-list-ol"></i> History
-                </a>
-                <a href="${pageContext.request.contextPath}/company/update-customer/${custmer.id}" class="action-btn btn-edit">
-                  <i class="fas fa-edit"></i> Edit
-                </a>
-              </div>
-            </div>
-          </c:forEach>
-        </div>
-
-        <!-- Pagination -->
-        <c:if test="${totalPages > 1}">
-        <div id="paginationContainer" class="d-flex justify-content-center mt-4">
-          <nav>
-            <ul class="pagination">
-              <c:if test="${page > 0}">
-                <li class="page-item">
-                  <a class="page-link" href="${pageContext.request.contextPath}/company/get-all-customers?page=${page - 1}">
-                    <i class="fas fa-chevron-left"></i> Previous
-                  </a>
-                </li>
-              </c:if>
-
-              <c:forEach begin="${page - 2 < 0 ? 0 : page - 2}"
-                         end="${page + 2 >= totalPages ? totalPages - 1 : page + 2}" var="i">
-                <li class="page-item ${page == i ? 'active' : ''}">
-                  <a class="page-link" href="${pageContext.request.contextPath}/company/get-all-customers?page=${i}">
-                    ${i + 1}
-                  </a>
-                </li>
-              </c:forEach>
-
-              <c:if test="${page < totalPages - 1}">
-                <li class="page-item">
-                  <a class="page-link" href="${pageContext.request.contextPath}/company/get-all-customers?page=${page + 1}">
-                    Next <i class="fas fa-chevron-right"></i>
-                  </a>
-                </li>
-              </c:if>
+                <c:if test="${page < totalPages - 1}">
+                    <li class="page-item">
+                        <a class="page-link" href="${pageContext.request.contextPath}/company/get-all-customers?page=${page + 1}">
+                            Next <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </li>
+                </c:if>
             </ul>
-          </nav>
-        </div>
-        </c:if>
+        </nav>
+    </c:if>
 
-      </div>
-    </main>
-  </div>
+</div>
+</main>
+    <jsp:include page="../view/footer.jsp"></jsp:include>
+
 </div>
 
-<form id="logoutForm" method="POST" action="${pageContext.request.contextPath}/logout" style="display: none;">
+<!-- Logout form -->
+<form id="logoutForm" method="POST" action="${pageContext.request.contextPath}/logout" style="display:none;">
     <c:if test="${not empty _csrf}">
         <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
     </c:if>
 </form>
 
-
-<!-- JavaScript -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<!-- JS -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="${pageContext.request.contextPath}/resources/js/scripts.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    const contextPath = '${pageContext.request.contextPath}';
-    const searchInput = document.getElementById('searchBox');
-    const cardContainer = document.getElementById('customerCardContainer');
-    const paginationContainer = document.getElementById('paginationContainer');
-    const loader = document.getElementById('loader');
-    let debounceTimer;
+const contextPath = '${pageContext.request.contextPath}';
+let debounceTimer;
+let allCustomers = [];
 
+// Store initial data
+$(document).ready(function() {
+    storeTableData();
+});
 
-    function renderCards(customers) {
-        cardContainer.innerHTML = '';
+// =========================
+// AJAX SEARCH
+// =========================
+$("#searchBox").on("input", function () {
+    const query = $(this).val().trim();
 
-        customers.forEach(function (custmer, index) {
-            // Generate avatar initials
-            var nameWords = custmer.custName.split(' ');
-            var initials = nameWords.length > 1
-                ? nameWords[0].charAt(0).toUpperCase() + nameWords[1].charAt(0).toUpperCase()
-                : custmer.custName.charAt(0).toUpperCase() + (custmer.custName.charAt(1) || '').toUpperCase();
+    clearTimeout(debounceTimer);
 
-            var card = document.createElement('div');
-            card.className = 'customer-card';
-
-            // Add staggered animation delay
-            card.style.animationDelay = (index * 0.1) + 's';
-
-            card.innerHTML =
-                '<div class="card-header">' +
-                    '<div class="customer-avatar">' + initials + '</div>' +
-                    '<h3 class="customer-name">' + custmer.custName + '</h3>' +
-                '</div>' +
-
-                '<div class="card-content">' +
-                    '<div class="info-item">' +
-                        '<div class="info-icon address-icon">' +
-                            '<i class="fas fa-map-marker-alt"></i>' +
-                        '</div>' +
-                        '<span class="info-text">' + (custmer.address || 'No address provided') + '</span>' +
-                    '</div>' +
-
-                    '<div class="info-item">' +
-                        '<div class="info-icon phone-icon">' +
-                            '<i class="fab fa-whatsapp"></i>' +
-                        '</div>' +
-                        '<a href="https://wa.me/' + custmer.phoneNo + '" target="_blank" class="whatsapp-link">' +
-                            '<span class="info-text">' + custmer.phoneNo + '</span>' +
-                        '</a>' +
-                    '</div>' +
-                '</div>' +
-
-                '<div class="amount-section">' +
-                    '<div class="amount-card total-card">' +
-                        '<div class="amount-label">Total</div>' +
-                        '<div class="amount-value">₹' + formatNumber(custmer.totalAmount) + '</div>' +
-                    '</div>' +
-                    '<div class="amount-card paid-card">' +
-                        '<div class="amount-label">Paid</div>' +
-                        '<div class="amount-value">₹' + formatNumber(custmer.paidAmout) + '</div>' +
-                    '</div>' +
-                    '<div class="amount-card balance-card">' +
-                        '<div class="amount-label">Balance</div>' +
-                        '<div class="amount-value">₹' + formatNumber(custmer.currentOusting) + '</div>' +
-                    '</div>' +
-                '</div>' +
-
-                '<div class="action-buttons">' +
-                    '<a href="' + contextPath + '/company/get-cust-by-id?custid=' + custmer.id + '" class="action-btn btn-invoice">' +
-                        '<i class="fas fa-file-invoice"></i>Invoice' +
-                    '</a>' +
-                    '<a href="' + contextPath + '/company/get-bal-credit-page/' + custmer.id + '" class="action-btn btn-deposit">' +
-                        '<i class="fas fa-donate"></i>Deposit' +
-                    '</a>' +
-                    '<a href="' + contextPath + '/company/cust-history?custid=' + custmer.id + '" target="_blank" class="action-btn btn-history">' +
-                        '<i class="fas fa-list-ol"></i>History' +
-                    '</a>' +
-                    '<a href="' + contextPath + '/company/update-customer/' + custmer.id + '" class="action-btn btn-edit">' +
-                        '<i class="fas fa-edit"></i>Edit' +
-                    '</a>' +
-                '</div>';
-
-            cardContainer.appendChild(card);
-        });
-
-        // Update card counter
-        updateCardCounter();
+    if (query.length === 0) {
+        location.href = contextPath + "/company/get-all-customers";
+        return;
     }
 
-    // Helper function to format numbers with commas
-    function formatNumber(num) {
-        if (num === null || num === undefined) return '0';
-        return parseFloat(num).toLocaleString('en-IN');
-    }
+    if (query.length < 2) return;
 
-    // Helper function to update card counter
-    function updateCardCounter() {
-        var cards = document.querySelectorAll('.customer-card');
-        var counter = document.getElementById('cardCounter');
-        if (counter) {
-            counter.textContent = 'Total Customers: ' + cards.length;
-        }
-    }
+    debounceTimer = setTimeout(() => {
+        $("#pageLoader").show();
 
-    // Alternative version with error handling and better performance
-    function renderCardsOptimized(customers) {
-        if (!customers || customers.length === 0) {
-            cardContainer.innerHTML = '<div class="no-customers">No customers found</div>';
-            return;
-        }
+        $.ajax({
+            url: contextPath + "/company/search",
+            method: "GET",
+            data: { query: query },
+            success: function (list) {
+                $("#pageLoader").hide();
+                $("#customerTableBody").empty();
+                $("#paginationNav").hide();
 
-        // Create document fragment for better performance
-        var fragment = document.createDocumentFragment();
+                if (!list || list.length === 0) {
+                    $("#customerTableBody").html(
+                        "<tr><td colspan='8' class='text-center text-muted py-4'>" +
+                        "<i class='fas fa-search fa-3x mb-3 d-block'></i>" +
+                        "<h5>No matching customers found</h5>" +
+                        "<p>Try adjusting your search terms</p>" +
+                        "</td></tr>"
+                    );
+                    $("#resultsSummary").hide();
+                    return;
+                }
 
-        customers.forEach(function (custmer, index) {
-            // Validate customer data
-            if (!custmer || !custmer.custName) {
-                console.warn('Invalid customer data at index', index);
-                return;
+                // Show results summary
+                $("#resultsText").text("Found " + list.length + " customer(s) matching '" + query + "'");
+                $("#resultsSummary").show();
+
+                list.forEach(function(c, i) {
+                    let phone = c.phoneNo
+                        ? "<a href='https://wa.me/" + c.phoneNo + "' target='_blank' class='text-decoration-none' title='Contact on WhatsApp'>" +
+                          "<i class='fab fa-whatsapp text-success'></i> " + c.phoneNo +
+                          "</a>"
+                        : "<span class='text-muted'>—</span>";
+
+                    let balanceClass = c.currentOusting > 0 ? 'balance-negative' : 'balance-positive';
+
+                    $("#customerTableBody").append(
+                        "<tr class='customer-row fade-in' data-balance='" + c.currentOusting + "'>" +
+                        "<td>" + (i + 1) + "</td>" +
+                        "<td><strong>" + c.custName + "</strong></td>" +
+                        "<td>" + (c.address || '') + "</td>" +
+                        "<td>" + phone + "</td>" +
+                        "<td>₹" + formatNumber(c.totalAmount) + "</td>" +
+                        "<td>₹" + formatNumber(c.paidAmout) + "</td>" +
+                        "<td class='" + balanceClass + "'>₹" + formatNumber(c.currentOusting) + "</td>" +
+                        "<td>" +
+                        "<div class='table-actions'>" +
+                        "<a href='" + contextPath + "/company/get-cust-by-id?custid=" + c.id + "' class='btn btn-primary btn-action' title='View Invoice'>" +
+                        "<i class='fas fa-file-invoice'></i></a>" +
+                        "<a href='" + contextPath + "/company/get-bal-credit-page/" + c.id + "' class='btn btn-success btn-action' title='Add Payment'>" +
+                        "<i class='fas fa-donate'></i></a>" +
+                        "<a href='" + contextPath + "/company/cust-history?custid=" + c.id + "' target='_blank' class='btn btn-warning btn-action' title='View History'>" +
+                        "<i class='fas fa-list-ol'></i></a>" +
+                        "<a href='" + contextPath + "/company/update-customer/" + c.id + "' class='btn btn-dark btn-action' title='Edit Customer'>" +
+                        "<i class='fas fa-edit'></i></a>" +
+                        "</div>" +
+                        "</td>" +
+                        "</tr>"
+                    );
+                });
+            },
+            error: function() {
+                $("#pageLoader").hide();
+                alert("Error searching customers. Please try again.");
             }
-
-            // Generate avatar initials safely
-            var nameWords = custmer.custName.trim().split(/\s+/);
-            var initials = nameWords.length > 1
-                ? nameWords[0].charAt(0).toUpperCase() + nameWords[1].charAt(0).toUpperCase()
-                : custmer.custName.charAt(0).toUpperCase() + (custmer.custName.charAt(1) || '').toUpperCase();
-
-            var card = document.createElement('div');
-            card.className = 'customer-card';
-            card.style.animationDelay = (index * 0.1) + 's';
-
-            // Safe property access with fallbacks
-            var address = custmer.address || 'Address not provided';
-            var phoneNo = custmer.phoneNo || '';
-            var totalAmount = custmer.totalAmount || 0;
-            var paidAmount = custmer.paidAmout || custmer.paidAmount || 0;
-            var currentOusting = custmer.currentOusting || custmer.balance || 0;
-
-            card.innerHTML =
-                '<div class="card-header">' +
-                    '<div class="customer-avatar">' + initials + '</div>' +
-                    '<h3 class="customer-name">' + escapeHtml(custmer.custName) + '</h3>' +
-                '</div>' +
-
-                '<div class="card-content">' +
-                    '<div class="info-item">' +
-                        '<div class="info-icon address-icon">' +
-                            '<i class="fas fa-map-marker-alt"></i>' +
-                        '</div>' +
-                        '<span class="info-text" title="' + escapeHtml(address) + '">' +
-                            truncateText(address, 50) +
-                        '</span>' +
-                    '</div>' +
-
-                    '<div class="info-item">' +
-                        '<div class="info-icon phone-icon">' +
-                            '<i class="fab fa-whatsapp"></i>' +
-                        '</div>' +
-                        (phoneNo ?
-                            '<a href="https://wa.me/' + phoneNo + '" target="_blank" class="whatsapp-link">' +
-                                '<span class="info-text">' + phoneNo + '</span>' +
-                            '</a>' :
-                            '<span class="info-text">No phone number</span>'
-                        ) +
-                    '</div>' +
-                '</div>' +
-
-                '<div class="amount-section">' +
-                    '<div class="amount-card total-card">' +
-                        '<div class="amount-label">Total</div>' +
-                        '<div class="amount-value">₹' + formatNumber(totalAmount) + '</div>' +
-                    '</div>' +
-                    '<div class="amount-card paid-card">' +
-                        '<div class="amount-label">Paid</div>' +
-                        '<div class="amount-value">₹' + formatNumber(paidAmount) + '</div>' +
-                    '</div>' +
-                    '<div class="amount-card balance-card">' +
-                        '<div class="amount-label">Balance</div>' +
-                        '<div class="amount-value">₹' + formatNumber(currentOusting) + '</div>' +
-                    '</div>' +
-                '</div>' +
-
-                '<div class="action-buttons">' +
-                    '<a href="' + contextPath + '/company/get-cust-by-id?custid=' + custmer.id + '" class="action-btn btn-invoice">' +
-                        '<i class="fas fa-file-invoice"></i>Invoice' +
-                    '</a>' +
-                    '<a href="' + contextPath + '/company/get-bal-credit-page/' + custmer.id + '" class="action-btn btn-deposit">' +
-                        '<i class="fas fa-donate"></i>Deposit' +
-                    '</a>' +
-                    '<a href="' + contextPath + '/company/cust-history?custid=' + custmer.id + '" target="_blank" class="action-btn btn-history">' +
-                        '<i class="fas fa-list-ol"></i>History' +
-                    '</a>' +
-                    '<a href="' + contextPath + '/company/update-customer/' + custmer.id + '" class="action-btn btn-edit">' +
-                        '<i class="fas fa-edit"></i>Edit' +
-                    '</a>' +
-                '</div>';
-
-            fragment.appendChild(card);
         });
+    }, 300);
+});
 
-        // Clear container and append all cards at once
-        cardContainer.innerHTML = '';
-        cardContainer.appendChild(fragment);
+// =========================
+// FILTER CUSTOMERS
+// =========================
+function filterCustomers(filter) {
+    $(".filter-badge").removeClass("active");
+    $("[data-filter='" + filter + "']").addClass("active");
 
-        // Update card counter
-        updateCardCounter();
-    }
+    const rows = $("#customerTableBody tr");
 
-    // Utility functions
-    function escapeHtml(text) {
-        var div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
-    }
+    rows.each(function() {
+        const balance = parseFloat($(this).attr("data-balance")) || 0;
 
-    function truncateText(text, maxLength) {
-        if (text.length <= maxLength) return text;
-        return text.substring(0, maxLength) + '...';
-    }
-
-    // CSS for no customers message
-    var noCustomersStyle = `
-        .no-customers {
-            grid-column: 1 / -1;
-            text-align: center;
-            padding: 3rem;
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 1.2rem;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 16px;
-            backdrop-filter: blur(10px);
+        if (filter === "all") {
+            $(this).show();
+        } else if (filter === "balance") {
+            balance > 0 ? $(this).show() : $(this).hide();
+        } else if (filter === "cleared") {
+            balance <= 0 ? $(this).show() : $(this).hide();
         }
-    `;
+    });
+}
 
-    // Add the style to the page if it doesn't exist
-    if (!document.getElementById('no-customers-style')) {
-        var style = document.createElement('style');
-        style.id = 'no-customers-style';
-        style.textContent = noCustomersStyle;
-        document.head.appendChild(style);
-    }
+// =========================
+// SORT TABLE
+// =========================
+function sortTable(columnIndex) {
+    const table = document.getElementById("customerTable");
+    const rows = Array.from(table.querySelectorAll("tbody tr"));
+    const isNumeric = columnIndex >= 4 && columnIndex <= 6;
 
+    rows.sort((a, b) => {
+        let aVal = a.cells[columnIndex].textContent.trim();
+        let bVal = b.cells[columnIndex].textContent.trim();
 
-    searchInput.addEventListener('input', function () {
-        const query = this.value.trim();
-        clearTimeout(debounceTimer);
-
-        if (!query) {
-            location.href = contextPath + '/company/get-all-customers';
-            return;
+        if (isNumeric) {
+            aVal = parseFloat(aVal.replace(/[₹,]/g, '')) || 0;
+            bVal = parseFloat(bVal.replace(/[₹,]/g, '')) || 0;
+            return bVal - aVal;
         }
-        if (query.length < 2) return;
 
-        debounceTimer = setTimeout(() => {
-            showLoader();
-            fetch(contextPath + '/company/search?query=' + encodeURIComponent(query))
-                .then(res => res.json())
-                .then(data => {
-                    hideLoader();
-                    if (!data || data.length === 0) {
-                        cardContainer.innerHTML = '<div class="col-12 text-center text-muted">🙁 No matching customers found</div>';
-                        paginationContainer.style.display = 'none';
-                        return;
-                    }
-                    renderCards(data);
-                    paginationContainer.style.display = 'none';
-                })
-                .catch(() => hideLoader());
-        }, 300);
+        return aVal.localeCompare(bVal);
     });
 
-
-    function showLoader() {
-        var loader = document.getElementById('pageLoader');
-        if (loader) {
-            loader.style.display = 'flex';
-        }
-    }
-
-    function hideLoader() {
-        var loader = document.getElementById('pageLoader');
-        if (loader) {
-            loader.style.display = 'none';
-        }
-    }
-
-    // Example usage: show loader on page load, then hide after 2 seconds
-    window.addEventListener('load', function () {
-        showLoader();
-        setTimeout(hideLoader, 2000); // Hide after 2 seconds
+    const tbody = table.querySelector("tbody");
+    rows.forEach((row, index) => {
+        row.cells[0].textContent = index + 1;
+        tbody.appendChild(row);
     });
+}
 
-    function confirmLogout(event) {
-        event.preventDefault();
+// =========================
+// EXPORT TO EXCEL
+// =========================
+function exportToExcel() {
+    const table = document.getElementById("customerTable");
+    const wb = XLSX.utils.table_to_book(table, {sheet: "Customers"});
+    XLSX.writeFile(wb, "customers_" + new Date().toISOString().split('T')[0] + ".xlsx");
+}
 
-        // Optional: Add confirmation dialog
-        if (confirm('Are you sure you want to logout?')) {
-            performLogout();
-        }
-    }
+// =========================
+// PRINT TABLE
+// =========================
+function printTable() {
+    window.print();
+}
 
-    function performLogout() {
-        try {
-            const logoutForm = document.getElementById('logoutForm');
-            if (logoutForm) {
-                // Show loading state (optional)
-                const logoutBtn = event.target;
-                const originalText = logoutBtn.innerHTML;
-                logoutBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Logging out...';
-                logoutBtn.style.pointerEvents = 'none';
+// =========================
+// STORE TABLE DATA
+// =========================
+function storeTableData() {
+    $("#customerTableBody tr").each(function() {
+        const row = $(this);
+        allCustomers.push({
+            name: row.find("td:eq(1)").text(),
+            address: row.find("td:eq(2)").text(),
+            phone: row.find("td:eq(3)").text(),
+            total: row.find("td:eq(4)").text(),
+            paid: row.find("td:eq(5)").text(),
+            balance: row.find("td:eq(6)").text()
+        });
+    });
+}
 
-                // Submit the form
-                logoutForm.submit();
-            } else {
-                console.error('Logout form not found');
-                // Fallback: redirect to logout URL
-                window.location.href = '${pageContext.request.contextPath}/logout';
-            }
-        } catch (error) {
-            console.error('Logout failed:', error);
-            // Fallback logout
-            window.location.href = '${pageContext.request.contextPath}/logout';
-        }
-    }
+// =========================
+// FORMAT NUMBERS
+// =========================
+function formatNumber(num) {
+    if (!num && num !== 0) return "0.00";
+    return parseFloat(num).toLocaleString("en-IN", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    });
+}
 
-    // Alternative simpler version without confirmation
-    function simpleLogout() {
-        try {
-            const logoutForm = document.forms['logoutForm'] || document.getElementById('logoutForm');
-            if (logoutForm) {
-                logoutForm.submit();
-            } else {
-                window.location.href = '${pageContext.request.contextPath}/logout';
-            }
-        } catch (error) {
-            console.error('Logout error:', error);
-            window.location.href = '${pageContext.request.contextPath}/logout';
-        }
-    }
-
-       // Theme Toggle Script
-        function toggleTheme() {
-            const body = document.body;
-            const icon = document.getElementById('theme-icon');
-            const isDark = body.getAttribute('data-theme') === 'dark';
-            body.setAttribute('data-theme', isDark ? 'light' : 'dark');
-            icon.classList.toggle('fa-sun', isDark);
-            icon.classList.toggle('fa-moon', !isDark);
-
-            // Save theme preference
-            localStorage.setItem('theme', isDark ? 'light' : 'dark');
-        }
+// Initialize first filter
+$(document).ready(function() {
+    $("[data-filter='all']").addClass("active");
+});
 </script>
+
+<style media="print">
+    .btn, .pagination, .filter-badge, .export-buttons, #searchBox, .search-container {
+        display: none !important;
+    }
+
+    .table {
+        font-size: 12px;
+    }
+</style>
+
 </body>
 </html>

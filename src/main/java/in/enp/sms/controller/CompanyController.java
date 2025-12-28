@@ -590,7 +590,7 @@ public class CompanyController {
             return "error";
         }
 
-        Pageable pageable = PageRequest.of(page, 12, Sort.by("custName").ascending());
+        Pageable pageable = PageRequest.of(page, 10, Sort.by("custName").ascending());
         Page<CustProfile> custPage = getCustomerPage(ownerId, search, pageable);
 
         model.addAttribute("custmers", custPage.getContent());
@@ -858,7 +858,7 @@ public class CompanyController {
     @GetMapping("/get-all-invoices")
     public String getAllInvoiceList(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "12") int size,
+            @RequestParam(defaultValue = "10") int size,
             Model model,
             HttpServletRequest request) {
 
@@ -943,6 +943,7 @@ public class CompanyController {
         map.put("balanceAmt", invoice.getBalanceAmt());
         map.put("discount", invoice.getDiscount());
         map.put("advanAmt", invoice.getAdvanAmt());
+        map.put("itemDetails", invoice.getItemDetails());
         map.put("tax", invoice.getTax());
         map.put("invoiceType", invoice.getInvoiceType());
         return map;
@@ -1873,7 +1874,7 @@ public class CompanyController {
     public List<Map<String, Object>> searchCustomers(@RequestParam("query") String query,
                                                      HttpServletRequest request) {
         LOGGER.info("Searching customers with query: {}", query);
-        Pageable pageable = PageRequest.of(0, 12, Sort.by("custName").ascending());
+        Pageable pageable = PageRequest.of(0, 10, Sort.by("custName").ascending());
         String ownerId = Utility.getOwnerIdFromSession(request);
 
         Page<CustProfile> customers = getCustomerPage(ownerId, query, pageable);
