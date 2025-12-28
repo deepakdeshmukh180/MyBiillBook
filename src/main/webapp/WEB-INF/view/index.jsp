@@ -275,52 +275,53 @@
 
                      <div class="customer-list" id="customerList" style="max-height: 75vh; overflow-y: auto; position: relative;">
                   <c:forEach items="${custmers}" var="custmer" varStatus="status">
-                    <div class="customer-mini-card p-3 mb-3">
+                    <div class="customer-mini-card p-2 mb-2">
                       <div class="d-flex align-items-start">
-                        <div class="customer-avatar me-3">
+                        <div class="customer-avatar me-2" style="width: 36px; height: 36px; font-size: 14px;">
                           ${fn:substring(custmer.custName, 0, 1)}
                         </div>
-                        <div class="flex-grow-1">
-                          <div class="d-flex justify-content-between align-items-start mb-2">
-                            <h6 class="text-primary fw-semibold mb-0">${custmer.custName}</h6>
+                        <div class="flex-grow-1 min-w-0">
+                          <div class="d-flex justify-content-between align-items-center mb-1">
+                            <h6 class="text-primary fw-semibold mb-0 text-truncate me-2" style="font-size: 14px;">
+                              ${custmer.custName}
+                            </h6>
                             <a href="${pageContext.request.contextPath}/company/update-customer/${custmer.id}"
-                               class="text-primary" title="Edit Customer">
-                              <i class="fas fa-edit"></i>
+                               class="text-primary flex-shrink-0" title="Edit">
+                              <i class="fas fa-edit" style="font-size: 12px;"></i>
                             </a>
                           </div>
 
-                          <div class="text-muted small mb-2">
-                            <i class="fas fa-map-marker-alt me-1"></i>${custmer.address}
-                          </div>
-
-                          <div class="text-muted small mb-3">
-                            <a href="https://wa.me/${custmer.phoneNo}" target="_blank" class="text-success text-decoration-none">
+                          <div class="text-muted mb-2 d-flex align-items-center" style="font-size: 11px;">
+                            <i class="fas fa-map-marker-alt me-1 flex-shrink-0"></i>
+                            <span class="text-truncate me-2">${custmer.address}</span>
+                            <span class="text-muted mx-1">•</span>
+                            <a href="https://wa.me/${custmer.phoneNo}" target="_blank" class="text-success text-decoration-none flex-shrink-0">
                               <i class="fab fa-whatsapp me-1"></i>${custmer.phoneNo}
                             </a>
                           </div>
 
-                          <div class="d-flex gap-1 mb-3 flex-wrap">
-                            <span class="badge bg-primary badge-modern">Total ₹${custmer.totalAmount}</span>
-                            <span class="badge bg-success badge-modern">Paid ₹${custmer.paidAmout}</span>
-                            <span class="badge bg-danger badge-modern">Bal ₹${custmer.currentOusting}</span>
+                          <div class="d-flex gap-1 mb-2">
+                            <span class="badge bg-primary" style="font-size: 10px; padding: 2px 6px;">₹${custmer.totalAmount}</span>
+                            <span class="badge bg-success" style="font-size: 10px; padding: 2px 6px;">₹${custmer.paidAmout}</span>
+                            <span class="badge bg-danger" style="font-size: 10px; padding: 2px 6px;">₹${custmer.currentOusting}</span>
                           </div>
 
-                          <div class="d-flex gap-2 flex-wrap">
+                          <div class="d-flex gap-1">
                             <form method="get" action="${pageContext.request.contextPath}/company/get-cust-by-id" class="flex-fill">
                               <input type="hidden" name="custid" value="${custmer.id}" />
-                              <button class="btn btn-outline-primary btn-sm btn-modern w-100" type="submit">
-                                <i class="fas fa-file-invoice me-1"></i>Invoice
+                              <button class="btn btn-outline-primary btn-sm w-100" type="submit" style="font-size: 11px; padding: 3px 6px;">
+                                <i class="fas fa-file-invoice"></i>
                               </button>
                             </form>
                             <form method="get" action="${pageContext.request.contextPath}/company/get-bal-credit-page/${custmer.id}" class="flex-fill">
-                              <button class="btn btn-outline-success btn-sm btn-modern w-100" type="submit">
-                                <i class="fas fa-donate me-1"></i>Deposit
+                              <button class="btn btn-outline-success btn-sm w-100" type="submit" style="font-size: 11px; padding: 3px 6px;">
+                                <i class="fas fa-donate"></i>
                               </button>
                             </form>
                             <form method="get" action="${pageContext.request.contextPath}/company/cust-history" target="_blank" class="flex-fill">
                               <input type="hidden" name="custid" value="${custmer.id}" />
-                              <button class="btn btn-outline-warning btn-sm btn-modern w-100" type="submit">
-                                <i class="fas fa-list-ol me-1"></i>History
+                              <button class="btn btn-outline-warning btn-sm w-100" type="submit" style="font-size: 11px; padding: 3px 6px;">
+                                <i class="fas fa-list-ol"></i>
                               </button>
                             </form>
                           </div>
@@ -1008,55 +1009,56 @@ function renderCards(customers) {
     var html = '';
 
     customers.forEach(function(customer) {
-        html += '<div class="customer-mini-card p-3 mb-3">' +
+        html += '<div class="customer-mini-card p-2 mb-2">' +
                     '<div class="d-flex align-items-start">' +
-                        '<div class="customer-avatar me-3">' +
+                        '<div class="customer-avatar me-2" style="width: 36px; height: 36px; font-size: 14px;">' +
                             (customer.custName ? customer.custName.charAt(0).toUpperCase() : '?') +
                         '</div>' +
-                        '<div class="flex-grow-1">' +
-                            '<div class="d-flex justify-content-between align-items-start mb-2">' +
-                                '<h6 class="text-primary fw-semibold mb-0">' + (customer.custName || 'N/A') + '</h6>' +
+                        '<div class="flex-grow-1 min-w-0">' +
+                            '<div class="d-flex justify-content-between align-items-center mb-1">' +
+                                '<h6 class="text-primary fw-semibold mb-0 text-truncate me-2" style="font-size: 14px;">' +
+                                    (customer.custName || 'N/A') +
+                                '</h6>' +
                                 '<a href="' + contextPath + '/company/update-customer/' + customer.id + '" ' +
-                                   'class="text-primary" title="Edit Customer">' +
-                                    '<i class="fas fa-edit"></i>' +
+                                   'class="text-primary flex-shrink-0" title="Edit">' +
+                                    '<i class="fas fa-edit" style="font-size: 12px;"></i>' +
                                 '</a>' +
                             '</div>' +
 
-                            '<div class="text-muted small mb-2">' +
-                                '<i class="fas fa-map-marker-alt me-1"></i>' + (customer.address || 'No address') +
-                            '</div>' +
-
-                            '<div class="text-muted small mb-3">' +
+                            '<div class="text-muted mb-2 d-flex align-items-center" style="font-size: 11px;">' +
+                                '<i class="fas fa-map-marker-alt me-1 flex-shrink-0"></i>' +
+                                '<span class="text-truncate me-2">' + (customer.address || 'No address') + '</span>' +
+                                '<span class="text-muted mx-1">•</span>' +
                                 '<a href="https://wa.me/' + (customer.phoneNo || '') + '" ' +
-                                   'target="_blank" class="text-success text-decoration-none">' +
+                                   'target="_blank" class="text-success text-decoration-none flex-shrink-0">' +
                                     '<i class="fab fa-whatsapp me-1"></i>' + (customer.phoneNo || 'N/A') +
                                 '</a>' +
                             '</div>' +
 
-                            '<div class="d-flex gap-1 mb-3 flex-wrap">' +
-                                '<span class="badge bg-primary badge-modern">Total ₹' + (customer.totalAmount || 0) + '</span>' +
-                                '<span class="badge bg-success badge-modern">Paid ₹' + (customer.paidAmout || 0) + '</span>' +
-                                '<span class="badge bg-danger badge-modern">Bal ₹' + (customer.currentOusting || 0) + '</span>' +
+                            '<div class="d-flex gap-1 mb-2">' +
+                                '<span class="badge bg-primary" style="font-size: 10px; padding: 2px 6px;">₹' + (customer.totalAmount || 0) + '</span>' +
+                                '<span class="badge bg-success" style="font-size: 10px; padding: 2px 6px;">₹' + (customer.paidAmout || 0) + '</span>' +
+                                '<span class="badge bg-danger" style="font-size: 10px; padding: 2px 6px;">₹' + (customer.currentOusting || 0) + '</span>' +
                             '</div>' +
 
-                            '<div class="d-flex gap-2 flex-wrap">' +
+                            '<div class="d-flex gap-1">' +
                                 '<form method="get" action="' + contextPath + '/company/get-cust-by-id" class="flex-fill">' +
                                     '<input type="hidden" name="custid" value="' + customer.id + '" />' +
-                                    '<button class="btn btn-outline-primary btn-sm btn-modern w-100" type="submit">' +
-                                        '<i class="fas fa-file-invoice me-1"></i>Invoice' +
+                                    '<button class="btn btn-outline-primary btn-sm w-100" type="submit" style="font-size: 11px; padding: 3px 6px;">' +
+                                        '<i class="fas fa-file-invoice"></i>' +
                                     '</button>' +
                                 '</form>' +
 
                                 '<form method="get" action="' + contextPath + '/company/get-bal-credit-page/' + customer.id + '" class="flex-fill">' +
-                                    '<button class="btn btn-outline-success btn-sm btn-modern w-100" type="submit">' +
-                                        '<i class="fas fa-donate me-1"></i>Deposit' +
+                                    '<button class="btn btn-outline-success btn-sm w-100" type="submit" style="font-size: 11px; padding: 3px 6px;">' +
+                                        '<i class="fas fa-donate"></i>' +
                                     '</button>' +
                                 '</form>' +
 
                                 '<form method="get" action="' + contextPath + '/company/cust-history" target="_blank" class="flex-fill">' +
                                     '<input type="hidden" name="custid" value="' + customer.id + '" />' +
-                                    '<button class="btn btn-outline-warning btn-sm btn-modern w-100" type="submit">' +
-                                        '<i class="fas fa-list-ol me-1"></i>History' +
+                                    '<button class="btn btn-outline-warning btn-sm w-100" type="submit" style="font-size: 11px; padding: 3px 6px;">' +
+                                        '<i class="fas fa-list-ol"></i>' +
                                     '</button>' +
                                 '</form>' +
                             '</div>' +

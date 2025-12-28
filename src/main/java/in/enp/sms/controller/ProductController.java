@@ -4,8 +4,10 @@ import in.enp.sms.entities.Product;
 import in.enp.sms.repository.ProductRepository;
 import in.enp.sms.utility.Utility;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -20,108 +22,164 @@ public class ProductController {
     @Autowired
     ProductRepository productRepository;
 
-    // --- AJAX Delete Product ---
-    @DeleteMapping("/delete-product-by-id")
-    @ResponseBody
-    public ResponseEntity<String> ajaxDeleteProduct(@RequestParam("productId") Long productId,
-                                                    HttpServletRequest request) {
+    // --- Main Page ---
+    @GetMapping("/manage")
+    public String managePage(Model model, HttpServletRequest request) {
         String ownerId = Utility.getOwnerIdFromSession(request);
-        List<Product> products = productRepository.findByProductIdAndOwnerId(productId, ownerId);
-
-        if (products.isEmpty()) {
-            return ResponseEntity.status(404).body("Product not found");
-        }
-
-        Product productToDelete = products.get(0);
-        productRepository.delete(productToDelete);
-        return ResponseEntity.ok("Deleted product: " + productToDelete.getProductName());
+        List<Product> products = productRepository.findByOwnerId(ownerId);
+        model.addAttribute("products", products);
+        return "product/manage";
     }
 
-    // --- AJAX Get Product (for Edit form fill) ---
+    // --- AJAX Search Products ---
+    @GetMapping("/search")
+    @ResponseBody
+    public ResponseEntity<List<Product>> searchProducts(@RequestParam("query") String query,
+                                                        HttpServletRequest request) {
+        try {
+            String ownerId = Utility.getOwnerIdFromSession(request);
+            List<Product> results = productRepository.searchProducts(query.toUpperCase(), ownerId);
+            return ResponseEntity.ok(results);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    // --- AJAX Get Product (for Edit) ---
     @GetMapping("/get-product")
     @ResponseBody
-    public ResponseEntity<Product> ajaxGetProduct(@RequestParam("id") Long productId,
-                                                  HttpServletRequest request) {
-        String ownerId = Utility.getOwnerIdFromSession(request);
-        List<Product> products = productRepository.findByProductIdAndOwnerId(productId, ownerId);
+    public ResponseEntity<Product> getProduct(@RequestParam("id") Long productId,
+                                              HttpServletRequest request) {
+        try {
+            String ownerId = Utility.getOwnerIdFromSession(request);
+            List<Product> products = productRepository.findByProductIdAndOwnerId(productId, ownerId);
 
-        return products.isEmpty()
-                ? ResponseEntity.notFound().build()
-                : ResponseEntity.ok(products.get(0));
+            if (products.isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+
+            return ResponseEntity.ok(products.get(0));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
-    // --- AJAX Update Product ---
-
-
+    // --- AJAX Save or Update Product ---
     @PostMapping("/save-or-update")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> saveOrUpdateProduct(
-            @ModelAttribute Product product,
+            @RequestParam(value = "productId", defaultValue = "0") Long productId,
+            @RequestParam("pname") String pname,
+            @RequestParam(value = "company", required = false) String company,
+            @RequestParam("quantity") String quantity,
+            @RequestParam(value = "batchNo", required = false) String batchNo,
+            @RequestParam(value = "expdate", required = false) String expdate,
+            @RequestParam(value = "mrp", required = false) Double mrp,
+            @RequestParam(value = "dealerPrice", required = false) Double dealerPrice,
+            @RequestParam(value = "price", required = false) Double price,
+            @RequestParam(value = "stock", required = false) Long stock,
+            @RequestParam(value = "taxPercentage", required = false) Integer taxPercentage,
             HttpServletRequest request) {
 
         Map<String, Object> response = new HashMap<>();
         String ownerId = Utility.getOwnerIdFromSession(request);
 
         try {
-            if (product.getProductId() == 0) {
-                // ---- New Product ----
+            Product product;
+            boolean isNewProduct = productId == null || productId == 0;
+
+            if (isNewProduct) {
+                // Create new product
+                product = new Product();
                 product.setOwnerId(ownerId);
-                product.setProductName(buildProductName(product));
-                product.setBatchNo(product.getBatchNo().trim().toUpperCase());
                 product.setStatus(true);
-
-                productRepository.save(product);
-
-                response.put("status", "success");
-                response.put("message", "New product added: " + product.getProductName());
-                return ResponseEntity.ok(response);
-
             } else {
-                // ---- Update Existing ----
-                List<Product> products = productRepository.findByProductIdAndOwnerId(product.getProductId(), ownerId);
-                if (products.isEmpty()) {
+                // Update existing product
+                List<Product> existingProducts = productRepository.findByProductIdAndOwnerId(productId, ownerId);
+                if (existingProducts.isEmpty()) {
                     response.put("status", "error");
                     response.put("message", "Product not found");
-                    return ResponseEntity.status(404).body(response);
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
                 }
-
-                Product old = products.get(0);
-                old.setProductName(buildProductName(product));                old.setCompany(product.getCompany());
-                old.setQuantity(product.getQuantity());
-                old.setBatchNo(product.getBatchNo());
-                old.setExpdate(product.getExpdate());
-                old.setMrp(product.getMrp());
-                old.setDealerPrice(product.getDealerPrice()); // ✅ added
-                old.setPrice(product.getPrice());
-                old.setStock(product.getStock());
-                old.setTaxPercentage(product.getTaxPercentage());
-
-                productRepository.save(old);
-
-                response.put("status", "success");
-                response.put("message", "Product updated: " + old.getProductName());
-                return ResponseEntity.ok(response);
+                product = existingProducts.get(0);
             }
+
+            // Set all fields
+            product.setPname(pname.trim());
+            product.setCompany(company != null ? company.trim() : "");
+            product.setQuantity(quantity.trim());
+            product.setBatchNo(batchNo != null ? batchNo.trim().toUpperCase() : "");
+            product.setExpdate(expdate != null ? expdate.trim() : "");
+            product.setMrp(mrp != null ? mrp : 0.0);
+            product.setDealerPrice(dealerPrice != null ? dealerPrice : 0.0);
+            product.setPrice(price != null ? price : 0.0);
+            product.setStock(stock != null ? stock : 0);
+            product.setTaxPercentage(taxPercentage != null ? taxPercentage : 0);
+
+            // Build product name
+            product.setProductName(buildProductName(product));
+
+            // Save to database
+            Product savedProduct = productRepository.save(product);
+
+            response.put("status", "success");
+            response.put("message", isNewProduct ?
+                    "Product added successfully: " + savedProduct.getProductName() :
+                    "Product updated successfully: " + savedProduct.getProductName());
+            response.put("product", savedProduct);
+
+            return ResponseEntity.ok(response);
+
         } catch (Exception e) {
             response.put("status", "error");
-            response.put("message", "Error saving/updating product: " + e.getMessage());
-            return ResponseEntity.status(500).body(response);
+            response.put("message", "Error saving product: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
 
+    // --- AJAX Delete Product ---
+    @DeleteMapping("/delete-product-by-id")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> deleteProduct(@RequestParam("productId") Long productId,
+                                                             HttpServletRequest request) {
+        Map<String, Object> response = new HashMap<>();
+        String ownerId = Utility.getOwnerIdFromSession(request);
 
+        try {
+            List<Product> products = productRepository.findByProductIdAndOwnerId(productId, ownerId);
 
+            if (products.isEmpty()) {
+                response.put("status", "error");
+                response.put("message", "Product not found");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+            }
+
+            Product productToDelete = products.get(0);
+            String productName = productToDelete.getProductName();
+
+            productRepository.delete(productToDelete);
+
+            response.put("status", "success");
+            response.put("message", "Product deleted successfully: " + productName);
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            response.put("status", "error");
+            response.put("message", "Error deleting product: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    // Helper method to build product name
     private String buildProductName(Product product) {
         StringBuilder productNameBuilder = new StringBuilder(product.getPname().trim().toUpperCase());
+
         if (product.getCompany() != null && !product.getCompany().trim().isEmpty()) {
             productNameBuilder.append("[").append(product.getCompany().trim().toUpperCase()).append("]");
         }
+
         productNameBuilder.append("-").append(product.getQuantity().trim().toUpperCase());
+
         return productNameBuilder.toString();
     }
-
 }
-
-
-
-

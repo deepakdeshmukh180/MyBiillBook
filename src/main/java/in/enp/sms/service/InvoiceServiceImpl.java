@@ -45,7 +45,7 @@ public class InvoiceServiceImpl implements InvoiceService{
         itemDetails.setPreBalanceAmt(profile.getCurrentOusting());
         itemDetails.setTax(totals.get("gst"));
         itemDetails.setPreTaxAmt(totals.get("preTaxAmt"));
-        itemDetails.setBalanceAmt(profile.getCurrentOusting());
+
         itemDetails.setCreatedBy(username);
         itemDetails.setDiscount(totals.get("mrp")- totals.get("totalAmount"));
         itemDetails.setDate(LocalDate.now());
@@ -56,10 +56,14 @@ public class InvoiceServiceImpl implements InvoiceService{
 
         if (advanAmt == 0) {
             invoiceType = "CREDIT";
+            itemDetails.setBalanceAmt(profile.getCurrentOusting()+totalAmt);
         } else if (advanAmt < totalAmt) {
             invoiceType = "PARTIAL";
+            itemDetails.setBalanceAmt(profile.getCurrentOusting()+totalAmt-advanAmt);
         } else {
             invoiceType = "PAID";
+            itemDetails.setBalanceAmt(profile.getCurrentOusting());
+
         }
         itemDetails.setInvoiceType(invoiceType);
         itemDetails.setCreatedAt(new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new Date()));

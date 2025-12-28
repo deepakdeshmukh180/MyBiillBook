@@ -13,143 +13,166 @@ import java.time.LocalDateTime;
 @EntityListeners(AuditingEntityListener.class)
 public class DealerInfo {
 
-         @Id
-         private String id;
+    @Id
+    @Column(length = 36)
+    private String id;
 
-      @NotBlank(message = "Dealer name is required")
-        private String dealerName;
+    @NotBlank(message = "Dealer name is required")
+    @Column(nullable = false)
+    private String dealerName;
 
-        @NotBlank(message = "Address is required")
-        private String dealerAddress;
+    @NotBlank(message = "Address is required")
+    @Column(nullable = false)
+    private String dealerAddress;
 
-       @Pattern(regexp = "^\\d{10}$", message = "Mobile number must be 10 digits")
-        private String mobileNo;
+    @Pattern(regexp = "^\\d{10}$", message = "Mobile number must be 10 digits")
+    @Column(length = 10)
+    private String mobileNo;
 
-        private String gstNo;
+    @Column(length = 15)
+    private String gstNo;
 
-        @Min(value = 0, message = "Balance must be >= 0")
-        private Double balanceAmount;
+    @Min(value = 0, message = "Balance must be >= 0")
+    @Column(nullable = false)
+    private Double balanceAmount = 0.0;
 
-        @Min(value = 0, message = "Paid amount must be >= 0")
-        private Double paidAmount;
+    @Min(value = 0, message = "Paid amount must be >= 0")
+    @Column(nullable = false)
+    private Double paidAmount = 0.0;
 
-       @Min(value = 0, message = "Total amount must be >= 0")
-        private Double totalAmount;
+    @Min(value = 0, message = "Total amount must be >= 0")
+    @Column(nullable = false)
+    private Double totalAmount = 0.0;
 
-       @NotBlank(message = "Bank name is required")
-        private String bankName;
+    @NotBlank(message = "Bank name is required")
+    @Column(nullable = false)
+    private String bankName;
 
-       @NotBlank(message = "Account number is required")
-        private String accountNo;
+    @NotBlank(message = "Account number is required")
+    @Column(nullable = false)
+    private String accountNo;
 
-        @NotBlank(message = "IFSC code is required")
-        private String ifscCode;
+    @NotBlank(message = "IFSC code is required")
+    @Column(nullable = false, length = 11)
+    private String ifscCode;
 
-        @NotBlank(message = "Branch name is required")
-        private String branchName;
+    @NotBlank(message = "Branch name is required")
+    @Column(nullable = false)
+    private String branchName;
 
     @LastModifiedDate
     private LocalDateTime lastModifiedDate;
 
-        private String ownerId;
+    @Column(nullable = false)
+    private String ownerId;
 
-        private String status;
+    @Column(length = 20)
+    private String status = "ACTIVE";
 
-        public String getId() {
-                return id;
-        }
+    // Default constructor
+    public DealerInfo() {
+        this.balanceAmount = 0.0;
+        this.paidAmount = 0.0;
+        this.totalAmount = 0.0;
+        this.status = "ACTIVE";
+    }
 
-        public void setId(String id) {
-                this.id = id;
-        }
+    // Getters and Setters
+    public String getId() {
+        return id;
+    }
 
-        public String getDealerName() {
-                return dealerName;
-        }
+    public void setId(String id) {
+        this.id = id;
+    }
 
-        public void setDealerName(String dealerName) {
-                this.dealerName = dealerName;
-        }
+    public String getDealerName() {
+        return dealerName;
+    }
 
-        public String getDealerAddress() {
-                return dealerAddress;
-        }
+    public void setDealerName(String dealerName) {
+        this.dealerName = dealerName;
+    }
 
-        public void setDealerAddress(String dealerAddress) {
-                this.dealerAddress = dealerAddress;
-        }
+    public String getDealerAddress() {
+        return dealerAddress;
+    }
 
-        public String getMobileNo() {
-                return mobileNo;
-        }
+    public void setDealerAddress(String dealerAddress) {
+        this.dealerAddress = dealerAddress;
+    }
 
-        public void setMobileNo(String mobileNo) {
-                this.mobileNo = mobileNo;
-        }
+    public String getMobileNo() {
+        return mobileNo;
+    }
 
-        public String getGstNo() {
-                return gstNo;
-        }
+    public void setMobileNo(String mobileNo) {
+        this.mobileNo = mobileNo;
+    }
 
-        public void setGstNo(String gstNo) {
-                this.gstNo = gstNo;
-        }
+    public String getGstNo() {
+        return gstNo;
+    }
 
-        public Double getBalanceAmount() {
-                return balanceAmount;
-        }
+    public void setGstNo(String gstNo) {
+        this.gstNo = gstNo;
+    }
 
-        public void setBalanceAmount(Double balanceAmount) {
-                this.balanceAmount = balanceAmount;
-        }
+    public Double getBalanceAmount() {
+        return balanceAmount;
+    }
 
-        public Double getPaidAmount() {
-                return paidAmount;
-        }
+    public void setBalanceAmount(Double balanceAmount) {
+        this.balanceAmount = balanceAmount;
+    }
 
-        public void setPaidAmount(Double paidAmount) {
-                this.paidAmount = paidAmount;
-        }
+    public Double getPaidAmount() {
+        return paidAmount;
+    }
 
-        public Double getTotalAmount() {
-                return totalAmount;
-        }
+    public void setPaidAmount(Double paidAmount) {
+        this.paidAmount = paidAmount;
+    }
 
-        public void setTotalAmount(Double totalAmount) {
-                this.totalAmount = totalAmount;
-        }
+    public Double getTotalAmount() {
+        return totalAmount;
+    }
 
-        public String getBankName() {
-                return bankName;
-        }
+    public void setTotalAmount(Double totalAmount) {
+        this.totalAmount = totalAmount;
+    }
 
-        public void setBankName(String bankName) {
-                this.bankName = bankName;
-        }
+    public String getBankName() {
+        return bankName;
+    }
 
-        public String getAccountNo() {
-                return accountNo;
-        }
+    public void setBankName(String bankName) {
+        this.bankName = bankName;
+    }
 
-        public void setAccountNo(String accountNo) {
-                this.accountNo = accountNo;
-        }
+    public String getAccountNo() {
+        return accountNo;
+    }
 
-        public String getIfscCode() {
-                return ifscCode;
-        }
+    public void setAccountNo(String accountNo) {
+        this.accountNo = accountNo;
+    }
 
-        public void setIfscCode(String ifscCode) {
-                this.ifscCode = ifscCode;
-        }
+    public String getIfscCode() {
+        return ifscCode;
+    }
 
-        public String getBranchName() {
-                return branchName;
-        }
+    public void setIfscCode(String ifscCode) {
+        this.ifscCode = ifscCode;
+    }
 
-        public void setBranchName(String branchName) {
-                this.branchName = branchName;
-        }
+    public String getBranchName() {
+        return branchName;
+    }
+
+    public void setBranchName(String branchName) {
+        this.branchName = branchName;
+    }
 
     public LocalDateTime getLastModifiedDate() {
         return lastModifiedDate;
@@ -160,22 +183,38 @@ public class DealerInfo {
     }
 
     public String getOwnerId() {
-                return ownerId;
-        }
-
-        public void setOwnerId(String ownerId) {
-                this.ownerId = ownerId;
-        }
-
-        public String getStatus() {
-                return status;
-        }
-
-        public void setStatus(String status) {
-                this.status = status;
-        }
-
-        // Getters & Setters
+        return ownerId;
     }
 
+    public void setOwnerId(String ownerId) {
+        this.ownerId = ownerId;
+    }
 
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    // Helper method to calculate and update balance
+    @PrePersist
+    @PreUpdate
+    public void calculateBalance() {
+        if (this.totalAmount != null && this.paidAmount != null) {
+            this.balanceAmount = this.totalAmount - this.paidAmount;
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "DealerInfo{" +
+                "id='" + id + '\'' +
+                ", dealerName='" + dealerName + '\'' +
+                ", mobileNo='" + mobileNo + '\'' +
+                ", balanceAmount=" + balanceAmount +
+                ", status='" + status + '\'' +
+                '}';
+    }
+}

@@ -929,7 +929,7 @@
                 </div>
                 <div class="summary-row">
                     <span><i class="fas fa-wallet"></i>Balance Due</span>
-                    <span class="amount">₹${profile.currentOusting}</span>
+                    <span class="amount">₹${currentinvoiceitems.balanceAmt}</span>
                 </div>
             </div>
         </div>

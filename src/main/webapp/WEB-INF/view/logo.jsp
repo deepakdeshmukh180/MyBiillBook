@@ -1976,15 +1976,20 @@ table.dataTable tbody td {
           }
 
 
-          // Show Loader
-          function showLoader() {
-              document.getElementById("pageLoader").style.display = "block";
+      function showLoader() {
+          const loader = document.getElementById("pageLoader");
+          if (loader) {
+              loader.style.display = "block";
           }
+      }
 
-          // Hide Loader (if needed)
-          function hideLoader() {
-              document.getElementById("pageLoader").style.display = "none";
+      function hideLoader() {
+          const loader = document.getElementById("pageLoader");
+          if (loader) {
+              loader.style.display = "none";
           }
+      }
+
 
           /* -------------------------
              1. For all <a> clicks
@@ -2044,13 +2049,7 @@ table.dataTable tbody td {
 
         </script>
  <div class="d-flex align-items-center ms-auto">
-            <!-- Language Selector -->
-            <select id="languageSelect" class="form-select form-select-sm me-2" style="width: 150px;"
-                    onchange="changeLanguage()">
-                <option value="">Select Language</option>
-                <option value="hi">Hindi</option>
-                <option value="mr">Marathi</option>
-            </select>
+
 
             <!-- Example user profile dropdown -->
             <div class="dropdown">
