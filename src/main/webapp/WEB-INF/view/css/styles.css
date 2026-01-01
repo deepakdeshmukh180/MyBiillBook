@@ -7729,6 +7729,7 @@ textarea.form-control-lg {
 
 .p-2 {
   padding: 0.5rem !important;
+  border : solid;
 }
 
 .p-3 {

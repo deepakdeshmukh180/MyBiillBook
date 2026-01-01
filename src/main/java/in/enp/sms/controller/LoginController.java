@@ -97,10 +97,12 @@ public class LoginController {
             modelAndView.addObject("productList", getExpProductByOwnerId(ownerId));
             modelAndView.addObject("daily_expenses", expenseRepository.getDailyTotal(new Date(),ownerId));
             modelAndView.addObject("monthly_expenses",expenseRepository.getCurrentMonthTotal(ownerId));//
+            List<MonthlyExpenseSummary> summaryList = summaryRepository.findByOwnerIdOrderByMonth(ownerId);
+            double totalExpense = summaryList.stream() .mapToDouble(s -> s.getTotalAmount() != null ? s.getTotalAmount() : 0) .sum();
+            modelAndView.addObject("yearly_expenses",totalExpense);//
+            modelAndView.addObject("monthlyExpenses",summaryList);
 
 
-            //modelAndView.addObject("dailyExpenses",expenseRepository.findByDateAndOwnerIdOrderByCreatedAtDesc(new Date(),ownerId));
-           // modelAndView.addObject("monthlyExpenses",summaryRepository.findByOwnerIdOrderByMonth(ownerId));
 
 
         } catch (Exception e) {

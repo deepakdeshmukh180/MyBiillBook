@@ -6,6 +6,19 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
 <html lang="en">
+<style>
+    .customer-mini-card {
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        background-color: #ffffff;
+        transition: all 0.2s ease-in-out;
+    }
+
+    .customer-mini-card:hover {
+        border-color: #0d6efd; /* Bootstrap primary */
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+    }
+</style>
 
 <jsp:include page="../view/logo.jsp"></jsp:include>
 
@@ -400,8 +413,9 @@
                 </div>
 
                 <div class="chart-container bg-light rounded-3 p-3">
-                  <canvas id="expensesTrendChart" height="300"></canvas>
+
                 </div>
+
               </div>
             </div>
           </div>

@@ -1793,6 +1793,8 @@ table.dataTable tbody td {
     transform: none;
   }
 
+
+
   .theme-toggle {
     bottom: 1rem;
     right: 1rem;
