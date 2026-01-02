@@ -340,31 +340,61 @@ public class UserController {
     }
 
     public List<ExpProduct> getExpProductByOwnerId(String ownerIdFromSession) {
-        List<ExpProduct> expProducts = new ArrayList<>();
+
+        List<ExpProduct> expProducts = new ArrayList<ExpProduct>();
 
         try {
-            List<Product> products = productRepository.findByOwnerIdOrderByExpdateAsc(ownerIdFromSession);
+            List<Product> products =
+                    productRepository.findByOwnerIdOrderByExpdateAsc(ownerIdFromSession);
+
             LocalDate today = LocalDate.now();
             LocalDate threshold = today.plusDays(30);
 
             for (Product product : products) {
-                LocalDate expDate = LocalDate.parse(product.getExpdate()); // Ensure expdate is in ISO-8601 (yyyy-MM-dd)
 
-                if (!expDate.isBefore(today) && expDate.isBefore(threshold)) {
-                    long daysUntilExpiry = ChronoUnit.DAYS.between(today, expDate);
+                // ---- SKIP if expiry is disabled ----
+                if (product.getExpFlag() == null || !product.getExpFlag()) {
+                    continue;
+                }
+
+                String expdateStr = product.getExpdate();
+
+                // ---- NULL / EMPTY SAFETY ----
+                if (expdateStr == null || expdateStr.trim().isEmpty()) {
+                    continue;
+                }
+
+                LocalDate expDate;
+                try {
+                    expDate = LocalDate.parse(expdateStr); // yyyy-MM-dd
+                } catch (Exception e) {
+                    logger.warn("Invalid expiry date for product: "
+                            + product.getProductName());
+                    continue;
+                }
+
+                // ---- EXPIRY WINDOW CHECK (0–30 days) ----
+                if (!expDate.isBefore(today) && !expDate.isAfter(threshold)) {
+
+                    long daysUntilExpiry =
+                            ChronoUnit.DAYS.between(today, expDate);
+
                     expProducts.add(new ExpProduct(
                             product.getProductName(),
-                            (int) product.getStock(),
+                            product.getStock() > 0 ? (int) product.getStock() : 0,
                             (int) daysUntilExpiry
                     ));
+
                 }
             }
+
         } catch (Exception e) {
-            logger.error("Error generating product expiration notification: ", e);
+            logger.error("Error generating product expiration notification", e);
         }
 
         return expProducts;
     }
+
 
     private String getJsonString1(List<CustProfile> custProfiles) {
         Gson gsonObj = new Gson();

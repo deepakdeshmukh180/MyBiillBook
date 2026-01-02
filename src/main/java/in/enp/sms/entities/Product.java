@@ -31,7 +31,8 @@ public class Product {
 
     private  String pname;
 
-
+    @Column(name = "low_stock", nullable = false)
+    private long lowStock = 0;
     private  int taxPercentage;
 
     private  Double mrp;
@@ -40,6 +41,8 @@ public class Product {
 
     private  Boolean status ;
 
+    private  Boolean expFlag ;
+
     @Transient
     private  String custId ;
 
@@ -47,6 +50,22 @@ public class Product {
 
     public Product() {
 
+    }
+
+    public Boolean getExpFlag() {
+        return expFlag;
+    }
+
+    public long getLowStock() {
+        return lowStock;
+    }
+
+    public void setLowStock(long lowStock) {
+        this.lowStock = lowStock;
+    }
+
+    public void setExpFlag(Boolean expFlag) {
+        this.expFlag = expFlag;
     }
 
     public String getProductName() {

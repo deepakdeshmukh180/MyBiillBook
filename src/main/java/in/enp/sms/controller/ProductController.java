@@ -68,74 +68,95 @@ public class ProductController {
     @PostMapping("/save-or-update")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> saveOrUpdateProduct(
+
             @RequestParam(value = "productId", defaultValue = "0") Long productId,
             @RequestParam("pname") String pname,
             @RequestParam(value = "company", required = false) String company,
             @RequestParam("quantity") String quantity,
             @RequestParam(value = "batchNo", required = false) String batchNo,
+
+            @RequestParam(value = "expFlag", defaultValue = "false") Boolean expFlag,
+            @RequestParam(value = "lowStock", defaultValue = "10") Long lowStock,
             @RequestParam(value = "expdate", required = false) String expdate,
+
             @RequestParam(value = "mrp", required = false) Double mrp,
             @RequestParam(value = "dealerPrice", required = false) Double dealerPrice,
             @RequestParam(value = "price", required = false) Double price,
             @RequestParam(value = "stock", required = false) Long stock,
             @RequestParam(value = "taxPercentage", required = false) Integer taxPercentage,
+
             HttpServletRequest request) {
 
-        Map<String, Object> response = new HashMap<>();
+        Map<String, Object> response = new HashMap<String, Object>();
         String ownerId = Utility.getOwnerIdFromSession(request);
 
         try {
             Product product;
-            boolean isNewProduct = productId == null || productId == 0;
+            boolean isNewProduct = (productId == null || productId == 0);
 
             if (isNewProduct) {
-                // Create new product
                 product = new Product();
                 product.setOwnerId(ownerId);
                 product.setStatus(true);
             } else {
-                // Update existing product
-                List<Product> existingProducts = productRepository.findByProductIdAndOwnerId(productId, ownerId);
-                if (existingProducts.isEmpty()) {
+                List<Product> products =
+                        productRepository.findByProductIdAndOwnerId(productId, ownerId);
+
+                if (products == null || products.isEmpty()) {
                     response.put("status", "error");
                     response.put("message", "Product not found");
-                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+                    return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_FOUND);
                 }
-                product = existingProducts.get(0);
+                product = products.get(0);
             }
 
-            // Set all fields
+            // ---------- BASIC FIELDS ----------
             product.setPname(pname.trim());
             product.setCompany(company != null ? company.trim() : "");
             product.setQuantity(quantity.trim());
             product.setBatchNo(batchNo != null ? batchNo.trim().toUpperCase() : "");
-            product.setExpdate(expdate != null ? expdate.trim() : "");
+
             product.setMrp(mrp != null ? mrp : 0.0);
             product.setDealerPrice(dealerPrice != null ? dealerPrice : 0.0);
             product.setPrice(price != null ? price : 0.0);
-            product.setStock(stock != null ? stock : 0);
+            product.setStock(stock != null ? stock : 0L);
+            product.setLowStock(lowStock != null ? lowStock : 0L);
             product.setTaxPercentage(taxPercentage != null ? taxPercentage : 0);
 
-            // Build product name
+            // ---------- EXPIRY YES / NO LOGIC ----------
+            product.setExpFlag(expFlag);
+
+            if (Boolean.TRUE.equals(expFlag)) {
+                if (expdate == null || expdate.trim().isEmpty()) {
+                    response.put("status", "error");
+                    response.put("message", "Expiry Date is required when Expiry is YES");
+                    return new ResponseEntity<Map<String, Object>>(response, HttpStatus.BAD_REQUEST);
+                }
+                product.setExpdate(expdate.trim());
+            } else {
+                product.setExpdate(null); // clear date if NO
+            }
+
+            // ---------- BUILD PRODUCT NAME ----------
             product.setProductName(buildProductName(product));
 
-            // Save to database
             Product savedProduct = productRepository.save(product);
 
             response.put("status", "success");
-            response.put("message", isNewProduct ?
-                    "Product added successfully: " + savedProduct.getProductName() :
-                    "Product updated successfully: " + savedProduct.getProductName());
+            response.put("message", isNewProduct
+                    ? "Product added successfully"
+                    : "Product updated successfully");
             response.put("product", savedProduct);
 
-            return ResponseEntity.ok(response);
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
 
         } catch (Exception e) {
             response.put("status", "error");
             response.put("message", "Error saving product: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
 
     // --- AJAX Delete Product ---
     @DeleteMapping("/delete-product-by-id")

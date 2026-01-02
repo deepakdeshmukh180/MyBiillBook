@@ -24,6 +24,25 @@
     background-color: rgba(0, 0, 0, 0.5);
 }
 
+.dropdown-center {
+    width: 340px;
+}
+/* Full row highlight when selected */
+.select2-results__option--selected {
+    background-color: #e7f1ff !important;   /* light blue */
+}
+
+/* Hover effect on selected row */
+.select2-results__option--highlighted.select2-results__option--selected {
+    background-color: #dbe9ff !important;
+}
+
+/* Smooth UX */
+.select2-results__option {
+    transition: background-color 0.15s ease-in-out;
+}
+
+
 .modal.fade {
     transition: opacity 0.15s linear;
 }
@@ -154,6 +173,7 @@ body.modal-open {
     position: relative;
     overflow: hidden;
 }
+
 
 .kpi-summary-card::before {
     content: '';
@@ -1358,6 +1378,8 @@ $(document).ready(function() {
     $('#productDropdown').select2({
         placeholder: 'Search Product...',
         allowClear: true,
+         width: '100%',
+             dropdownAutoWidth: true,
         minimumInputLength: 3,
         ajax: {
             url: '${pageContext.request.contextPath}/company/search-product',
@@ -1368,31 +1390,38 @@ $(document).ready(function() {
                 results: $.map(data, item => ({
                    id: item.productId,
                    text:
-                       "<div style='padding:6px 0;'>" +
-                           "<div style='margin-bottom:4px;'>" +
-                               "<strong style='color:#333; font-size:0.95rem;'>" +
-                                   "<i class='fas fa-box-open' style='color:#0d6efd; margin-right:6px;'></i>" +
-                                   item.productName +
-                               "</strong>" +
-                               "<span style='color:#198754; font-weight:600; margin-left:10px; font-size:0.9rem;'>₹" +
-                                   item.price +
-                               "</span>" +
-                               "<span style='color:#0dcaf0; font-weight:500; margin-left:10px; font-size:0.85rem;'>" +
-                                   "<i class='fas fa-layer-group' style='margin-right:4px;'></i>" +
-                                   item.stock +
-                               "</span>" +
-                           "</div>" +
-                           "<div style='font-size:0.8rem;'>" +
-                               "<span style='color:#6c757d;'>" +
-                                   "<i class='fas fa-barcode' style='margin-right:4px;'></i>Batch: " +
-                                   item.batchNo +
-                               "</span>" +
-                               "<span style='color:#dc3545; margin-left:12px;'>" +
-                                   "<i class='fas fa-calendar-alt' style='margin-right:4px;'></i>Exp: " +
-                                   item.expDate +
-                               "</span>" +
-                           "</div>" +
-                       "</div>",
+                   "<div style='padding:6px 8px; width:100%;'>" +
+
+                     "<div style='display:flex; align-items:center; gap:12px;'>" +
+
+                       "<div style='flex:1; min-width:180px;'>" +
+                         "<strong style='color:#333; font-size:0.95rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;'>" +
+                           "<i class='fas fa-box-open' style='color:#0d6efd; margin-right:6px;'></i>" +
+                           item.productName +
+                         "</strong>" +
+                       "</div>" +
+
+                       "<div style='width:80px; text-align:right; color:#198754; font-weight:600;'>" +
+                         "₹" + item.price +
+                       "</div>" +
+
+                       "<div style='width:70px; text-align:right; color:#0dcaf0; font-size:0.85rem;'>" +
+                         "<i class='fas fa-layer-group'></i> " + item.stock +
+                       "</div>" +
+
+                     "</div>" +
+
+                     "<div style='margin-top:4px; font-size:0.8rem; display:flex; gap:16px;'>" +
+                       "<span style='color:#6c757d;'>" +
+                         "<i class='fas fa-barcode'></i> Batch: " + item.batchNo +
+                       "</span>" +
+                       "<span style='color:#dc3545;'>" +
+                         "<i class='fas fa-calendar-alt'></i> Exp: " + item.expDate +
+                       "</span>" +
+                     "</div>" +
+
+                   "</div>" ,
+
                    productName: item.productName,
                    price: item.price,
                    productId: item.productId,

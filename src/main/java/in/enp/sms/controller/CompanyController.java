@@ -832,10 +832,23 @@ public class CompanyController {
     }
 
     public static String getDateDifference(String expiryDate) throws ParseException {
-        DateFormat dateFormat = new SimpleDateFormat(YYYY_MM_DD_FORMAT);
-        Date expDate = dateFormat.parse(expiryDate);
 
-        // Normalize current date (remove time part)
+        // ---- NULL / EMPTY SAFETY ----
+        if (expiryDate == null || expiryDate.trim().isEmpty()) {
+            return "no expiry";
+        }
+
+        DateFormat dateFormat = new SimpleDateFormat(YYYY_MM_DD_FORMAT);
+        dateFormat.setLenient(false); // strict date parsing
+
+        Date expDate;
+        try {
+            expDate = dateFormat.parse(expiryDate.trim());
+        } catch (ParseException e) {
+            return "invalid date";
+        }
+
+        // ---- Normalize current date (remove time part) ----
         Calendar cal = Calendar.getInstance();
         cal.set(Calendar.HOUR_OF_DAY, 0);
         cal.set(Calendar.MINUTE, 0);
@@ -843,7 +856,9 @@ public class CompanyController {
         cal.set(Calendar.MILLISECOND, 0);
         Date currentDate = cal.getTime();
 
-        long diffInDays = TimeUnit.MILLISECONDS.toDays(expDate.getTime() - currentDate.getTime());
+        long diffInDays = TimeUnit.MILLISECONDS.toDays(
+                expDate.getTime() - currentDate.getTime()
+        );
 
         if (diffInDays < 0) {
             return "expired";
@@ -853,6 +868,7 @@ public class CompanyController {
             return diffInDays + " days";
         }
     }
+
 
     // Invoice search and listing methods
     @GetMapping("/get-all-invoices")

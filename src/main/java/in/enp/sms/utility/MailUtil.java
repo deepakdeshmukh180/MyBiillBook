@@ -36,7 +36,7 @@ public class MailUtil {
     private static final String SMTP_HOST = "smtp.gmail.com";
     private static final String SMTP_PORT = "587";
     private static final String SMTP_USER = "mybillbooksolution@gmail.com";
-    private static final String SMTP_PASSWORD = "vaha rjxs ztvp bwzp";
+    private static final String SMTP_PASSWORD = "oobk llps ttsd bokf";
 
 
     @Autowired
