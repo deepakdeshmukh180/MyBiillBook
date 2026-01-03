@@ -198,9 +198,13 @@
             </div>
 
             <div class="col-md-3">
-                <label class="form-label">MRP (Dealer Price)</label>
+                <label class="form-label">Dealer Price</label>
                 <input type="number" step="0.01" id="dealerPrice" name="dealerPrice" class="form-control"/>
             </div>
+            <div class="col-md-3">
+                            <label class="form-label">MRP</label>
+                            <input type="number" step="0.01" id="mrp" name="mrp" class="form-control"/>
+                        </div>
             <div class="col-md-3">
                 <label class="form-label">Selling Price</label>
                 <input type="number" step="0.01" id="price" name="price" class="form-control"/>

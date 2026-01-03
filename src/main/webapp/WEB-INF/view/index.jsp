@@ -515,12 +515,12 @@
       </div>
       <div class="modal-body">
         <div class="table-responsive">
-          <table class="table table-hover align-middle">
+          <table id ="productTable" class="table table-hover align-middle">
             <thead class="table-warning">
             <tr>
               <th class="text-center">#</th>
               <th>Product Name</th>
-              <th class="text-center">Available Quantity</th>
+              <th class="text-center">Available Qty</th>
               <th class="text-center">Expires In</th>
             </tr>
             </thead>
@@ -1172,6 +1172,15 @@ searchInput.addEventListener('keypress', function(e) {
         }
     }
 
+$(document).ready(function() {
+        $('#productTable').DataTable({
+            pageLength: 10,
+            language: {
+                search: "Search Product:",
+                lengthMenu: "Show _MENU_ products per page"
+            }
+        });
+    });
 
 
 </script>
