@@ -24,7 +24,9 @@ public class OwnerSession implements Serializable {
     private String terms;
 
     private String invoiceColms;
-
+    private String accountNo;
+    private String bankName;
+    private String ifscCode;
 
     private int planDuration;
     private Date expDate;
@@ -51,6 +53,10 @@ public class OwnerSession implements Serializable {
             this.planDuration = ownerInfo.getPlanDuration();
             this.expDate = ownerInfo.getExpDate();
             this.terms = ownerInfo.getTerms();
+            this.ifscCode = ownerInfo.getIfscCode();
+            this.bankName = ownerInfo.getBankName();
+            this.accountNo = ownerInfo.getAccountNo();
+
 
             this.invoiceColms = ownerInfo.getInvoiceColms();
 
@@ -226,5 +232,29 @@ public class OwnerSession implements Serializable {
         sb.append(", superAdmin=").append(superAdmin);
         sb.append('}');
         return sb.toString();
+    }
+
+    public String getAccountNo() {
+        return accountNo;
+    }
+
+    public void setAccountNo(String accountNo) {
+        this.accountNo = accountNo;
+    }
+
+    public String getBankName() {
+        return bankName;
+    }
+
+    public void setBankName(String bankName) {
+        this.bankName = bankName;
+    }
+
+    public String getIfscCode() {
+        return ifscCode;
+    }
+
+    public void setIfscCode(String ifscCode) {
+        this.ifscCode = ifscCode;
     }
 }
