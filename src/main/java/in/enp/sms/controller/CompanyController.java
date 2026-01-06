@@ -264,11 +264,11 @@ public class CompanyController {
         return PRODUCTS_VIEW;
     }
 
-    // Invoice management methods
+     //Invoice management methods
     @PostMapping("/invoice")
-    public String getInvoicePage(@ModelAttribute("INVOICE_DETAILS") InvoiceDetails itemDetails,
+    public void getInvoicePage(@ModelAttribute("INVOICE_DETAILS") InvoiceDetails itemDetails,
                                  Model model,
-                                 HttpServletRequest request,
+                                 HttpServletRequest request,HttpServletResponse response,
                                  HttpSession session) {
         LOGGER.info("Processing invoice generation");
         LOGGER.info("Invoice ID: {}, Customer ID: {}", itemDetails.getInvoiceId(), itemDetails.getCustId());
@@ -287,98 +287,167 @@ public class CompanyController {
                     });
 
             if (!items.isEmpty()) {
-                return processInvoiceWithItems(itemDetails, items, profile, model, request, session);
-            } else {
-                return processEmptyInvoice(itemDetails, profile, model, request);
+                 processInvoiceWithItems(itemDetails, items, profile, model, request, session,response);
             }
 
 
         } catch (Exception e) {
             LOGGER.error("Error processing invoice", e);
             model.addAttribute("error", "Error processing invoice: " + e.getMessage());
-            return ERROR_PAGE;
+
         }
     }
 
-    private String processInvoiceWithItems(InvoiceDetails itemDetails,
-                                           List<ItemDetails> items,
-                                           CustProfile profile,
-                                           Model model,
-                                           HttpServletRequest request,
-                                           HttpSession session) {
+
+
+
+    private void processInvoiceWithItems(
+            InvoiceDetails itemDetails,
+            List<ItemDetails> items,
+            CustProfile profile,
+            Model model,
+            HttpServletRequest request,
+            HttpSession session,
+            HttpServletResponse response) throws Exception {
+
         LOGGER.info("Processing invoice with items");
 
-        boolean isExisting = invoiceDetailsRepository.existsById(itemDetails.getInvoiceId());
+        boolean isExisting =
+                invoiceDetailsRepository.existsById(
+                        itemDetails.getInvoiceId());
+
         LOGGER.info("Invoice exists: {}", isExisting);
 
-        model.addAttribute("profile", profile);
-        model.addAttribute("oldInvoicesFlag", itemDetails.getOldInvoicesFlag());
-        model.addAttribute("date", itemDetails.getDate());
-        model.addAttribute("invoiceNo", itemDetails.getInvoiceId());
-        model.addAttribute("downloadflag", true);
+        // ===== SAME BUSINESS LOGIC =====
 
+        String itemSummary =
+                invoiceService.generateItemSummary(items);
 
+        // itemRepository.saveAll(items);   // avoid duplicate save
 
-        String itemSummary = invoiceService.generateItemSummary(items);
-        itemRepository.saveAll(items);
+        Map<String, Double> totals =
+                invoiceService.computeTotals(items);
 
-        Map<String, Double> totals = invoiceService.computeTotals(items);
-        LOGGER.info("Invoice totals calculated - Total Amount: {}", totals.get("totalAmount"));
+        LOGGER.info("Invoice totals calculated - Total Amount: {}",
+                totals.get("totalAmount"));
 
         itemDetails.setItemDetails(itemSummary);
-        invoiceService.populateInvoiceMetadata(itemDetails, profile, totals,
-                SecurityContextHolder.getContext().getAuthentication().getName());
-        itemDetails.setOwnerId(Utility.getOwnerIdFromSession(request));
 
-        if ("Y".equals(itemDetails.getOldInvoicesFlag())) {
-            model.addAttribute("oldinvoices", invoiceDetailsRepository.findByCustId(profile.getId()));
-            model.addAttribute("balanceDeposits", balanceDepositeRepository.findByCustId(itemDetails.getCustId()));
+        if (!isExisting){
+            invoiceService.populateInvoiceMetadata(
+                    itemDetails,
+                    profile,
+                    totals,
+                    SecurityContextHolder.getContext()
+                            .getAuthentication()
+                            .getName());
         }
+
+
+        itemDetails.setOwnerId(
+                Utility.getOwnerIdFromSession(request));
 
         invoiceDetailsRepository.save(itemDetails);
-        LOGGER.info("Invoice details saved for Invoice ID: {}", itemDetails.getInvoiceId());
 
-        OwnerSession ownerInfo = (OwnerSession) session.getAttribute("sessionOwner");
-        model.addAttribute("ownerInfo", ownerInfo);
-        model.addAttribute("currentinvoiceitems", itemDetails);
-        model.addAttribute("advamount", itemDetails.getAdvanAmt());
+        LOGGER.info("Invoice details saved for Invoice ID: {}",
+                itemDetails.getInvoiceId());
+
+        OwnerSession ownerSession =
+                (OwnerSession) session.getAttribute("sessionOwner");
+
+        // ===== BALANCE UPDATE SAME =====
+
         if (!isExisting) {
-            profile = updateCustomerBalance(profile, totals.get("totalAmount"), itemDetails.getAdvanAmt());
-            updateInvoiceNumber(Utility.getOwnerIdFromSession(request));
+
+            double totalAmt =
+                    totals.get("totalAmount");
+
+            profile =
+                    updateCustomerBalance(
+                            profile,
+                            totalAmt,
+                            itemDetails.getAdvanAmt());
+
+            updateInvoiceNumber(
+                    Utility.getOwnerIdFromSession(request));
         }
 
-        // Send mail asynchronously
-        CustProfile finalProfile = profile;
+        // ===== ASYNC MAIL – SAFE =====
+
+        final CustProfile finalProfile = profile;
+        final OwnerSession finalOwner = ownerSession;
+        final List<ItemDetails> finalItems = items;
+
         CompletableFuture.runAsync(() -> {
             try {
-                sendMailOwner(itemDetails, finalProfile, ownerInfo,items);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
+
+                sendMailOwner(
+                        itemDetails,
+                        finalProfile,
+                        finalOwner,
+                        finalItems);
+
+            } catch (Exception ex) {
+                LOGGER.error(
+                        "Async mail failed for invoice: {}",
+                        itemDetails.getInvoiceId(),
+                        ex);
             }
         });
 
-        populateInvoiceModelAttributes(model, totals, items, itemDetails, ownerInfo);
-        updateStockForOldInvoice(itemDetails.getInvoiceId());
+        // ===== PDF RENDER PART REFERRED FROM BELOW =====
 
-        return determineInvoiceView(ownerInfo, model, profile);
+        InvoicePdfGenerator pdfGenerator =
+                new InvoicePdfGenerator();
+
+        List<String> invoiceColumns =
+                Utility.parseInvoiceColumns(
+                        ownerSession.getInvoiceColms());
+
+        // ---- QR CODE SAME ----
+
+        String qrCodeBase64 = null;
+
+        if (ownerSession.getUpiId() != null &&
+                !ownerSession.getUpiId().trim().isEmpty()) {
+
+            try {
+
+                qrCodeBase64 =
+                        UPIQrUtil.generateUpiQrBase64(
+                                ownerSession.getUpiId(),
+                                finalProfile.getCurrentOusting());
+
+            } catch (Exception e) {
+                LOGGER.warn(
+                        "Failed to generate QR code", e);
+            }
+        }
+
+        // ---- GENERATE PDF ----
+
+        response.setContentType("application/pdf");
+
+        pdfGenerator.generateInvoicePdf(
+                itemDetails,
+                finalProfile,
+                items,
+                ownerSession,
+                invoiceColumns,
+                qrCodeBase64,
+                response.getOutputStream());
+
+        response.getOutputStream().flush();
+
+        LOGGER.info("PDF rendered successfully: {}",
+                itemDetails.getInvoiceId());
+
+        // stock update should be ONLY once
+        updateStockForOldInvoice(
+                itemDetails.getInvoiceId());
     }
 
-    private String processEmptyInvoice(InvoiceDetails itemDetails,
-                                       CustProfile profile,
-                                       Model model,
-                                       HttpServletRequest request) {
-        LOGGER.warn("No items found for invoice ID: {}", itemDetails.getInvoiceId());
 
-        model.addAttribute("profile", profile);
-        model.addAttribute("date", getCurrentDateOtherFormat());
-        model.addAttribute("invoiceNo", getCurrentInvoiceNumber(Utility.getOwnerIdFromSession(request)));
-
-        List<ItemDetails> emptyItems = new ArrayList<>();
-        Map<String, Double> totals = invoiceService.computeTotals(emptyItems);
-
-        populateEmptyInvoiceModel(model, totals, emptyItems, profile, request);
-        return CREATE_INVOICE_VIEW;
-    }
 
     private void populateInvoiceModelAttributes(Model model,
                                                 Map<String, Double> totals,

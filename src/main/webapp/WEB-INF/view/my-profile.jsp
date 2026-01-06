@@ -181,6 +181,27 @@ select.form-control {
                                         <input type="text" class="form-control" value="${ownerInfo.upiId}" name="upiId"/>
                                     </div>
                                 </div>
+                                 <div class="form-group">
+                                                                    <label class="form-label">Bank Name</label>
+                                                                    <div class="input-group">
+                                                                        <i class="bi bi-upc-scan input-icon"></i>
+                                                                        <input type="text" class="form-control" value="${ownerInfo.bankName}" name="bankName"/>
+                                                                    </div>
+                                                                </div>
+                                                                 <div class="form-group">
+                                                                                                    <label class="form-label">Account Number</label>
+                                                                                                    <div class="input-group">
+                                                                                                        <i class="bi bi-upc-scan input-icon"></i>
+                                                                                                        <input type="text" class="form-control" value="${ownerInfo.accountNo}" name="accountNo"/>
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                                 <div class="form-group">
+                                                                                                                                    <label class="form-label">IFSC Code</label>
+                                                                                                                                    <div class="input-group">
+                                                                                                                                        <i class="bi bi-upc-scan input-icon"></i>
+                                                                                                                                        <input type="text" class="form-control" value="${ownerInfo.ifscCode}" name="ifscCode"/>
+                                                                                                                                    </div>
+                                                                                                                                </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">

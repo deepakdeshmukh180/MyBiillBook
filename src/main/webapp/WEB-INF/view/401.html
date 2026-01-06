@@ -1,42 +1,18 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
-<%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Daily Expenses - BillMatePro</title>
-
-    <!-- CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
-    <link href="${pageContext.request.contextPath}/resources/css/styles.css" rel="stylesheet"/>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet"/>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice #${invoiceNo} – ${profile.custName}</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --primary-color: #2247a5;
-            --primary-dark: #145fa0;
-            --success-color: #10b981;
-            --danger-color: #ef4444;
-            --warning-color: #f59e0b;
-            --bg-light: #f8fafc;
-            --bg-dark: #0f172a;
-            --card-light: #ffffff;
-            --card-dark: #1e293b;
-            --text-light: #1e293b;
-            --text-dark: #f1f5f9;
-            --border-light: #e2e8f0;
-            --border-dark: #334155;
-            --radius-lg: 12px;
-            --shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        }
-
+        /* ========================================================
+           GLOBAL STYLES - A5 LANDSCAPE OPTIMIZED
+        ======================================================== */
         * {
             margin: 0;
             padding: 0;
@@ -44,1164 +20,1023 @@
         }
 
         body {
-            font-family: 'Inter', sans-serif;
-            background: var(--bg-color);
-            color: var(--text-color);
-            min-height: 100vh;
-            transition: background 0.3s ease, color 0.3s ease;
+            font-family: "Poppins", Arial, sans-serif;
+            background: linear-gradient(135deg, #f0f4ff 0%, #e0e7ff 50%, #f8fafc 100%);
+            color: #000000;
+            padding: 15px;
         }
 
-        [data-theme="light"] {
-            --bg-color: var(--bg-light);
-            --text-color: var(--text-light);
-            --card-bg: var(--card-light);
-            --border-color: var(--border-light);
+        /* Color Variables */
+        :root {
+            --blue-primary: #1e40af;
+            --blue-light: #e0e7ff;
+            --blue-lighter: #f0f4ff;
+            --text-dark: #0f172a;
+            --text-gray: #475569;
+            --border-light: #c7d2fe;
+            --success-green: #25D366;
+            --bg-white: #ffffff;
         }
 
-        [data-theme="dark"] {
-            --bg-color: var(--bg-dark);
-            --text-color: var(--text-dark);
-            --card-bg: var(--card-dark);
-            --border-color: var(--border-dark);
+        /* ========================================================
+           UTILITY CLASSES
+        ======================================================== */
+        .text-left { text-align: left; }
+        .text-right { text-align: right; }
+        .text-center { text-align: center; }
+
+        /* ========================================================
+           PAGE CONTAINER - A5 LANDSCAPE (210mm x 148mm)
+        ======================================================== */
+        .page-container {
+            width: 210mm;
+            height: 148mm;
+            max-width: 100%;
+            margin: 0 auto;
+            background: var(--bg-white);
+            padding: 6mm;
+            border-radius: 6px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            border: 1px solid var(--border-light);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
         }
 
-        /* Page Loader */
-        .page-loader {
-            position: fixed;
-            top: 0;
-            left: 0;
+        /* ========================================================
+           HEADER SECTION - CENTERED & COMPACT
+        ======================================================== */
+        .header-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding-bottom: 3mm;
+            border-bottom: 1.5px solid var(--blue-primary);
+            margin-bottom: 2mm;
+            gap: 2mm;
+        }
+
+        .company-info {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2mm;
+        }
+
+        .company-logo {
+            max-width: 30px;
+            max-height: 30px;
+        }
+
+        .company-text {
+            text-align: center;
+        }
+
+        .company-text h1 {
+            margin: 0;
+            font-size: 17.6px;
+            font-weight: 500;
+            color: var(--blue-primary);
+            line-height: 1.1;
+        }
+
+        .company-details {
+            display: flex;
+            flex-direction: column;
+            gap: 1mm;
+            font-size: 8.8px;
+            color: var(--text-gray);
+            line-height: 1.2;
+        }
+
+        .company-details p {
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .company-details i {
+            font-size: 8.8px;
+            color: var(--blue-primary);
+        }
+
+        .header-meta-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8mm;
             width: 100%;
-            height: 100%;
-            background: var(--bg-color);
+        }
+
+        .header-qr {
+            width: 35px;
+            height: 35px;
+            border: 1px solid var(--border-light);
+            border-radius: 3px;
             display: flex;
             align-items: center;
             justify-content: center;
-            z-index: 9999;
-            opacity: 1;
-            visibility: visible;
-            transition: opacity 0.5s ease, visibility 0.5s ease;
+            overflow: hidden;
+            background: var(--blue-lighter);
+            flex-shrink: 0;
         }
 
-        .page-loader.hidden {
-            opacity: 0;
-            visibility: hidden;
+        .header-qr img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
         }
 
-        .loader-spinner {
-            width: 60px;
-            height: 60px;
-            border: 4px solid var(--border-color);
-            border-top-color: var(--primary-color);
-            border-radius: 50%;
+        .header-qr i {
+            font-size: 18px;
+            color: var(--blue-primary);
+        }
+
+        .meta-info {
+            text-align: center;
+            font-size: 8.8px;
+        }
+
+        .meta-info h2 {
+            font-size: 13.2px;
+            font-weight: 500;
+            color: var(--blue-primary);
+            margin: 0;
+        }
+
+        .meta-item {
+            font-size: 8.8px;
+            color: var(--text-gray);
+            margin: 1px 0;
+            line-height: 1.2;
+        }
+
+        /* ========================================================
+           CUSTOMER SECTION - COMPACT
+        ======================================================== */
+        .customer-section {
+            margin: 1mm 0;
+            padding: 2mm;
+            border: 0.5px solid var(--border-light);
+            border-radius: 2px;
+            background: #fafbff;
+            font-size: 8.8px;
+        }
+
+        .customer-title {
+            font-size: 9.9px;
+            font-weight: 500;
+            color: var(--blue-primary);
+            margin-bottom: 1mm;
+            display: flex;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .customer-details {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1mm;
+        }
+
+        .customer-item {
+            font-size: 8.8px;
+            color: var(--text-dark);
+            line-height: 1.2;
+        }
+
+        .customer-item span {
+            color: var(--blue-primary);
+            font-weight: 500;
+        }
+
+        /* ========================================================
+           ITEMS TABLE - COMPACT
+        ======================================================== */
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1mm 0;
+            font-size: 8.8px;
+            flex-grow: 1;
+        }
+
+        .items-table thead th {
+            background: var(--blue-primary);
+            color: #fff;
+            padding: 1.5mm 0.8mm;
+            font-weight: 500;
+            border: 0.5px solid var(--blue-primary);
+            text-align: center;
+            line-height: 1.2;
+            font-size: 8.8px;
+        }
+
+        .items-table thead th.text-left {
+            text-align: left;
+        }
+
+        .items-table thead th.text-right {
+            text-align: right;
+            padding-right: 2mm;
+        }
+
+        .items-table tbody td {
+            padding: 1mm 0.8mm;
+            border: 0.5px solid var(--border-light);
+            text-align: center;
+            line-height: 1.2;
+            font-size: 8.8px;
+        }
+
+        .items-table tbody td.description {
+            text-align: left;
+            padding-left: 2mm;
+        }
+
+        .items-table tbody td.text-right {
+            text-align: right;
+            padding-right: 2mm;
+        }
+
+        .items-table tbody td.amount {
+            font-weight: 500;
+            color: var(--blue-primary);
+        }
+
+        .items-table tbody tr:nth-child(even) {
+            background: #f8f9ff;
+        }
+
+        /* ========================================================
+           BOTTOM SECTION - SINGLE ROW LAYOUT
+        ======================================================== */
+        .bottom-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 2mm;
+            margin-top: 1mm;
+        }
+
+        /* QR Section */
+        .qr-section {
+            padding: 2mm;
+            border: 0.5px solid var(--border-light);
+            border-radius: 2px;
+            background: var(--blue-lighter);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2mm;
+        }
+
+        .qr-label {
+            font-size: 8.8px;
+            font-weight: 500;
+            color: var(--blue-primary);
+        }
+
+        .qr-display {
+            width: 78px;
+            height: 78px;
+            border: 0.5px solid var(--border-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background: white;
+        }
+
+        .qr-display img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .qr-display i {
+            font-size: 14px;
+            color: var(--blue-primary);
+        }
+
+        /* Terms Section */
+        .terms-section {
+            padding: 2mm;
+            border: 0.5px solid var(--border-light);
+            border-radius: 2px;
+            background: #fafbff;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .terms-title {
+            font-size: 9.9px;
+            font-weight: 500;
+            color: var(--blue-primary);
+            margin-bottom: 1mm;
+            display: flex;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .terms-text {
+            font-size: 7.7px;
+            line-height: 1.2;
+            color: var(--text-gray);
+            flex-grow: 1;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+        }
+
+        .signature-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 2mm;
+            margin-top: 2mm;
+        }
+
+        .signature-box {
+            flex: 1;
+            text-align: center;
+            padding-top: 2mm;
+            border-top: 0.5px dashed var(--blue-primary);
+            font-size: 6.6px;
+            color: var(--text-gray);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1px;
+        }
+
+        .signature-box i {
+            font-size: 8.8px;
+            color: var(--blue-primary);
+        }
+
+        /* Invoice Summary */
+        .invoice-summary {
+            padding: 2mm;
+            border: 0.5px solid var(--border-light);
+            border-radius: 2px;
+            background: var(--bg-white);
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 8.8px;
+            padding: 1mm 0;
+            border-bottom: 0.5px solid #f1f5f9;
+            line-height: 1.2;
+        }
+
+        .summary-row:last-child {
+            border-bottom: 1px solid var(--blue-primary);
+            border-top: 1px solid var(--blue-primary);
+            font-weight: 500;
+            font-size: 9.9px;
+            padding: 1.5mm 0;
+            margin-top: 1mm;
+        }
+
+        .summary-row span:first-child {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            color: var(--text-gray);
+        }
+
+        .summary-row i {
+            font-size: 8.8px;
+            color: var(--blue-primary);
+        }
+
+        .summary-row .amount {
+            font-weight: 500;
+            color: var(--blue-primary);
+        }
+
+        /* ========================================================
+           FOOTER - COMPACT
+        ======================================================== */
+        .invoice-footer {
+            margin-top: 1mm;
+            padding-top: 1mm;
+            border-top: 0.5px solid var(--border-light);
+            text-align: center;
+            font-size: 7.7px;
+            color: var(--text-gray);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+            flex-wrap: wrap;
+        }
+
+        .invoice-footer i {
+            color: var(--blue-primary);
+        }
+
+        /* ========================================================
+           ACTION BUTTONS
+        ======================================================== */
+        .action-buttons {
+            text-align: center;
+            margin: 15px auto;
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            max-width: 210mm;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-family: "Poppins", Arial, sans-serif;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-outline {
+            background: white;
+            color: var(--blue-primary);
+            border: 2px solid var(--blue-primary);
+        }
+
+        .btn-outline:hover {
+            background: var(--blue-primary);
+            color: white;
+        }
+
+        .btn-primary {
+            background: var(--blue-primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1e3a8a;
+        }
+
+        .btn-success {
+            background: var(--success-green);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #20BA5A;
+        }
+
+        .btn i.fa-spinner {
             animation: spin 1s linear infinite;
         }
 
         @keyframes spin {
+            from { transform: rotate(0deg); }
             to { transform: rotate(360deg); }
         }
 
-        /* Navigation */
-        .sb-topnav {
-            background: var(--card-bg);
-            border-bottom: 1px solid var(--border-color);
-            box-shadow: var(--shadow);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-
-        /* Sidebar */
-        .sb-sidenav {
-            background: var(--card-bg);
-            border-right: 1px solid var(--border-color);
-        }
-
-        .sb-sidenav .nav-link {
-            color: var(--text-color);
-            border-radius: 8px;
-            margin: 0.25rem 1rem;
-            padding: 0.75rem 1rem;
-            transition: all 0.3s ease;
-        }
-
-        .sb-sidenav .nav-link:hover {
-            background: rgba(34, 71, 165, 0.1);
-            transform: translateX(4px);
-        }
-
-        .sb-sidenav .nav-link.active {
-            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-            color: white;
-        }
-
-        /* KPI Cards */
-        .kpi {
-            background: var(--card-bg);
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .kpi:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
-        }
-
-        .kpi .icon {
-            width: 50px;
-            height: 50px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-        }
-
-        /* Modern Cards */
-        .card-modern {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow);
-            transition: all 0.3s ease;
-        }
-
-        .card-modern:hover {
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
-        }
-
-        .card-modern .card-header {
-            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-            color: white;
-            border-bottom: none;
-            border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-            padding: 1rem 1.25rem;
-            font-weight: 600;
-        }
-
-        /* Form Controls */
-        .form-label {
-            font-weight: 500;
-            color: var(--text-color);
-            margin-bottom: 0.5rem;
-        }
-
-        .form-control, .form-select {
-            background: var(--card-bg);
-            border: 2px solid var(--border-color);
-            border-radius: 8px;
-            padding: 0.625rem 0.875rem;
-            transition: all 0.3s ease;
-            color: var(--text-color);
-        }
-
-        .form-control:focus, .form-select:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(34, 71, 165, 0.1);
-            background: var(--card-bg);
-            color: var(--text-color);
-        }
-
-        /* Buttons */
-        .btn {
-            border-radius: 8px;
-            padding: 0.625rem 1.25rem;
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-            border: none;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(34, 71, 165, 0.4);
-        }
-
-        /* Table */
-        .table {
-            background: var(--card-bg);
-            color: var(--text-color);
-        }
-
-        .table thead th {
-            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-            color: white;
-            font-weight: 600;
-            text-transform: uppercase;
-            font-size: 0.75rem;
-            letter-spacing: 0.5px;
-            border: none;
-        }
-
-        .table tbody tr {
-            transition: background 0.2s ease;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .table tbody tr:hover {
-            background: rgba(34, 71, 165, 0.05);
-        }
-
-        .table tfoot {
-            background: var(--border-color);
-            font-weight: 600;
-        }
-
-        /* Theme Toggle */
-        .theme-toggle {
-            position: fixed;
-            top: 5.5rem;
-            right: 2rem;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: var(--card-bg);
-            border: 2px solid var(--border-color);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            z-index: 999;
-            box-shadow: var(--shadow);
-        }
-
-        .theme-toggle:hover {
-            transform: scale(1.1) rotate(15deg);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-        }
-
-        /* Alert Enhancement */
-        .alert {
-            border: none;
-            border-radius: var(--radius-lg);
-            border-left: 4px solid;
-            box-shadow: var(--shadow);
-            animation: slideInDown 0.3s ease;
-        }
-
-        @keyframes slideInDown {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .alert-success {
-            border-left-color: var(--success-color);
-            background: rgba(16, 185, 129, 0.1);
-            color: var(--success-color);
-        }
-
-        /* Chart Container */
-        #monthlyExpenseChart {
-            max-height: 300px;
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .theme-toggle {
-                top: 1rem;
-                right: 1rem;
+        /* ========================================================
+           PRINT STYLES - A5 LANDSCAPE WITH LARGER FONTS
+        ======================================================== */
+        @media print {
+            @page {
+                size: A5 landscape;
+                margin: 0;
             }
 
-            .kpi {
-                margin-bottom: 1rem;
+            body {
+                background: white !important;
+                padding: 0;
+                margin: 0;
+            }
+
+            .page-container {
+                box-shadow: none !important;
+                border: none !important;
+                border-radius: 0 !important;
+                width: 210mm;
+                height: 148mm;
+                margin: 0;
+                padding: 6mm;
+                page-break-after: avoid;
+            }
+
+            .action-buttons {
+                display: none !important;
+            }
+
+            * {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+                color: #000000 !important;
+            }
+
+            .items-table thead th {
+                background: var(--blue-primary) !important;
+                color: #000000 !important;
+            }
+
+            .items-table tbody tr:nth-child(even) {
+                background: #f8f9ff !important;
+            }
+
+            /* Increased font sizes for print - 10% more than base */
+            .company-text h1 {
+                font-size: 19.36px !important;
+                color: #000000 !important;
+                font-weight: 600 !important;
+            }
+
+            .company-details {
+                font-size: 9.68px !important;
+                color: #000000 !important;
+            }
+
+            .company-details p {
+                color: #000000 !important;
+            }
+
+            .company-details i {
+                color: #000000 !important;
+            }
+
+            .meta-info {
+                font-size: 9.68px !important;
+            }
+
+            .meta-info h2 {
+                font-size: 14.52px !important;
+                color: #000000 !important;
+                font-weight: 600 !important;
+            }
+
+            .meta-item {
+                font-size: 9.68px !important;
+                color: #000000 !important;
+            }
+
+            .customer-section {
+                font-size: 9.68px !important;
+                border: 1px solid #000000 !important;
+            }
+
+            .customer-title {
+                font-size: 10.89px !important;
+                color: #000000 !important;
+                font-weight: 600 !important;
+            }
+
+            .customer-title i {
+                color: #000000 !important;
+            }
+
+            .customer-item {
+                font-size: 9.68px !important;
+                color: #000000 !important;
+            }
+
+            .customer-item span {
+                color: #000000 !important;
+                font-weight: 600 !important;
+            }
+
+            .items-table {
+                font-size: 9.68px !important;
+                border: 1px solid #000000 !important;
+            }
+
+            .items-table thead th {
+                font-size: 9.68px !important;
+                background: #000000 !important;
+                color: #ffffff !important;
+                border: 1px solid #000000 !important;
+                font-weight: 600 !important;
+            }
+
+            .items-table tbody td {
+                font-size: 9.68px !important;
+                color: #000000 !important;
+                border: 0.5px solid #000000 !important;
+            }
+
+            .items-table tbody td.amount {
+                font-weight: 600 !important;
+                color: #000000 !important;
+            }
+
+            .qr-section {
+                border: 1px solid #000000 !important;
+            }
+
+            .terms-section {
+                border: 1px solid #000000 !important;
+            }
+
+            .terms-title {
+                font-size: 10.89px !important;
+                color: #000000 !important;
+                font-weight: 600 !important;
+            }
+
+            .terms-title i {
+                color: #000000 !important;
+            }
+
+            .terms-text {
+                font-size: 8.47px !important;
+                color: #000000 !important;
+            }
+
+            .signature-box {
+                font-size: 7.26px !important;
+                color: #000000 !important;
+                border-top: 0.5px dashed #000000 !important;
+            }
+
+            .signature-box i {
+                color: #000000 !important;
+            }
+
+            .invoice-summary {
+                border: 1px solid #000000 !important;
+            }
+
+            .summary-row {
+                font-size: 9.68px !important;
+                border-bottom: 0.5px solid #000000 !important;
+            }
+
+            .summary-row:last-child {
+                font-size: 10.89px !important;
+                border-bottom: 1.5px solid #000000 !important;
+                border-top: 1.5px solid #000000 !important;
+                font-weight: 600 !important;
+            }
+
+            .summary-row span:first-child {
+                color: #000000 !important;
+            }
+
+            .summary-row i {
+                color: #000000 !important;
+            }
+
+            .summary-row .amount {
+                color: #000000 !important;
+                font-weight: 600 !important;
+            }
+
+            .invoice-footer {
+                font-size: 8.47px !important;
+                color: #000000 !important;
+                border-top: 0.5px solid #000000 !important;
+            }
+
+            .invoice-footer i {
+                color: #000000 !important;
+            }
+
+            .qr-display {
+                border: 1px solid #000000 !important;
             }
         }
+
+        /* ========================================================
+           RESPONSIVE STYLES
+        ======================================================== */
+        @media screen and (max-width: 900px) {
+            body {
+                padding: 10px;
+            }
+
+            .page-container {
+                transform: scale(0.75);
+                transform-origin: top center;
+            }
+        }
+
+        @media screen and (max-width: 768px) {
+            .page-container {
+                transform: scale(0.6);
+            }
+
+            .action-buttons {
+                flex-direction: column;
+                padding: 0 20px;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .bottom-section {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+            .page-container {
+                transform: scale(0.45);
+            }
+        }
+.invoice-wrapper {
+    border: 2px solid #000;      /* visible dark border */
+    padding: 20px;               /* spacing inside border */
+    margin: 10px auto;           /* center alignment */
+    width: 95%;                  /* adjust as needed */
+    border-radius: 6px;          /* optional rounded corners */
+}
+
     </style>
 </head>
+<body>
+<c:if test="${pageContext.request.userPrincipal.name != null}">
 
-<body class="sb-nav-fixed" data-theme="light">
+    <div class="page-container" id="invoice-container">
+        <div class="invoice invoice-wrapper">
 
-<!-- Page Loader -->
-<div class="page-loader" id="pageLoader">
-    <div class="text-center">
-        <div class="loader-spinner mx-auto mb-3"></div>
-        <div class="text-muted">Loading Expenses...</div>
-    </div>
-</div>
+            <!-- ========== HEADER SECTION - CENTERED ========== -->
+            <div class="header-section d-flex justify-content-between align-items-start">
+                <!-- Left: Company Info -->
+                <div class="company-info d-flex">
 
-<!-- Theme Toggle -->
-<div class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
-    <i class="fas fa-moon" id="theme-icon"></i>
-</div>
+                    <div class="company-text">
+                        <h5 class="mb-1"><c:out value="${ownerInfo.shopName}"/></h5>
+                        <div class="company-details">
+                            <p class="mb-1 small"><c:out value="${ownerInfo.address}"/></p>
+                            <div class="meta-item small">Owner: ${ownerInfo.ownerName} Mob.: ${ownerInfo.mobNumber}</div>
+                            <div class="meta-item small">LC No: ${ownerInfo.lcNo} GST: ${ownerInfo.gstNumber}</div>
+                        </div>
+                    </div>
+                </div>
 
-<!-- Top Navbar -->
-<nav class="sb-topnav navbar navbar-expand navbar-light">
-    <a class="navbar-brand ps-3 fw-bold" href="${pageContext.request.contextPath}/login/home">
-        <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgwIiBoZWlnaHQ9IjQwIiB2aWV3Qm94PSIwIDAgMTgwIDQwIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8ZGVmcz4KPGxpbmVhckdyYWRpZW50IGlkPSJwYWludDBfbGluZWFyIiB4MT0iNSIgeTE9IjMiIHgyPSIyNSIgeTI9IjI3IiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+CjxzdG9wIHN0b3AtY29sb3I9IiMyMjQ3QTUiLz4KPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMTQ1RkEwIi8+CjwvbGluZWFyR3JhZGllbnQ+CjxsaW5lYXJHcmFkaWVudCBpZD0icGFpbnQxX2xpbmVhciIgeDE9IjE3IiB5MT0iMTMiIHgyPSIyOCIgeTI9IjI0IiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+CjxzdG9wIHN0b3AtY29sb3I9IiMxMEI5ODEiLz4KPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMDU5NjY5Ii8+CjwvbGluZWFyR3JhZGllbnQ+CjwvZGVmcz4KPCEtLSBEb2N1bWVudC9CaWxsIEljb24gLS0+CjxyZWN0IHg9IjUiIHk9IjMiIHdpZHRoPSIyMCIgaGVpZ2h0PSIyNCIgcng9IjMiIGZpbGw9InVybCgjcGFpbnQwX2xpbmVhcikiLz4KPCEtLSBMaW5lcyBvbiBkb2N1bWVudCAtLT4KPHBhdGggZD0iTTkgOWg4bS04IDRINW0tNSAzaDciIHN0cm9rZT0iI2ZmZmZmZiIgc3Ryb2tlLXdpZHRoPSIxIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KPCEtLSBDaGVja21hcmsgLS0+CjxjaXJjbGUgY3g9IjIyLjUiIGN5PSIxOC41IiByPSI1LjUiIGZpbGw9InVybCgjcGFpbnQxX2xpbmVhcikiLz4KPHBhdGggZD0ibTIwIDE4LjUgMiAyIDQtNCIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8IS0tIFRleHQgLS0+Cjx0ZXh0IHg9IjM1IiB5PSIxNiIgZm9udC1mYW1pbHk9IkludGVyLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjEyIiBmb250LXdlaWdodD0iNzAwIiBmaWxsPSIjMjI0N0E1Ij4KQmlsbE1hdGVQcm88L3RleHQ+Cjx0ZXh0IHg9IjM1IiB5PSIyNiIgZm9udC1mYW1pbHk9IkludGVyLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjgiIGZpbGw9IiM2Mzc1OEEiPgpZb3VyIEJpbGxpbmcgUGFydG5lcjwvdGV4dD4KPC9zdmc+"
-             alt="BillMatePro" style="height: 50px;">
-    </a>
-    <button class="btn btn-outline-primary btn-sm ms-2" id="sidebarToggle"><i class="fas fa-bars"></i></button>
-
-
-    <div class="ms-auto d-flex align-items-center gap-3 pe-3">
-        <c:if test="${not empty productList}">
-            <div class="position-relative" role="button">
-                <i class="bi bi-bell fs-5 text-primary"></i>
-                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                    ${fn:length(productList)}
-                </span>
+                <!-- Right: Invoice Info -->
+                <div class="meta-info text-end">
+                    <h5 class="mb-1">TAX INVOICE</h5>
+                    <div class="meta-left small">Invoice #: ${invoiceNo} | Date: ${date}</div>
+                </div>
             </div>
-        </c:if>
-        <div class="dropdown">
-            <a class="nav-link dropdown-toggle text-primary" id="navbarDropdown" href="#"
-               data-bs-toggle="dropdown" aria-expanded="false" role="button">
-                <i class="fas fa-user fa-fw"></i>
-            </a>
-            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                <li>
-                    <h6 class="dropdown-header">
-                        <i class="fas fa-user-circle me-2"></i>
-                        ${pageContext.request.userPrincipal.name}
-                    </h6>
-                </li>
-                <li><hr class="dropdown-divider"></li>
-                <li>
-                    <a class="dropdown-item" href="${pageContext.request.contextPath}/company/get-my-profile">
-                        <i class="fas fa-cog me-2"></i>Account Settings
-                    </a>
-                </li>
-                <li>
-                    <a class="dropdown-item" href="#" onclick="event.preventDefault(); document.getElementById('logoutForm').submit();">
-                        <i class="fas fa-sign-out-alt me-2"></i>Logout
-                    </a>
-                </li>
-            </ul>
+
+
+            <!-- ========== OWNER INFO - TWO ROW LAYOUT ========== -->
+            <div class="customer-section">
+
+                <div class="customer-title">
+                    <i class="fas fa-user-circle"></i>Customer Details
+                </div>
+                <div class="customer-details">
+                    <div class="customer-item">
+                        <span>Name:</span> <c:out value="${profile.custName}"/>
+                    </div>
+                    <div class="customer-item">
+                        <span>Contact:</span> <c:out value="${profile.phoneNo}"/>
+                    </div>
+                    <div class="customer-item">
+                        <span>Address:</span> <c:out value="${profile.address}"/>
+                    </div>
+                </div>
+            </div>
+
+            <div class="field">
+                <label><i class="fas fa-money-bill-wave"></i> RECEIVED AMOUNT:</label>
+                <span class="amount-highlight">₹ ${balanceDeposite.advAmt}</span>
+                <em>(${AMOUNT_WORD} Only)</em>
+            </div>
+
+            <div class="field">
+                <label><i class="fas fa-info-circle"></i> PURPOSE:</label>
+                ${balanceDeposite.description}
+            </div>
+
+            <div class="sign-row">
+                <div class="sign-box">
+                    <i class="fas fa-signature"></i>
+                    <div>CUSTOMER SIGNATURE</div>
+                </div>
+                <div class="sign-box">
+                    <i class="fas fa-stamp"></i>
+                    <div>AUTHORIZED SIGNATURE</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="receipt-right">
+            <table class="amount-table">
+                <tr>
+                    <td><i class="fas fa-history"></i> Previous Balance</td>
+                    <td>₹ ${balanceDeposite.currentOusting}</td>
+                </tr>
+                <tr>
+                    <td><i class="fas fa-plus-circle"></i> Credited Amount</td>
+                    <td>₹ ${balanceDeposite.advAmt}</td>
+                </tr>
+                <tr class="current-balance">
+                    <td><i class="fas fa-calculator"></i> CURRENT BALANCE DUE</td>
+                    <td>₹ ${profile.currentOusting}</td>
+                </tr>
+                <tr>
+                    <td><i class="fas fa-credit-card"></i> Payment Mode</td>
+                    <td>${balanceDeposite.modeOfPayment}</td>
+                </tr>
+            </table>
         </div>
     </div>
-</nav>
 
-<div id="layoutSidenav">
-    <!-- Sidebar -->
-    <div id="layoutSidenav_nav">
-        <nav class="sb-sidenav accordion" id="sidenavAccordion">
-            <div class="sb-sidenav-menu">
-                <div class="nav">
-                    <div class="sb-sidenav-menu-heading">Core</div>
-                    <a class="nav-link" href="${pageContext.request.contextPath}/login/home">
-                        <div class="sb-nav-link-icon"><i class="fas fa-home"></i></div> Home
-                    </a>
-
-                    <div class="sb-sidenav-menu-heading">Interface</div>
-                    <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseLayouts">
-                        <div class="sb-nav-link-icon"><i class="fas fa-columns"></i></div> Menu
-                        <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
-                    </a>
-                    <div class="collapse show" id="collapseLayouts" data-bs-parent="#sidenavAccordion">
-                        <nav class="sb-sidenav-menu-nested nav">
-                            <a class="nav-link" href="${pageContext.request.contextPath}/company/get-all-customers">
-                                <i class="fas fa-user-friends me-2"></i>All Customers
-                            </a>
-                            <a class="nav-link" href="${pageContext.request.contextPath}/company/get-all-invoices">
-                                <i class="fas fa-file-invoice me-2"></i>Invoices
-                            </a>
-                            <a class="nav-link" href="${pageContext.request.contextPath}/company/reports">
-                                <i class="fas fa-chart-line me-2"></i>Daily/Monthly Reports
-                            </a>
-                            <a class="nav-link" href="${pageContext.request.contextPath}/company/get-all-products">
-                                <i class="fas fa-leaf me-2"></i>Products
-                            </a>
-                        </nav>
-                    </div>
-
-                    <div class="sb-sidenav-menu-heading">Settings</div>
-                    <a class="nav-link" href="${pageContext.request.contextPath}/company/get-my-profile">
-                        <div class="sb-nav-link-icon"><i class="fas fa-cog"></i></div> Account Settings
-                    </a>
-                    <a class="nav-link" href="${pageContext.request.contextPath}/company/export-to-pdf">
-                        <div class="sb-nav-link-icon"><i class="fas fa-file-export"></i></div> Export Customers
-                    </a>
-                    <a class="nav-link active" href="${pageContext.request.contextPath}/expenses">
-                        <div class="sb-nav-link-icon"><i class="fas fa-wallet"></i></div> Daily Expenses
-                    </a>
-                </div>
+            <!-- ========== FOOTER ========== -->
+            <div class="invoice-footer">
+                <i class="fas fa-code"></i>
+                <span>Generated by BillMatePro Solution</span>
+                <span>•</span>
+                <i class="fas fa-phone"></i>
+                <span>8180080378</span>
             </div>
-            <div class="sb-sidenav-footer">
-                <div class="small">Logged in as:</div>
-                ${pageContext.request.userPrincipal.name}
-            </div>
-        </nav>
+        </div>
     </div>
 
-    <!-- Main Content -->
-    <div id="layoutSidenav_content">
-        <main>
-
-            <!-- Success Alert -->
-            <c:if test="${not empty msg}">
-                <div class="alert alert-success alert-dismissible fade show mb-4" id="success-alert">
-                    <i class="bi bi-check-circle-fill fs-4"></i>
-                    <div>
-                        <strong>Success!</strong> ${msg}
-                    </div>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            </c:if>
-
-            <!-- Stats Row -->
-            <div class="row g-3 mb-4">
-                <div class="col-md-3 col-sm-6">
-                    <div class="stats-card">
-                        <div class="stats-icon" style="background: linear-gradient(135deg, #2247a5, #145fa0); color: white;">
-                            <i class="fas fa-users"></i>
-                        </div>
-                        <div class="stats-value" style="color: var(--primary);">${fn:length(dealers)}</div>
-                        <div class="stats-label">Total Dealers</div>
-                    </div>
-                </div>
-                <div class="col-md-3 col-sm-6">
-                    <div class="stats-card">
-                        <div class="stats-icon" style="background: linear-gradient(135deg, #10b981, #059669); color: white;">
-                            <i class="fas fa-check-circle"></i>
-                        </div>
-                        <c:set var="activeCount" value="0"/>
-                        <c:forEach items="${dealers}" var="d">
-                            <c:if test="${d.balanceAmount > 0}">
-                                <c:set var="activeCount" value="${activeCount + 1}"/>
-                            </c:if>
-                        </c:forEach>
-                        <div class="stats-value" style="color: var(--success);">${activeCount}</div>
-                        <div class="stats-label">Active Accounts</div>
-                    </div>
-                </div>
-                <div class="col-md-3 col-sm-6">
-                    <div class="stats-card">
-                        <div class="stats-icon" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: white;">
-                            <i class="fas fa-rupee-sign"></i>
-                        </div>
-                        <c:set var="totalBalance" value="0"/>
-                        <c:forEach items="${dealers}" var="d">
-                            <c:set var="totalBalance" value="${totalBalance + d.balanceAmount}"/>
-                        </c:forEach>
-                        <div class="stats-value" style="color: var(--warning);">
-                            ₹<fmt:formatNumber value="${totalBalance}" pattern="#,##0"/>
-                        </div>
-                        <div class="stats-label">Total Pending</div>
-                    </div>
-                </div>
-                <div class="col-md-3 col-sm-6">
-                    <div class="stats-card">
-                        <div class="stats-icon" style="background: linear-gradient(135deg, #ef4444, #dc2626); color: white;">
-                            <i class="fas fa-exclamation-triangle"></i>
-                        </div>
-                        <c:set var="highBalance" value="0"/>
-                        <c:forEach items="${dealers}" var="d">
-                            <c:if test="${d.balanceAmount > 10000}">
-                                <c:set var="highBalance" value="${highBalance + 1}"/>
-                            </c:if>
-                        </c:forEach>
-                        <div class="stats-value" style="color: var(--danger);">${highBalance}</div>
-                        <div class="stats-label">High Balance</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Form Section -->
-            <div class="row">
-                <div class="col-12">
-                    <div class="form-card">
-                        <div class="form-header">
-                            <i class="fas fa-${not empty dealer.id ? 'edit' : 'plus-circle'}"></i>
-                            <h5>${not empty dealer.id ? 'Update Dealer' : 'Add New Dealer'}</h5>
-                        </div>
-
-                        <form:form method="POST" modelAttribute="dealer"
-                                   action="${pageContext.request.contextPath}/dealers/save">
-                            <form:errors path="*" cssClass="alert alert-danger" element="div"/>
-                            <form:input path="id" type="hidden"/>
-
-                            <div class="row">
-                                <div class="col-lg-2 col-md-4 col-sm-6">
-                                    <div class="form-group">
-                                        <label class="form-label">
-                                            <i class="fas fa-user"></i> Dealer Name *
-                                        </label>
-                                        <form:input path="dealerName" cssClass="form-control"
-                                                    placeholder="John Doe" required="required"/>
-                                    </div>
-                                </div>
-
-                                <div class="col-lg-2 col-md-4 col-sm-6">
-                                    <div class="form-group">
-                                        <label class="form-label">
-                                            <i class="fas fa-phone"></i> Mobile No *
-                                        </label>
-                                        <form:input path="mobileNo" cssClass="form-control"
-                                                    placeholder="+91 98765 43210" required="required"/>
-                                    </div>
-                                </div>
-
-                                <div class="col-lg-2 col-md-4 col-sm-6">
-                                    <div class="form-group">
-                                        <label class="form-label">
-                                            <i class="fas fa-map-marker-alt"></i> Address *
-                                        </label>
-                                        <form:input path="dealerAddress" cssClass="form-control"
-                                                    placeholder="Street, City" required="required"/>
-                                    </div>
-                                </div>
-
-                                <div class="col-lg-2 col-md-4 col-sm-6">
-                                    <div class="form-group">
-                                        <label class="form-label">
-                                            <i class="fas fa-file-invoice"></i> GST No *
-                                        </label>
-                                        <form:input path="gstNo" cssClass="form-control"
-                                                    placeholder="22XXXXX1234X1Z5" required="required"/>
-                                    </div>
-                                </div>
-
-                                <div class="col-lg-2 col-md-4 col-sm-6">
-                                    <div class="form-group">
-                                        <label class="form-label">
-                                            <i class="fas fa-wallet"></i> Balance Amount *
-                                        </label>
-                                        <form:input path="balanceAmount" type="number" step="0.01"
-                                                    readonly="${not empty dealer.id}"
-                                                    cssClass="form-control" placeholder="0.00" required="required"/>
-                                    </div>
-                                </div>
-
-                                <div class="col-lg-2 col-md-4 col-sm-6">
-                                    <div class="form-group">
-                                        <label class="form-label">
-                                            <i class="fas fa-university"></i> Bank Name *
-                                        </label>
-                                        <form:input path="bankName" cssClass="form-control"
-                                                    placeholder="HDFC Bank" required="required"/>
-                                    </div>
-                                </div>
-
-                                <div class="col-lg-2 col-md-4 col-sm-6">
-                                    <div class="form-group">
-                                        <label class="form-label">
-                                            <i class="fas fa-hashtag"></i> Account Number *
-                                        </label>
-                                        <form:input path="accountNo" cssClass="form-control"
-                                                    placeholder="1234567890" required="required"/>
-                                    </div>
-                                </div>
-
-                                <div class="col-lg-2 col-md-4 col-sm-6">
-                                    <div class="form-group">
-                                        <label class="form-label">
-                                            <i class="fas fa-code"></i> IFSC Code *
-                                        </label>
-                                        <form:input path="ifscCode" cssClass="form-control"
-                                                    placeholder="HDFC0001234" required="required"/>
-                                    </div>
-                                </div>
-
-                                <div class="col-lg-2 col-md-4 col-sm-6">
-                                    <div class="form-group">
-                                        <label class="form-label">
-                                            <i class="fas fa-building"></i> Branch Name *
-                                        </label>
-                                        <form:input path="branchName" cssClass="form-control"
-                                                    placeholder="Main Branch" required="required"/>
-                                    </div>
-                                </div>
-
-                                <div class="col-lg-2 col-md-4 col-sm-6">
-                                    <div class="form-group">
-                                        <label class="form-label" style="visibility: hidden;">Submit</label>
-                                        <button type="submit" class="btn-submit w-100">
-                                            <i class="fas fa-${not empty dealer.id ? 'sync' : 'save'}"></i>
-                                            ${not empty dealer.id ? 'Update' : 'Save'}
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </form:form>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Search and Cards Section -->
-            <div class="row">
-                <div class="col-12">
-
-                    <!-- Cards Header with Search -->
-                    <div class="cards-header">
-                        <h4>
-                            <i class="fas fa-th-large"></i>
-                            Dealer Directory
-                        </h4>
-                        <div class="search-box">
-                            <i class="fas fa-search"></i>
-                            <input id="dealerSearch" type="text" placeholder="Search dealers by name, mobile, GST..."/>
-                        </div>
-                    </div>
-
-                    <!-- Dealer Cards Grid -->
-                    <div class="row g-3" id="dealerCards">
-                        <c:forEach items="${dealers}" var="dealer" varStatus="status">
-                            <div class="col-xl-3 col-lg-3 col-md-4 col-sm-6 dealer-card-wrapper"
-                                 data-name="${dealer.dealerName}"
-                                 data-mobile="${dealer.mobileNo}"
-                                 data-gst="${dealer.gstNo}"
-                                 data-balance="${dealer.balanceAmount}"
-                                 data-index="${status.index}">
-
-                                <div class="dealer-card position-relative">
-
-                                    <!-- Floating edit icon in top-right -->
-                                    <a href="${pageContext.request.contextPath}/dealers/update-dealer/${dealer.id}"
-                                       class="edit-icon-btn"
-                                       title="Edit Dealer">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
-
-                                    <div class="dealer-header">
-                                        <div class="dealer-avatar">
-                                            ${fn:substring(dealer.dealerName, 0, 1)}
-                                        </div>
-                                        <div class="dealer-info">
-                                            <div class="dealer-name">${dealer.dealerName}</div>
-                                            <div class="dealer-contact">
-                                                <i class="fas fa-phone"></i>
-                                                ${dealer.mobileNo}
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="dealer-body">
-                                        <div class="info-row">
-                                            <i class="fas fa-map-marker-alt"></i>
-                                            <span class="info-label">Address:</span>
-                                            <span class="info-value">${dealer.dealerAddress}</span>
-                                        </div>
-                                        <div class="info-row">
-                                            <i class="fas fa-file-invoice"></i>
-                                            <span class="info-label">GST:</span>
-                                            <span class="info-value">${dealer.gstNo}</span>
-                                        </div>
-                                        <div class="info-row position-relative">
-                                            <i class="fas fa-university"></i>
-                                            <span class="info-label">Bank:</span>
-                                            <span class="bank-badge" onclick="toggleBankPopup(event, ${status.index})">
-                                                <i class="fas fa-eye"></i> View
-                                            </span>
-                                            <div class="bank-details-popup" id="bankPopup${status.index}">
-                                                <div class="bank-detail-item"><strong>Bank:</strong> <span>${dealer.bankName}</span></div>
-                                                <div class="bank-detail-item"><strong>A/C No:</strong> <span>${dealer.accountNo}</span></div>
-                                                <div class="bank-detail-item"><strong>IFSC:</strong> <span>${dealer.ifscCode}</span></div>
-                                                <div class="bank-detail-item"><strong>Branch:</strong> <span>${dealer.branchName}</span></div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="financial-summary">
-                                        <div class="financial-row">
-                                            <span class="financial-label">Total:</span>
-                                            <span class="financial-value total">
-                                                ₹<fmt:formatNumber value="${dealer.totalAmount}" pattern="#,##0.00"/>
-                                            </span>
-                                        </div>
-                                        <div class="financial-row">
-                                            <span class="financial-label">Paid:</span>
-                                            <span class="financial-value paid">
-                                                ₹<fmt:formatNumber value="${dealer.paidAmount}" pattern="#,##0.00"/>
-                                            </span>
-                                        </div>
-                                        <div class="financial-row">
-                                            <span class="financial-label">Balance:</span>
-                                            <span class="financial-value balance">
-                                                ₹<fmt:formatNumber value="${dealer.balanceAmount}" pattern="#,##0.00"/>
-                                            </span>
-                                        </div>
-                                    </div>
-
-                                    <!-- Invoice input and view button -->
-                                    <div class="invoice-actions">
-                                        <form action="${pageContext.request.contextPath}/dealers/view-dealer/${dealer.id}" method="post" class="invoice-form">
-                                            <input type="text"
-                                                   name="billNo"
-                                                   class="invoice-input"
-                                                   placeholder="Enter Bill No"
-                                                   required />
-
-                                            <button type="submit" class="btn-action btn-view">
-                                                <i class="fas fa-eye"></i> View
-                                            </button>
-                                        </form>
-                                    </div>
-
-                                </div>
-                            </div>
-                        </c:forEach>
-                    </div>
-
-                    <!-- Empty State -->
-                    <div id="emptyState" class="empty-state d-none">
-                        <i class="fas fa-inbox"></i>
-                        <p>No dealers found matching your search</p>
-                    </div>
-
-                </div>
-            </div>
-
-        </main>
-
-        <!-- Footer -->
-        <footer class="py-4 bg-light mt-auto">
-            <div class="container-fluid px-4">
-                <div class="d-flex align-items-center justify-content-between small">
-                    <div class="text-muted">Copyright &copy; BillMatePro 2025</div>
-                    <div>
-                        <a href="#" class="text-muted">Privacy Policy</a>
-                        &middot;
-                        <a href="#" class="text-muted">Terms &amp; Conditions</a>
-                    </div>
-                </div>
-            </div>
-        </footer>
+    <!-- ========== ACTION BUTTONS ========== -->
+    <div class="action-buttons">
+        <button class="btn btn-outline" onclick="window.location.href='${pageContext.request.contextPath}/login/home'">
+            <i class="fas fa-home"></i> Home
+        </button>
+        <button class="btn btn-primary" onclick="printInvoice()">
+            <i class="fas fa-print"></i> Print A5
+        </button>
+        <button class="btn btn-primary" id="pdfDownloadBtn" onclick="downloadPDF(this)">
+            <i class="fas fa-download"></i> Download PDF
+        </button>
+        <a href="https://wa.me/${profile.phoneNo}/?text=Namaste!!!%20*${profile.custName}*,%20आपका%20बिल%20तैयार%20है।%20Invoice%20%23${invoiceNo}%20-%20₹${profile.currentOusting}%0A%0AThank%20you%20for%20your%20business!%0A%0A-%20${ownerInfo.shopName}"
+           target="_blank"
+           class="btn btn-success">
+            <i class="fab fa-whatsapp"></i> Share on WhatsApp
+        </a>
     </div>
-</div>
 
-<!-- Logout Form -->
-<form id="logoutForm" method="POST" action="${pageContext.request.contextPath}/logout" style="display: none;">
-    <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
-</form>
+</c:if>
 
-<!-- JavaScript -->
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<script src="${pageContext.request.contextPath}/resources/js/scripts.js"></script>
-
+<!-- ========== SCRIPTS ========== -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        // Hide page loader
-        setTimeout(() => {
-            const loader = document.getElementById('pageLoader');
-            if (loader) loader.classList.add('hidden');
-        }, 800);
+    // ========== AUTO-DOWNLOAD ON PAGE LOAD ==========
+    window.addEventListener('DOMContentLoaded', function() {
+        // Get download flag from JSP
+        const downloadFlag = '${downloadflag}' === 'true';
 
-        // Auto-hide success alert
-        const successAlert = document.getElementById('success-alert');
-        if (successAlert) {
-            setTimeout(() => {
-                const bsAlert = bootstrap.Alert.getOrCreateInstance(successAlert);
-                bsAlert.close();
-            }, 3500);
-        }
-
-        // Sidebar toggle
-        const sidebarToggle = document.getElementById("sidebarToggle");
-        if (sidebarToggle) {
-            sidebarToggle.addEventListener("click", function(e) {
-                e.preventDefault();
-                document.body.classList.toggle("sb-sidenav-toggled");
-                localStorage.setItem('sb|sidebar-toggle', document.body.classList.contains('sb-sidenav-toggled'));
-            });
-        }
-
-        // Restore sidebar state
-        if (localStorage.getItem('sb|sidebar-toggle') === 'true') {
-            document.body.classList.add('sb-sidenav-toggled');
-        }
-
-        // Theme toggle
-        const savedTheme = localStorage.getItem('theme') || 'light';
-        document.body.setAttribute('data-theme', savedTheme);
-        updateThemeIcon(savedTheme);
-
-        // Monthly Expense Chart
-        const ctx = document.getElementById('monthlyExpenseChart');
-        if (ctx) {
-            const chartData = {
-                labels: [
-                    <c:forEach var="m" items="${monthlyExpenses}" varStatus="vs">
-                        '<c:out value="${m.month}"/>'<c:if test="${!vs.last}">,</c:if>
-                    </c:forEach>
-                ],
-                datasets: [{
-                    label: 'Total Expenses',
-                    data: [
-                        <c:forEach var="m" items="${monthlyExpenses}" varStatus="vs">
-                            <c:out value="${m.totalAmount}"/><c:if test="${!vs.last}">,</c:if>
-                        </c:forEach>
-                    ],
-                    backgroundColor: 'rgba(34, 71, 165, 0.7)',
-                    borderColor: 'rgba(34, 71, 165, 1)',
-                    borderWidth: 2,
-                    borderRadius: 8,
-                    barThickness: 40
-                }]
-            };
-
-            new Chart(ctx.getContext('2d'), {
-                type: 'bar',
-                data: chartData,
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: true,
-                    plugins: {
-                        legend: {
-                            display: false
-                        },
-                        tooltip: {
-                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                            padding: 12,
-                            borderRadius: 8,
-                            callbacks: {
-                                label: function(context) {
-                                    return '₹' + context.parsed.y.toLocaleString('en-IN', {
-                                        minimumFractionDigits: 2,
-                                        maximumFractionDigits: 2
-                                    });
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            grid: {
-                                color: 'rgba(0, 0, 0, 0.05)'
-                            },
-                            ticks: {
-                                callback: function(value) {
-                                    return '₹' + value.toLocaleString('en-IN');
-                                }
-                            }
-                        },
-                        x: {
-                            grid: {
-                                display: false
-                            },
-                            ticks: {
-                                callback: function(value, index) {
-                                    const label = this.getLabelForValue(index);
-                                    const [year, month] = label.split('-');
-                                    const date = new Date(year, month - 1);
-                                    return date.toLocaleDateString('en-US', {
-                                        month: 'short',
-                                        year: 'numeric'
-                                    });
-                                }
-                            }
-                        }
-                    }
+        if (downloadFlag) {
+            // Wait for images and content to load
+            setTimeout(function() {
+                const pdfBtn = document.getElementById('pdfDownloadBtn');
+                if (pdfBtn && !pdfBtn.disabled) {
+                    console.log('Auto-downloading PDF...');
+                    downloadPDF(pdfBtn);
                 }
-            });
+            }, 1000);
         }
     });
 
-    // Theme toggle function
-    function toggleTheme() {
-        const currentTheme = document.body.getAttribute('data-theme');
-        const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-
-        document.body.setAttribute('data-theme', newTheme);
-        localStorage.setItem('theme', newTheme);
-        updateThemeIcon(newTheme);
+    // ========== PRINT FUNCTION - A5 LANDSCAPE ==========
+    function printInvoice() {
+        window.print();
     }
 
-    function updateThemeIcon(theme) {
-        const icon = document.getElementById('theme-icon');
-        if (icon) {
-            icon.className = theme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
-        }
-    }
+    // ========== PDF DOWNLOAD - FULL PAGE FIX ==========
+    let pdfGenerating = false;
 
-
-    (function() {
-    'use strict';
-
-    // Page Loader
-    window.addEventListener('load', function() {
-        setTimeout(function() {
-            const loader = document.getElementById('pageLoader');
-            if (loader) loader.classList.add('hidden');
-        }, 600);
-    });
-
-    // Theme Toggle
-    window.toggleTheme = function() {
-        const body = document.body;
-        const icon = document.getElementById('theme-icon');
-        const currentTheme = body.getAttribute('data-theme');
-        const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-
-        body.setAttribute('data-theme', newTheme);
-        icon.className = newTheme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
-        localStorage.setItem('theme', newTheme);
-    };
-
-    // Load saved theme
-    const savedTheme = localStorage.getItem('theme') || 'light';
-    document.body.setAttribute('data-theme', savedTheme);
-    const icon = document.getElementById('theme-icon');
-    if (icon) {
-        icon.className = savedTheme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
-    }
-
-    // Logout
-    window.confirmLogout = function(event) {
-        event.preventDefault();
-        if (confirm('Are you sure you want to logout?')) {
-            document.getElementById('logoutForm').submit();
-        }
-    };
-
-    // Bank Popup Toggle
-    window.toggleBankPopup = function(event, index) {
-        event.stopPropagation();
-        const popup = document.getElementById('bankPopup' + index);
-
-        // Close all other popups
-        document.querySelectorAll('.bank-details-popup').forEach(p => {
-            if (p !== popup) p.classList.remove('show');
-        });
-
-        popup.classList.toggle('show');
-    };
-
-    // Close popups when clicking outside
-    document.addEventListener('click', function(e) {
-        if (!e.target.closest('.bank-badge')) {
-            document.querySelectorAll('.bank-details-popup').forEach(p => {
-                p.classList.remove('show');
-            });
-        }
-    });
-
-    $(document).ready(function() {
-
-        // Auto-hide success alert
-        setTimeout(function() {
-            $('#success-alert').fadeOut('slow');
-        }, 4000);
-
-        // ========================================
-        // IMPROVED SIDEBAR TOGGLE FOR MOBILE
-        // ========================================
-
-        $('#sidebarToggle').on('click', function(e) {
-            e.preventDefault();
-            $('body').toggleClass('sb-sidenav-toggled');
-
-            // Save state for desktop, but not for mobile
-            if ($(window).width() >= 992) {
-                localStorage.setItem('sb|sidebar-toggle', $('body').hasClass('sb-sidenav-toggled'));
-            }
-
-            // Prevent body scroll when sidebar is open on mobile
-            if ($(window).width() < 992 && $('body').hasClass('sb-sidenav-toggled')) {
-                $('body').css('overflow', 'hidden');
-            } else {
-                $('body').css('overflow', '');
-            }
-        });
-
-        // Close sidebar when clicking overlay on mobile
-        $(document).on('click', function(e) {
-            if ($(window).width() < 992) {
-                if ($('body').hasClass('sb-sidenav-toggled') &&
-                    !$(e.target).closest('#layoutSidenav_nav').length &&
-                    !$(e.target).closest('#sidebarToggle').length) {
-                    $('body').removeClass('sb-sidenav-toggled');
-                    $('body').css('overflow', '');
-                }
-            }
-        });
-
-        // Close sidebar on navigation link click (mobile only)
-        $('.sb-sidenav .nav-link').on('click', function() {
-            if ($(window).width() < 992) {
-                setTimeout(function() {
-                    $('body').removeClass('sb-sidenav-toggled');
-                    $('body').css('overflow', '');
-                }, 150);
-            }
-        });
-
-        // Handle window resize
-        $(window).on('resize', function() {
-            if ($(window).width() >= 992) {
-                // Desktop: restore saved state
-                $('body').css('overflow', '');
-                if (localStorage.getItem('sb|sidebar-toggle') === 'true') {
-                    $('body').addClass('sb-sidenav-toggled');
-                } else {
-                    $('body').removeClass('sb-sidenav-toggled');
-                }
-            } else {
-                // Mobile: always start closed
-                $('body').removeClass('sb-sidenav-toggled');
-                $('body').css('overflow', '');
-            }
-        });
-
-        // Initialize sidebar state based on screen size
-        if ($(window).width() >= 992) {
-            // Desktop: check saved preference
-            if (localStorage.getItem('sb|sidebar-toggle') === 'true') {
-                $('body').addClass('sb-sidenav-toggled');
-            }
-        } else {
-            // Mobile: always start closed
-            $('body').removeClass('sb-sidenav-toggled');
+    function downloadPDF(btn) {
+        if (pdfGenerating) {
+            alert('PDF generation already in progress. Please wait...');
+            return;
         }
 
-        // ========================================
-        // SEARCH FUNCTIONALITY
-        // ========================================
+        const element = document.getElementById('invoice-container');
+        const customerName = '${profile.custName}'.replace(/[^a-zA-Z0-9]/g, '_') || 'Customer';
+        const invoiceNo = '${invoiceNo}' || 'INV001';
+        const currentDate = new Date().toISOString().slice(0, 10);
 
-        function filterDealerCards() {
-            const searchText = $('#dealerSearch').val().toLowerCase();
-            let visibleCount = 0;
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating PDF...';
+        btn.disabled = true;
+        pdfGenerating = true;
 
-            $('#dealerCards .dealer-card-wrapper').each(function() {
-                const name = $(this).data('name').toString().toLowerCase();
-                const mobile = $(this).data('mobile').toString().toLowerCase();
-                const gst = $(this).data('gst').toString().toLowerCase();
-
-                const matchesSearch = name.includes(searchText) ||
-                                     mobile.includes(searchText) ||
-                                     gst.includes(searchText);
-
-                if (matchesSearch) {
-                    $(this).show();
-                    visibleCount++;
-                } else {
-                    $(this).hide();
-                }
-            });
-
-            // Empty state
-            if (visibleCount === 0) {
-                $('#emptyState').removeClass('d-none').hide().fadeIn(300);
-            } else {
-                $('#emptyState').fadeOut(300, function() {
-                    $(this).addClass('d-none');
-                });
+        const opt = {
+            margin: [0, 0, 0, 0],
+            filename: `Invoice_${invoiceNo}_${customerName}_${currentDate}.pdf`,
+            image: {
+                type: 'png',
+                quality: 0.98
+            },
+            html2canvas: {
+                scale: 3,
+                useCORS: true,
+                letterRendering: true,
+                allowTaint: false,
+                backgroundColor: '#ffffff',
+                scrollY: 0,
+                scrollX: 0,
+                width: 794,
+                height: 559
+            },
+            jsPDF: {
+                unit: 'mm',
+                format: [148, 210],
+                orientation: 'landscape',
+                compress: true
             }
-        }
-
-        $('#dealerSearch').on('input', filterDealerCards);
-
-        // ========================================
-        // CARD ANIMATIONS
-        // ========================================
-
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -50px 0px'
         };
 
-        const observer = new IntersectionObserver(function(entries) {
-            entries.forEach(function(entry, index) {
-                if (entry.isIntersecting) {
-                    setTimeout(function() {
-                        entry.target.style.opacity = '0';
-                        entry.target.style.transform = 'translateY(30px)';
-                        entry.target.style.transition = 'all 0.6s ease';
-
-                        setTimeout(function() {
-                            entry.target.style.opacity = '1';
-                            entry.target.style.transform = 'translateY(0)';
-                        }, 50);
-                    }, index * 50);
-
-                    observer.unobserve(entry.target);
-                }
+        html2pdf()
+            .set(opt)
+            .from(element)
+            .save()
+            .then(() => {
+                btn.innerHTML = '<i class="fas fa-check"></i> PDF Downloaded!';
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                    pdfGenerating = false;
+                }, 2000);
+            })
+            .catch((error) => {
+                console.error('PDF generation failed:', error);
+                alert('PDF generation failed. Please try the print option or contact support.');
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                pdfGenerating = false;
             });
-        }, observerOptions);
+    }
 
-        document.querySelectorAll('.dealer-card-wrapper').forEach(function(card) {
-            observer.observe(card);
-        });
-
-        // ========================================
-        // KEYBOARD SHORTCUTS
-        // ========================================
-
-        $(document).on('keydown', function(e) {
-            // Ctrl+K for search
-            if (e.ctrlKey && e.key === 'k') {
-                e.preventDefault();
-                $('#dealerSearch').focus();
+    // ========== KEYBOARD SHORTCUTS ==========
+    document.addEventListener('keydown', function(event) {
+        if (event.ctrlKey || event.metaKey) {
+            switch(event.key.toLowerCase()) {
+                case 'p':
+                    event.preventDefault();
+                    printInvoice();
+                    break;
+                case 's':
+                    event.preventDefault();
+                    const pdfBtn = document.getElementById('pdfDownloadBtn');
+                    if (!pdfBtn.disabled) {
+                        downloadPDF(pdfBtn);
+                    }
+                    break;
+                case 'h':
+                    event.preventDefault();
+                    window.location.href = '${pageContext.request.contextPath}/login/home';
+                    break;
             }
-            // Ctrl+N for new dealer
-            if (e.ctrlKey && e.key === 'n') {
-                e.preventDefault();
-                $('input[name="dealerName"]').focus();
-            }
-            // ESC to close popups and sidebar on mobile
-            if (e.key === 'Escape') {
-                $('.bank-details-popup').removeClass('show');
-                if ($(window).width() < 992 && $('body').hasClass('sb-sidenav-toggled')) {
-                    $('body').removeClass('sb-sidenav-toggled');
-                    $('body').css('overflow', '');
-                }
-            }
-        });
-
-        // ========================================
-        // FORM VALIDATION
-        // ========================================
-
-        $('form[modelAttribute="dealer"]').on('submit', function(e) {
-            const dealerName = $('input[name="dealerName"]').val().trim();
-            if (!dealerName) {
-                e.preventDefault();
-                alert('Please enter dealer name');
-                $('input[name="dealerName"]').focus();
-                return false;
-            }
-        });
-
-
-        // Smooth scroll to top button
-        const scrollBtn = $('<button>', {
-            class: 'btn btn-primary',
-            style: 'position: fixed; bottom: 2rem; right: 2rem; z-index: 1000; border-radius: 50%; width: 50px; height: 50px; display: none; box-shadow: 0 10px 25px rgba(0,0,0,0.2);',
-            html: '<i class="fas fa-arrow-up"></i>',
-            title: 'Scroll to top'
-        }).appendTo('body');
-
-        $(window).scroll(function() {
-            if ($(this).scrollTop() > 300) {
-                scrollBtn.fadeIn();
-            } else {
-                scrollBtn.fadeOut();
-            }
-        });
-
-        scrollBtn.on('click', function() {
-            $('html, body').animate({ scrollTop: 0 }, 600);
-        });
-
-        console.log('✓ Dealer Management System Loaded');
-        console.log('✓ Total Dealers:', $('#dealerCards .dealer-card-wrapper').length);
+        }
     });
 
-})();
+    // ========== PRINT EVENT HANDLERS ==========
+    window.addEventListener('beforeprint', function() {
+        document.body.style.background = 'white';
+    });
 
+    window.addEventListener('afterprint', function() {
+        document.body.style.background = 'linear-gradient(135deg, #f0f4ff 0%, #e0e7ff 50%, #f8fafc 100%)';
+    });
 
-function viewInvoice(index) {
-        const input = document.getElementById('invoiceInput' + index);
-        const invoiceId = input.value.trim();
-
-        if (invoiceId) {
-            const url = `http://localhost:8080/dealers/view-dealer/${invoiceId}`;
-
-        } else {
-            alert("Please enter a valid invoice number.");
-        }
-    }
+    // ========== CONSOLE MESSAGE ==========
+    console.log('%c Invoice Template - A5 Landscape Optimized! ', 'background: #1e40af; color: white; padding: 10px; font-size: 14px; font-weight: bold;');
+    console.log('%c ✓ Increased font sizes for better print readability', 'color: green; font-weight: bold;');
+    console.log('%c ✓ Auto-download enabled when downloadflag=true', 'color: green; font-weight: bold;');
+    console.log('%c ✓ Minimum 8 products fit on single page', 'color: green; font-weight: bold;');
+    console.log('%c Keyboard Shortcuts: Ctrl+P (Print) | Ctrl+S (PDF) | Ctrl+H (Home)', 'font-style: italic;');
 </script>
+
 </body>
 </html>

@@ -328,7 +328,7 @@
                             <tr class="invoice-row"
                                 data-type="${invoice.invoiceType}"
                                 data-items="${fn:escapeXml(invoice.itemDetails)}"
-                                onclick="window.open('${pageContext.request.contextPath}/company/get-invoice/${invoice.custId}/${invoice.invoiceId}', '_blank')">
+                                onclick="window.open('${pageContext.request.contextPath}/invoices/download-invoice-pdf/${invoice.custId}/${invoice.invoiceId}', '_blank')">
                                 <td>${i.index + 1}</td>
                                 <td><strong>#${invoice.invoiceId}</strong></td>
                                 <td>${invoice.custName}</td>
@@ -355,7 +355,7 @@
                                 </td>
                                 <td onclick="event.stopPropagation()">
                                     <div class="action-buttons">
-                                        <a href="${pageContext.request.contextPath}/company/get-invoice/${invoice.custId}/${invoice.invoiceId}"
+                                        <a href="${pageContext.request.contextPath}/invoices/download-invoice-pdf/${invoice.custId}/${invoice.invoiceId}"
                                            class="btn btn-primary btn-action" target="_blank" title="View Invoice">
                                             <i class="fas fa-eye"></i>
                                         </a>
@@ -529,7 +529,7 @@ var itemsDisplay =
         ? invoice.itemDetails
         : '<span class="text-muted">No items</span>';
         html += '<tr class="invoice-row fade-in" data-type="' + invoice.invoiceType + '" ' +
-            'onclick="window.open(\'' + contextPath + '/company/get-invoice/' + invoice.custId + '/' + invoice.invoiceId + '\', \'_blank\')">' +
+            'onclick="window.open(\'' + contextPath + '/invoices/download-invoice-pdf/' + invoice.custId + '/' + invoice.invoiceId + '\', \'_blank\')">' +
             '<td>' + (i + 1) + '</td>' +
             '<td><strong>#' + (invoice.invoiceId || 'N/A') + '</strong></td>' +
             '<td>' + escapeHtml(invoice.custName || 'N/A') + '</td>' +
@@ -540,7 +540,7 @@ var itemsDisplay =
             '<td>' + (invoice.totQty || 0) + '</td>' +
             '<td><span class="badge ' + badgeClass + '">' + (invoice.invoiceType || 'UNKNOWN') + '</span></td>' +
             '<td onclick="event.stopPropagation()"><div class="action-buttons">' +
-            '<a href="' + contextPath + '/company/get-invoice/' + invoice.custId + '/' + invoice.invoiceId + '" ' +
+            '<a href="' + contextPath + '/invoices/download-invoice-pdf/' + invoice.custId + '/' + invoice.invoiceId + '" ' +
             'class="btn btn-primary btn-action" target="_blank" title="View Invoice">' +
             '<i class="fas fa-eye"></i></a>' +
             '</div></td>' +

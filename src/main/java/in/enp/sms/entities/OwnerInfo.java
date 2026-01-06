@@ -26,6 +26,10 @@ public class OwnerInfo {
     private int planDuration;
     private String invoiceColms;
 
+    private String accountNo;
+    private String bankName;
+    private String ifscCode;
+
     private Date expDate;
 
     public OwnerInfo() {
@@ -49,12 +53,12 @@ public class OwnerInfo {
     }
 
 
-    public OwnerInfo(String shopName, String status, String ownerId, String userName, String address, String email, String mobNumber, String ownerName, String lcNo, String gstNumber, String invoiceType, String upiId, String date, int planDuration, Date expDate) {
+    public OwnerInfo(String shopName, String ownerId, String status, String address, String userName, String email, String mobNumber, String ownerName, String lcNo, String gstNumber, String invoiceType, String upiId, String terms, String date, int planDuration, String invoiceColms, String accountNo, String bankName, String ifscCode, Date expDate) {
         this.shopName = shopName;
-        this.status = status;
         this.ownerId = ownerId;
-        this.userName = userName;
+        this.status = status;
         this.address = address;
+        this.userName = userName;
         this.email = email;
         this.mobNumber = mobNumber;
         this.ownerName = ownerName;
@@ -62,8 +66,13 @@ public class OwnerInfo {
         this.gstNumber = gstNumber;
         this.invoiceType = invoiceType;
         this.upiId = upiId;
+        this.terms = terms;
         this.date = date;
         this.planDuration = planDuration;
+        this.invoiceColms = invoiceColms;
+        this.accountNo = accountNo;
+        this.bankName = bankName;
+        this.ifscCode = ifscCode;
         this.expDate = expDate;
     }
 
@@ -201,5 +210,29 @@ public class OwnerInfo {
 
     public void setExpDate(Date expDate) {
         this.expDate = expDate;
+    }
+
+    public String getIfscCode() {
+        return ifscCode;
+    }
+
+    public void setIfscCode(String ifscCode) {
+        this.ifscCode = ifscCode;
+    }
+
+    public String getAccountNo() {
+        return accountNo;
+    }
+
+    public void setAccountNo(String accountNo) {
+        this.accountNo = accountNo;
+    }
+
+    public String getBankName() {
+        return bankName;
+    }
+
+    public void setBankName(String bankName) {
+        this.bankName = bankName;
     }
 }
