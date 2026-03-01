@@ -300,9 +300,8 @@ public class CompanyController {
 
 
 
-
     private void processInvoiceWithItems(
-            InvoiceDetails itemDetails,
+            InvoiceDetails invoiceDetails,
             List<ItemDetails> items,
             CustProfile profile,
             Model model,
@@ -314,28 +313,22 @@ public class CompanyController {
 
         boolean isExisting =
                 invoiceDetailsRepository.existsById(
-                        itemDetails.getInvoiceId());
+                        invoiceDetails.getInvoiceId());
 
-        LOGGER.info("Invoice exists: {}", isExisting);
-
-        // ===== SAME BUSINESS LOGIC =====
-
+        // ===== ITEM + TOTALS =====
         String itemSummary =
                 invoiceService.generateItemSummary(items);
-
-        // itemRepository.saveAll(items);   // avoid duplicate save
 
         Map<String, Double> totals =
                 invoiceService.computeTotals(items);
 
-        LOGGER.info("Invoice totals calculated - Total Amount: {}",
-                totals.get("totalAmount"));
+        invoiceDetails.setItemDetails(itemSummary);
+        invoiceDetails.setOwnerId(
+                Utility.getOwnerIdFromSession(request));
 
-        itemDetails.setItemDetails(itemSummary);
-
-        if (!isExisting){
+        if (!isExisting) {
             invoiceService.populateInvoiceMetadata(
-                    itemDetails,
+                    invoiceDetails,
                     profile,
                     totals,
                     SecurityContextHolder.getContext()
@@ -343,60 +336,41 @@ public class CompanyController {
                             .getName());
         }
 
-
-        itemDetails.setOwnerId(
-                Utility.getOwnerIdFromSession(request));
-
-        invoiceDetailsRepository.save(itemDetails);
-
-        LOGGER.info("Invoice details saved for Invoice ID: {}",
-                itemDetails.getInvoiceId());
-
         OwnerSession ownerSession =
                 (OwnerSession) session.getAttribute("sessionOwner");
 
-        // ===== BALANCE UPDATE SAME =====
-
+        // ===== BALANCE UPDATE =====
         if (!isExisting) {
-
-            double totalAmt =
-                    totals.get("totalAmount");
-
-            profile =
-                    updateCustomerBalance(
-                            profile,
-                            totalAmt,
-                            itemDetails.getAdvanAmt());
+            profile = updateCustomerBalance(
+                    profile,
+                    totals.get("totalAmount"),
+                    invoiceDetails.getAdvanAmt());
 
             updateInvoiceNumber(
                     Utility.getOwnerIdFromSession(request));
         }
 
-        // ===== ASYNC MAIL – SAFE =====
-
+        // ===== ASYNC MAIL =====
         final CustProfile finalProfile = profile;
         final OwnerSession finalOwner = ownerSession;
         final List<ItemDetails> finalItems = items;
 
         CompletableFuture.runAsync(() -> {
             try {
-
                 sendMailOwner(
-                        itemDetails,
+                        invoiceDetails,
                         finalProfile,
                         finalOwner,
                         finalItems);
-
             } catch (Exception ex) {
                 LOGGER.error(
                         "Async mail failed for invoice: {}",
-                        itemDetails.getInvoiceId(),
+                        invoiceDetails.getInvoiceId(),
                         ex);
             }
         });
 
-        // ===== PDF RENDER PART REFERRED FROM BELOW =====
-
+        // ===== PDF GENERATION =====
         InvoicePdfGenerator pdfGenerator =
                 new InvoicePdfGenerator();
 
@@ -404,50 +378,88 @@ public class CompanyController {
                 Utility.parseInvoiceColumns(
                         ownerSession.getInvoiceColms());
 
-        // ---- QR CODE SAME ----
-
+        // ---- QR ----
         String qrCodeBase64 = null;
-
         if (ownerSession.getUpiId() != null &&
                 !ownerSession.getUpiId().trim().isEmpty()) {
-
             try {
-
                 qrCodeBase64 =
                         UPIQrUtil.generateUpiQrBase64(
                                 ownerSession.getUpiId(),
                                 finalProfile.getCurrentOusting());
-
             } catch (Exception e) {
-                LOGGER.warn(
-                        "Failed to generate QR code", e);
+                LOGGER.warn("QR generation failed", e);
             }
         }
 
-        // ---- GENERATE PDF ----
+        // ===== LOCAL FILE STORAGE SETUP =====
+        String invoicesDir = System.getProperty("user.home") + File.separator + "BillMatePro"+File.separator + ownerSession.getShopName();
 
+        String fileName = invoiceDetails.getInvoiceId() + ".pdf";
+
+        String filePath = invoicesDir + File.separator + invoiceDetails.getCustName() +  File.separator + "INVOICES"+  File.separator ;
+        File directory = new File(filePath);
+        if (!directory.exists()) {
+            directory.mkdirs();
+            LOGGER.info("Created invoices directory: {}", invoicesDir);
+        }
+        File pdfFile = new File(filePath+fileName);
+
+        // ===== SAVE PDF TO LOCAL FILE =====
+        try (FileOutputStream fileOutputStream = new FileOutputStream(pdfFile)) {
+            pdfGenerator.generateInvoicePdf(
+                    invoiceDetails,
+                    finalProfile,
+                    items,
+                    ownerSession,
+                    invoiceColumns,
+                    qrCodeBase64,
+                    fileOutputStream
+            );
+
+            LOGGER.info("PDF saved to local path: {}", filePath);
+        } catch (Exception e) {
+            LOGGER.error("Failed to save PDF to local path: {}", filePath, e);
+            throw e;
+        }
+
+        // ===== STORE FILE PATH IN DATABASE =====
+        invoiceDetails.setFilePath(PathCryptoUtil.encrypt(filePath+fileName));
+        invoiceDetailsRepository.save(invoiceDetails);
+
+        LOGGER.info("Invoice saved with file path: {}", filePath+fileName);
+
+        // ===== RESPONSE HEADERS (IMPORTANT) =====
+        response.reset();
         response.setContentType("application/pdf");
+        response.setHeader(
+                "Content-Disposition",
+                "inline; filename=" + fileName);
+        response.setHeader("Cache-Control", "no-store");
 
-        pdfGenerator.generateInvoicePdf(
-                itemDetails,
-                finalProfile,
-                items,
-                ownerSession,
-                invoiceColumns,
-                qrCodeBase64,
-                response.getOutputStream());
+        // ===== SEND PDF TO RESPONSE =====
+        try (FileInputStream fileInputStream = new FileInputStream(pdfFile)) {
+            byte[] buffer = new byte[4096];
+            int bytesRead;
+            OutputStream outputStream = response.getOutputStream();
 
-        response.getOutputStream().flush();
+            while ((bytesRead = fileInputStream.read(buffer)) != -1) {
+                outputStream.write(buffer, 0, bytesRead);
+            }
 
-        LOGGER.info("PDF rendered successfully: {}",
-                itemDetails.getInvoiceId());
+            outputStream.flush();
+        }
 
-        // stock update should be ONLY once
-        updateStockForOldInvoice(
-                itemDetails.getInvoiceId());
+        response.flushBuffer();
+
+        LOGGER.info("PDF rendered successfully: {}", invoiceDetails.getInvoiceId());
+
+        // ===== STOCK UPDATE (ONLY ON NEW) =====
+        if (!isExisting) {
+            updateStockForOldInvoice(
+                    invoiceDetails.getInvoiceId());
+        }
     }
-
-
 
     private void populateInvoiceModelAttributes(Model model,
                                                 Map<String, Double> totals,
@@ -1031,6 +1043,7 @@ public class CompanyController {
         map.put("itemDetails", invoice.getItemDetails());
         map.put("tax", invoice.getTax());
         map.put("invoiceType", invoice.getInvoiceType());
+        map.put("filePath", invoice.getFilePath());
         return map;
     }
 
@@ -1749,36 +1762,89 @@ public class CompanyController {
     }
 
     @GetMapping("/get-bal-credit-receipt/{slipNo}")
-    public String getBalanceCreditReceipt(Model model, HttpSession session, @PathVariable String slipNo) {
+    public void getBalanceCreditReceipt(HttpSession session,
+                                        @PathVariable String slipNo,
+                                        HttpServletResponse response) {
         LOGGER.info("Retrieving balance credit receipt for slip: {}", slipNo);
 
         try {
             OwnerSession ownerInfo = (OwnerSession) session.getAttribute("sessionOwner");
 
-            BalanceDeposite balanceDeposite = balanceDepositeRepository.findById(slipNo)
-                    .orElseThrow(() -> new RuntimeException("Receipt not found"));
-
-            Optional<CustProfile> profileOpt = custProfileRepository.findById(balanceDeposite.getCustId());
-            CustProfile profile = profileOpt.orElse(new CustProfile());
-
-            if (profileOpt.isPresent()) {
-                profile.setCurrentOusting(balanceDeposite.getCurrentOusting() - balanceDeposite.getAdvAmt());
+            if (ownerInfo == null) {
+                throw new RuntimeException("Session expired. Please login again.");
             }
 
-            model.addAttribute("profile", profile);
-            model.addAttribute("balanceDeposite", balanceDeposite);
-            model.addAttribute("AMOUNT_WORD", AmountInWordUtility.convertToWords(balanceDeposite.getAdvAmt()));
-            model.addAttribute("ownerInfo", ownerInfo);
+            // Fetch balance deposit details
+            BalanceDeposite balanceDeposite = balanceDepositeRepository.findById(slipNo)
+                    .orElseThrow(() -> new RuntimeException("Receipt not found: " + slipNo));
 
-            LOGGER.info("Balance credit receipt retrieved successfully for slip: {}", slipNo);
+            // Fetch customer profile
+            CustProfile profile = custProfileRepository.findById(balanceDeposite.getCustId())
+                    .orElseThrow(() -> new RuntimeException("Customer not found: " + balanceDeposite.getCustId()));
 
-            return "A4".equals(ownerInfo.getInvoiceType()) ? "payment-receipt" : "payment-receipt-th";
+            // Convert amount to words
+            String amountInWords = AmountInWordUtility.convertToWords(balanceDeposite.getAdvAmt());
 
+            // Generate QR code (optional - if you have QR generation logic)
+            String qrCodeBase64 = UPIQrUtil.generateUpiQrBase64(ownerInfo.getUpiId(), profile.getCurrentOusting());
+            // Generate PDF
+            PaymentReceiptPdfGenerator pdfGenerator = new PaymentReceiptPdfGenerator();
+            byte[] pdfBytes = pdfGenerator.generatePaymentReceiptPdfToByteArray(
+                    balanceDeposite,
+                    profile,
+                    ownerInfo,
+                    qrCodeBase64,
+                    amountInWords
+            );
+
+            // Set response headers
+            response.setContentType("application/pdf");
+            response.setHeader("Content-Disposition",
+                    "inline; filename=payment_receipt_" + slipNo + ".pdf");
+            response.setContentLength(pdfBytes.length);
+
+            // Write PDF to response
+            response.getOutputStream().write(pdfBytes);
+            response.getOutputStream().flush();
+
+            LOGGER.info("Payment receipt PDF generated successfully for slip: {}", slipNo);
 
         } catch (Exception e) {
-            LOGGER.error("Error retrieving balance credit receipt", e);
-            model.addAttribute("error", "Error loading receipt: " + e.getMessage());
-            return ERROR_PAGE;
+            LOGGER.error("Error generating payment receipt PDF for slip: {}", slipNo, e);
+            try {
+                response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+                        "Error generating receipt: " + e.getMessage());
+            } catch (IOException ioException) {
+                LOGGER.error("Error sending error response", ioException);
+            }
+        }
+    }
+
+
+    private String generateQRCodeForPayment(OwnerSession ownerInfo, BalanceDeposite balanceDeposite) {
+        try {
+            if (ownerInfo.getUpiId() == null || ownerInfo.getUpiId().isEmpty()) {
+                return null;
+            }
+
+            // UPI payment string format
+            String upiString = String.format(
+                    "upi://pay?pa=%s&pn=%s&am=%.2f&tn=Receipt_%s",
+                    ownerInfo.getUpiId(),
+                    ownerInfo.getShopName(),
+                    balanceDeposite.getAdvAmt(),
+                    balanceDeposite.getId()
+            );
+
+            //Generate QR code (you'll need to implement or use existing QR generation)
+            // byte[] qrCodeImage = QRCodeGenerator.generateQRCode(upiString, 200, 200);
+            // return Base64.getEncoder().encodeToString(qrCodeImage);
+
+            return null; // Return null if QR generation not implemented
+
+        } catch (Exception e) {
+            LOGGER.warn("Failed to generate QR code for payment", e);
+            return null;
         }
     }
 

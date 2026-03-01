@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.util.StreamUtils;
+import org.springframework.util.StringUtils;
 
 import javax.mail.*;
 import javax.mail.internet.*;
@@ -456,8 +457,14 @@ public class MailUtil {
         ExecutorService emailExecutor = Executors.newSingleThreadExecutor();
         emailExecutor.execute(() -> {
             try {
-                MailUtil.sendMail(profile.getEmail(), emailContent, subjectCust);
-                MailUtil.sendMail(ownerInfo.getEmail(), emailContent, subjectOwner);
+                if (profile != null && StringUtils.hasText(profile.getEmail())) {
+                    MailUtil.sendMail(profile.getEmail(), emailContent, subjectCust);
+                }
+
+                if (ownerInfo != null && StringUtils.hasText(ownerInfo.getEmail())) {
+                    MailUtil.sendMail(ownerInfo.getEmail(), emailContent, subjectOwner);
+                }
+
                 logger.info("Emails sent successfully for invoice ID: {}", itemDetails.getInvoiceId());
             } catch (Exception e) {
                 logger.error("Failed to send emails for invoice ID: {}", itemDetails.getInvoiceId(), e);

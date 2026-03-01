@@ -7,29 +7,33 @@ import in.enp.sms.repository.InvoiceDetailsRepository;
 import in.enp.sms.repository.ItemRepository;
 import in.enp.sms.repository.OwnerInfoRepository;
 import in.enp.sms.utility.InvoicePdfGenerator;
+import in.enp.sms.utility.PathCryptoUtil;
 import in.enp.sms.utility.UPIQrUtil;
 import in.enp.sms.utility.Utility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ContentDisposition;
+
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.io.File;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * Controller methods demonstrating integration with InvoicePdfGenerator
@@ -52,6 +56,8 @@ public class InvoicePdfController {
 
     @Autowired
     private OwnerInfoRepository ownerInfoRepository;
+
+
 
     /**
      * Method 1: Download Invoice as PDF
@@ -116,6 +122,10 @@ public class InvoicePdfController {
                     LOGGER.warn("Failed to generate QR code", e);
                 }
             }
+
+
+            byte[] pdfBytes = pdfGenerator.generateInvoicePdfToByteArray(
+                    invoiceDetails, customer, items, ownerSession, invoiceColumns);
 
             // Generate PDF with or without QR
             pdfGenerator.generateInvoicePdf(
@@ -215,7 +225,7 @@ public class InvoicePdfController {
             String pdfPath = savePdfToFileSystem(pdfBytes, invoiceDetails.getInvoiceId(), customer.getId());
 
             // Update invoice with PDF path
-            invoiceDetails.setFilePath(pdfPath);
+            invoiceDetails.setFilePath(PathCryptoUtil.encrypt(pdfPath));
             invoiceDetailsRepository.save(invoiceDetails);
 
             LOGGER.info("PDF generated and saved for invoice: {}", invoiceDetails.getInvoiceId());
@@ -340,6 +350,8 @@ public class InvoicePdfController {
                     invoiceDetails, customer, items, ownerSession, invoiceColumns
             );
 
+
+
             // Send email with PDF attachment
             String filename = generateFilename(customer.getCustName(), invoiceId);
             boolean emailSent = sendInvoiceEmail(emailTo, pdfBytes, filename, invoiceDetails, ownerInfo);
@@ -428,6 +440,58 @@ public class InvoicePdfController {
         } catch (Exception e) {
             LOGGER.error("Error sending email", e);
             return false;
+        }
+    }
+
+    @GetMapping("/view")
+    public ResponseEntity<Resource> viewPdf(@RequestParam("p") String encryptedPath) {
+        return servePdf(encryptedPath, false);
+    }
+
+    @GetMapping("/download")
+    public ResponseEntity<Resource> downloadPdf(@RequestParam("p") String encryptedPath) {
+        return servePdf(encryptedPath, true);
+    }
+
+    private ResponseEntity<Resource> servePdf(String encryptedPath, boolean download) {
+
+        try {
+            // 🔐 Decrypt path
+            String filePath = PathCryptoUtil.decrypt(encryptedPath);
+
+            File file = new File(filePath);
+
+            if (!file.exists() || !file.getName().endsWith(".pdf")) {
+                return ResponseEntity.notFound().build();
+            }
+
+            Resource resource = new FileSystemResource(file);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_PDF);
+            headers.set("X-Frame-Options", "SAMEORIGIN"); // Allow iframe
+
+
+            if (download) {
+                headers.add(
+                        HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=\"" + file.getName() + "\""
+                );
+            } else {
+                headers.add(
+                        HttpHeaders.CONTENT_DISPOSITION,
+                        "inline; filename=\"" + file.getName() + "\""
+                );
+            }
+
+
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .contentLength(file.length())
+                    .body(resource);
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 }

@@ -27,6 +27,8 @@ public class InvoicePdfGenerator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(InvoicePdfGenerator.class);
 
+
+
     // Page Configuration
     private static final Rectangle PAGE_SIZE = new Rectangle(PageSize.A5.getHeight(), PageSize.A5.getWidth());
     private static final float[] MARGINS = {20, 20, 20, 20};
@@ -46,7 +48,6 @@ public class InvoicePdfGenerator {
 
     // Font Configuration
     private Font fontCompanyName;
-    private Font fontCompanyNameLarge;
     private Font fontSectionTitle;
     private Font fontSectionTitleBold;
     private Font fontNormal;
@@ -98,6 +99,7 @@ public class InvoicePdfGenerator {
 
         document.close();
         LOGGER.info("Enhanced invoice PDF generated: {}", invoiceDetails.getInvoiceId());
+
     }
 
     public byte[] generateInvoicePdfToByteArray(
@@ -108,7 +110,13 @@ public class InvoicePdfGenerator {
             List<String> invoiceColumns) throws Exception {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         generateInvoicePdf(invoiceDetails, customer, items, ownerInfo, invoiceColumns, out);
-        return out.toByteArray();
+        // 2. Upload to Google
+        byte[]    pdfBytes = out.toByteArray();
+
+
+
+
+        return pdfBytes;
     }
 
     private void initializeFonts() {
@@ -117,7 +125,6 @@ public class InvoicePdfGenerator {
             BaseFont bold = BaseFont.createFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
 
             fontCompanyName = new Font(bold, 16, Font.BOLD, PRIMARY_DARK);
-            fontCompanyNameLarge = new Font(bold, 18, Font.BOLD, PRIMARY_DARK);
             fontSectionTitle = new Font(bold, 10, Font.BOLD, TEXT_DARK);
             fontSectionTitleBold = new Font(bold, 11, Font.BOLD, PRIMARY_ACCENT);
             fontNormal = new Font(regular, 8, Font.NORMAL, TEXT_DARK);
@@ -179,7 +186,7 @@ public class InvoicePdfGenerator {
         document.add(headerTable);
     }
 
-    private PdfPCell createEnhancedCompanyCell(OwnerSession owner) throws Exception {
+    public PdfPCell createEnhancedCompanyCell(OwnerSession owner) throws Exception {
 
         PdfPCell cell = new PdfPCell();
         cell.setBorder(Rectangle.NO_BORDER);

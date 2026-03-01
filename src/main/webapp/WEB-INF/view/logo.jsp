@@ -1964,104 +1964,110 @@ table.dataTable tbody td {
 
 
         <script>
-          // Example product list
-          const productList = ["Product1", "Product2"]; // Replace with your actual data
-          const productCount = productList ? productList.length : 0;
+            // Example product list
+            const productList = ["Product1", "Product2"]; // Replace with your actual data
+            const productCount = productList ? productList.length : 0;
 
-          const container = document.getElementById('notificationContainer');
-          const badge = document.getElementById('notificationBadge');
+            const container = document.getElementById('notificationContainer');
+            const badge = document.getElementById('notificationBadge');
 
-          if (productCount > 0) {
-            badge.textContent = productCount;  // Add count to badge
-          } else {
-            container.style.display = 'none'; // Hide bell + badge if no items
-          }
+            if (productCount > 0) {
+                badge.textContent = productCount;
+            } else if (container) {
+                container.style.display = 'none';
+            }
 
+            /* -------------------------
+               Loader logic with 10s auto-hide
+            -------------------------- */
+            let loaderTimer = null;
 
-      function showLoader() {
-          const loader = document.getElementById("pageLoader");
-          if (loader) {
-              loader.style.display = "block";
-          }
-      }
+            function showLoader() {
+                const loader = document.getElementById("pageLoader");
+                if (!loader) return;
 
-      function hideLoader() {
-          const loader = document.getElementById("pageLoader");
-          if (loader) {
-              loader.style.display = "none";
-          }
-      }
+                loader.style.display = "block";
 
+                // Auto hide after 10 seconds (failsafe)
+                clearTimeout(loaderTimer);
+                loaderTimer = setTimeout(() => {
+                    hideLoader();
+                }, 10000);
+            }
 
-          /* -------------------------
-             1. For all <a> clicks
-          -------------------------- */
-          document.addEventListener("click", function(e) {
-              let target = e.target.closest("a");
-              if (target && target.getAttribute("href") && target.getAttribute("href") !== "#") {
-                  showLoader();
-              }
-          });
+            function hideLoader() {
+                const loader = document.getElementById("pageLoader");
+                if (!loader) return;
 
-          /* -------------------------
-             2. For all form submits
-          -------------------------- */
-          document.addEventListener("submit", function(e) {
-              showLoader();
-          });
+                loader.style.display = "none";
+                clearTimeout(loaderTimer);
+            }
 
-          /* -------------------------
-             3. For all AJAX calls
-          -------------------------- */
+            /* -------------------------
+               1. For all <a> clicks
+            -------------------------- */
+            document.addEventListener("click", function (e) {
+                const link = e.target.closest("a");
+                if (!link) return;
 
-          // jQuery Ajax
-          if (window.jQuery) {
-              $(document).ajaxStart(function() {
-                  showLoader();
-              });
+                const href = link.getAttribute("href");
+                const target = link.getAttribute("target");
 
-              $(document).ajaxStop(function() {
-                  hideLoader();
-              });
-          }
+                // Skip hash, empty, new tab, and downloads
+                if (!href || href === "#" || target === "_blank" || link.hasAttribute("download")) {
+                    return;
+                }
 
-          // For fetch()
-          (function() {
-              const origFetch = window.fetch;
-              window.fetch = function() {
-                  showLoader();
-                  return origFetch.apply(this, arguments)
-                      .finally(() => hideLoader());
-              }
-          })();
+                showLoader();
+            });
 
+            /* -------------------------
+               2. For all form submits
+            -------------------------- */
+            document.addEventListener("submit", function () {
+                showLoader();
+            });
 
+            /* -------------------------
+               3. For all AJAX calls
+            -------------------------- */
 
-              // Hide loader when browser goes back (bfcache restore)
-              window.addEventListener("pageshow", function (event) {
-                  const loader = document.getElementById("pageLoader");
+            // jQuery Ajax
+            if (window.jQuery) {
+                $(document).ajaxStart(function () {
+                    showLoader();
+                });
 
-                  // Detect BACK/FORWARD navigation
-                  const navEntry = performance.getEntriesByType("navigation")[0];
+                $(document).ajaxStop(function () {
+                    hideLoader();
+                });
+            }
 
-                  if (event.persisted || (navEntry && navEntry.type === "back_forward")) {
-                      if (loader) loader.style.display = "none";
-                  }
-              });
+            // fetch()
+            (function () {
+                const origFetch = window.fetch;
+                window.fetch = function () {
+                    showLoader();
+                    return origFetch.apply(this, arguments)
+                        .finally(() => hideLoader());
+                };
+            })();
 
+            /* -------------------------
+               Hide loader on BACK / BFCache restore
+            -------------------------- */
+            window.addEventListener("pageshow", function (event) {
+                const navEntry = performance.getEntriesByType("navigation")[0];
+                if (event.persisted || (navEntry && navEntry.type === "back_forward")) {
+                    hideLoader();
+                }
+            });
         </script>
+
  <div class="d-flex align-items-center ms-auto">
 
 
-            <!-- Example user profile dropdown -->
-            <div class="dropdown">
-                <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                    ${sessionScope.userName}
-                </button>
-                <ul class="dropdown-menu dropdown-menu-end">
-                    <li><a class="dropdown-item" href="${pageContext.request.contextPath}/logout">Logout</a></li>
-                </ul>
-            </div>
+
         </div>
        <div class="dropdown">
            <a class="nav-link dropdown-toggle text-primary" id="navbarDropdown" href="#"

@@ -349,77 +349,7 @@
           </div>
         </div>
 
-        <!-- EXPENSES SECTION -->
-        <div class="row g-4 mt-2">
-          <!-- Daily Expenses -->
-          <div class="col-lg-6">
-            <div class="card enhanced-card fade-in-up">
-              <div class="card-body">
-                <div class="section-header">
-                  <h6 class="section-title mb-0">
-                    <i class="fa-solid fa-calendar-day me-2 text-primary"></i>Today's Expenses
-                  </h6>
-                </div>
 
-                <div class="expenses-container" style="max-height: 400px; overflow-y: auto;">
-                  <c:forEach var="exp" items="${dailyExpenses}" varStatus="status">
-                    <div class="expense-item p-3 mb-3">
-                      <div class="d-flex align-items-center justify-content-between">
-                        <div class="d-flex align-items-center">
-                          <div class="expense-icon me-3">
-                            <i class="fa-solid fa-receipt"></i>
-                          </div>
-                          <div>
-                            <h6 class="fw-semibold mb-1">${exp.expenseName}</h6>
-                            <small class="text-muted">
-                              <i class="fas fa-calendar me-1"></i>
-                              <fmt:formatDate value="${exp.date}" pattern="dd MMM yyyy"/>
-                            </small>
-                          </div>
-                        </div>
-                        <div class="text-end">
-                          <div class="fs-5 fw-bold text-danger">
-                            ₹<fmt:formatNumber value="${exp.amount}" type="number"/>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </c:forEach>
-
-                  <c:if test="${empty dailyExpenses}">
-                    <div class="text-center py-5">
-                      <div class="text-muted">
-                        <i class="fas fa-inbox fs-1 mb-3"></i>
-                        <p>No expenses recorded today</p>
-                        <a href="${pageContext.request.contextPath}/expenses" class="btn btn-primary btn-modern">
-                          <i class="fas fa-plus me-1"></i>Add Expense
-                        </a>
-                      </div>
-                    </div>
-                  </c:if>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Expenses Trend Chart -->
-          <div class="col-lg-6">
-            <div class="card chart-card h-100 fade-in-up">
-              <div class="card-body">
-                <div class="section-header">
-                  <h6 class="section-title mb-0">
-                    <i class="fa-solid fa-chart-line me-2 text-primary"></i>Expenses Trend
-                  </h6>
-                </div>
-
-                <div class="chart-container bg-light rounded-3 p-3">
-
-                </div>
-
-              </div>
-            </div>
-          </div>
-        </div>
 
       </div> <!-- /container-fluid -->
     </main>
